@@ -34,4 +34,8 @@ public class Sesion {
     public EstadoSesion getEstado() { 
         return estado; 
     }
+    @Override
+    public String toString() {
+        return "Sesion{ " + idSesion + ", " + materia + ", " + estado + "}";
+    }
 }

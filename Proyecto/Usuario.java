@@ -28,4 +28,8 @@ public class Usuario {
     public Rol getRol() { 
         return rol; 
     }
+    @Override
+    public String toString() {
+        return "Usuario{ " + idUsuario + ", " + nombre + ", " + rol + "}";
+    }
 }
