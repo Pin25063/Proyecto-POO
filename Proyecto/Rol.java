@@ -1,0 +1,3 @@
+public enum Rol { 
+    ESTUDIANTE, TUTOR, CATEDRATICO, AUXILIAR 
+}

@@ -1,3 +1,3 @@
-public enum EstadoSesion {
-    ESTADO_1, ESTADO_2 //Cambiar
+public enum EstadoSesion { 
+    PROGRAMADA, CANCELADA, COMPLETADA 
 }
