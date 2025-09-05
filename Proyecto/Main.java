@@ -8,7 +8,6 @@ public class Main {
         try {
             // Intentar cargar los usuarios desde el archivo CSV
             List<Usuario> usuarios = gestor.cargarUsuarios();
-
             // Verificar si se cargaron correctamente los usuarios
             if (usuarios.isEmpty()) {
                 System.out.println("No se han cargado usuarios.");
@@ -17,6 +16,18 @@ public class Main {
                 // Imprimir los usuarios cargados
                 for (Usuario usuario : usuarios) {
                     System.out.println(usuario.toString());
+                }
+            }
+            // Intentar cargar las sesiones desde el archivo CSV
+            List<Sesion> sesiones = gestor.cargarSesiones();
+            // Verificar si se cargaron correctamente las sesiones
+            if (sesiones.isEmpty()) {
+                System.out.println("No se han cargado sesiones.");
+            } else {
+                System.out.println("Sesiones cargadas desde el archivo CSV:");
+                // Imprimir las sesiones cargadas
+                for (Sesion sesion : sesiones) {
+                    System.out.println(sesion.toString());
                 }
             }
         } catch (IOException e) {
