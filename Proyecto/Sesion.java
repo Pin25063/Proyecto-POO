@@ -33,6 +33,9 @@ public class Sesion {
     public EstadoSesion getEstado() { 
         return estado; 
     }
+    public void setEstado(EstadoSesion estadoSesion){
+        this.estado = estadoSesion;
+    }
     @Override
     public String toString() {
         return "Sesion{ " + idSesion + ", " + materia + ", " + estado + "}";
