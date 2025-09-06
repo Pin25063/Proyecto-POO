@@ -4,7 +4,7 @@ public class Estudiante extends Usuario {
 private ArrayList<Sesion> historialSesiones;
     public Estudiante(int idUsuario, String nombre, String correo, String contrasena, Rol rol, ArrayList<Sesion> historialSesiones) {
         super(idUsuario, nombre, correo, contrasena, rol); 
-        this.historialSesiones = historialSesiones;
+        this.historialSesiones = new ArrayList<>();
     };
     
     public void agendarSesion(Sesion sesion) {
@@ -15,8 +15,15 @@ private ArrayList<Sesion> historialSesiones;
         return historialSesiones;
     }
 
-    public void setHistorialSesiones(ArrayList<Sesion> historialSesiones) {
-        this.historialSesiones = historialSesiones;
+    public void verHistorial() {
+        if (historialSesiones.isEmpty()) {
+            System.out.println("No tienes sesiones registradas.");
+        } else {
+            System.out.println("Historial de tus sesiones:");
+            for (Sesion sesion : historialSesiones) {
+                System.out.println(sesion);
+            }
+        }
     }
     //Los getters en Usuario ya estan heredados a Estudiante
     @Override
