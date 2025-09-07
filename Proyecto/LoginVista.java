@@ -16,6 +16,8 @@ public class LoginVista extends VBox {
         setPadding(new Insets(24));
         setSpacing(16);
         setAlignment(Pos.CENTER);
+        setFillWidth(false);
+        setMaxWidth(460);
 
         title.getStyleClass().add("titulo");
         txtCorreo.setPromptText("correo@uvg.edu.gt");
@@ -29,6 +31,12 @@ public class LoginVista extends VBox {
 
         HBox acciones = new HBox(10, btnIngresar, btnCrarCuenta, btnLimpiar);
         acciones.setAlignment(Pos.CENTER);
+
+        // Boton por defecto y cancel asi como el foco inicial
+        btnIngresar.setDefaultButton(true);
+        btnLimpiar.setCancelButton(true);
+        txtCorreo.requestFocus();
+
 
         getChildren().addAll(title, txtCorreo, txtPass, acciones);
     }
