@@ -12,13 +12,16 @@ public class LoginVista extends VBox {
     private final Button btnCrarCuenta = new Button("Crear Cuenta");
     private final Button btnLimpiar = new Button("Limpiar");
 
-    public LoginVista() {   
+    public LoginVista() { 
+        
+        //layout base  
         setPadding(new Insets(24));
         setSpacing(16);
         setAlignment(Pos.CENTER);
         setFillWidth(false);
         setMaxWidth(460);
 
+        //Controles
         title.getStyleClass().add("titulo");
         txtCorreo.setPromptText("correo@uvg.edu.gt");
         txtPass.setPromptText("Contraseña");
@@ -39,6 +42,19 @@ public class LoginVista extends VBox {
 
 
         getChildren().addAll(title, txtCorreo, txtPass, acciones);
+
+
+        //Validaciones en vivo 
+        //en donde o = observador, a = antiguo, b = nuevo
+        actualizarEstadoBoton();
+        txtCorreo.textProperty().addListener((o, a, b) -> actualizarEstadoBoton());
+        txtPass.textProperty().addListener((o, a, b) -> actualizarEstadoBoton());
+
+    }
+
+    private void actualizarEstadoBoton() {
+        boolean ok = !txtCorreo.getText().isBlank() && !txtPass.getText().isBlank();
+        btnIngresar.setDisable(!ok);
     }
 }
 
