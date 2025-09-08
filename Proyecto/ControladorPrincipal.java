@@ -128,16 +128,33 @@ public class ControladorPrincipal {
             if (loginVista != null) loginVista.mostrarError("Agendamiento", "Materia y fecha/hora son obligatorias.");
             return null;
         }
+           // Colisión simple: mismo tutor y misma fecha/hora
+        if (tutorOcupadoEnFecha(tutorId, fh)) {
+            System.out.println("Agendar ERROR: tutor ocupado en " + fh);
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "El tutor ya tiene una sesión en ese horario.");
+            return null;
+        }
 
-        System.out.println("Validaciones mínimas OK.");
-        return null; 
+        System.out.println("Validaciones + colisión OK.");
+        return null;
     }
 
     //HELPERS 
-
+us
     private Usuario buscarUsuarioPorId(int id) {
         for (Usuario u : listaDeUsuarios) if (u.getIdUsuario() == id) return u;
         return null;
+    }
+
+    // Verifica si el tutor ya tiene una sesión en ese horario exacto
+    private boolean tutorOcupadoEnFecha(int tutorId, String fechaHora) {
+        String fh = (fechaHora == null) ? "" : fechaHora.trim();
+        for (Sesion s : listaDeSesiones) {
+            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }
