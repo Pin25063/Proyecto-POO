@@ -2,6 +2,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
+import java.util.regex.Pattern;
 
 public class LoginVista extends VBox {
 
@@ -19,6 +20,10 @@ public class LoginVista extends VBox {
 
     // Esta es una fila de contraseña que iremos reemplazando 
     private HBox filaPass;
+    
+    // validacion de correo 
+    private static final Pattern EMAIL = Pattern.compile("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
+
 
     public LoginVista() { 
 
@@ -111,18 +116,23 @@ public class LoginVista extends VBox {
 
     // Habilita o deshabilita el boton de ingresar segun los campos
     private void actualizarEstadoBoton() {
-        boolean ok = !txtCorreo.getText().isBlank() && !txtPass.getText().isBlank();
+        boolean ok = !txtCorreo.getText().isBlank()
+                && EMAIL.matcher(txtCorreo.getText().trim()).find()
+                && !txtPass.getText().isBlank();
         btnIngresar.setDisable(!ok);
     }
 
     // Intenta iniciar sesion con las credenciales proporcionadas
     private void intentarInicioSesion(){
-        if (txtCorreo.getText().isBlank() || txtPass.getText().isBlank()) {
-            mostrarError("Sus credenciales estan incompletas", "Ingresa tu correo y contraseña");
+        if (!EMAIL.matcher(txtCorreo.getText().trim()).find()) {
+            mostrarError("Correo inválido", "Usa un formato de correo válido (ej. nombre@uvg.edu.gt).");
             return;
         }
-        // la autenticación real la hace el Controlador
-        mostrarInfo("Acción pendiente", "La autenticación se concetara al controlador");
+        if (txtPass.getText().isBlank()) {
+            mostrarError("Contraseña vacía", "Ingresa tu contraseña.");
+            return;
+        }
+        mostrarInfo("Acción pendiente", "La autenticación se conectará al controlador.");
     }
 
     // Muestra una alerta de error
