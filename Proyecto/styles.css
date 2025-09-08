@@ -1,0 +1,4 @@
+.root { -fx-font-family: "Segoe UI", "Arial", sans-serif; }
+.titulo { -fx-font-size: 20px; -fx-font-weight: bold; }
+.text-field, .password-field { -fx-pref-width: 280; }
+.button { -fx-padding: 8 14; }
