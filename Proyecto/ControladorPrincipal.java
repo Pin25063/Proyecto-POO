@@ -72,6 +72,20 @@ public class ControladorPrincipal {
                 break;
             }
         }
+
+        if (correoExiste){
+            // notificar que el correo ya está en uso
+            System.out.println("Error, información no válida para registrar. Ingrese otro correo.");
+            // LoginVista.mostrarError("Error", "El correo ya está en uso.");
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error de registro");
+            alert.setHeaderText(null);
+            alert.setContentText("Correo o contraseña no válidos.");
+            alert.showAndWait();
+        } else {
+            // si es un nuevo usuario, agregarlo a la lista y se guarda
+            this.listaDeUsuarios.add(nuevoUsuario);
+        }
     }
 
 }
