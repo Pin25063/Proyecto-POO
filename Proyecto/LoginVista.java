@@ -72,6 +72,19 @@ public class LoginVista extends VBox {
         btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
         chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
 
+        // Boton por defecto y cancel asi como el foco inicial
+        btnIngresar.setDefaultButton(true);
+        btnLimpiar.setCancelButton(true);
+        txtCorreo.requestFocus();
+
+
+        //tooltips
+        txtCorreo.setTooltip(new Tooltip("Usa tu correo institucional (por ejemplo nombre@uvg.edu.gt)"));
+        btnIngresar.setTooltip(new Tooltip("Inicia sesión"));
+        btnCrarCuenta.setTooltip(new Tooltip("Crear cuenta (todavia falta que lo integren"));
+        btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
+        chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
+
         getChildren().addAll(title, txtCorreo, txtPass, acciones);
 
 
@@ -136,7 +149,7 @@ public class LoginVista extends VBox {
     }
 
     // Muestra una alerta de error
-    private void mostrarError(String encabezado, String contenido){
+    public void mostrarError(String encabezado, String contenido){
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setHeaderText(encabezado);
         a.setContentText(contenido);
@@ -144,7 +157,7 @@ public class LoginVista extends VBox {
     }
 
     // Muestra una alerta de información
-    private void mostrarInfo(String encabezado, String contenido){
+    public void mostrarInfo(String encabezado, String contenido){
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setHeaderText(encabezado);
         a.setContentText(contenido);
@@ -152,7 +165,7 @@ public class LoginVista extends VBox {
     }
 
     // Limpia los campos 
-    private void limpiarCampos(){
+    public void limpiarCampos(){
         txtCorreo.clear();
         txtPass.clear();
         txtCorreo.requestFocus();
