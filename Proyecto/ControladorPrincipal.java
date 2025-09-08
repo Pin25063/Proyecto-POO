@@ -8,7 +8,7 @@ public class ControladorPrincipal {
     private Usuario usuarioActual;
     private LoginVista loginVista;
     private List<Usuario> listaDeUsuarios;
-     private List<Sesion> listaDeSesiones;
+    private List<Sesion> listaDeSesiones;
 
     // CONSTRUCTOR: para inicializar el controlador
     public ControladorPrincipal(LoginVista loginVista) {
@@ -92,17 +92,19 @@ public class ControladorPrincipal {
     //Flujo Estudiante 
 
     public List<Usuario> manejarBusquedaTutor(String materia) {
+        String criterio = (materia == null) ? "" : materia.trim().toLowerCase();
         List<Usuario> tutores = new ArrayList<>();
         for (Usuario u : listaDeUsuarios) {
             if (u.getRol() == Rol.TUTOR) {
                 tutores.add(u);
             }
         }
+        System.out.println("[BuscarTutor] materia='" + criterio + "' → " + tutores.size() + " tutor(es)");
         return tutores;
     }
 
-    //GENDAMIENTO DE SESIÓN 
-    
+    //AGENDAMIENTO DE SESIÓN 
+
     public Sesion manejarAgendamientoSesion(int estudianteId, int tutorId, String materia, String fechaHora) {
         System.out.println("Agendar (stub) est=" + estudianteId + " tut=" + tutorId + " mat=" + materia + " fh=" + fechaHora);
         return null;
