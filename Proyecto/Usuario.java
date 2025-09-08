@@ -28,6 +28,11 @@ public class Usuario {
     public Rol getRol() { 
         return rol; 
     }
+
+    public boolean verificarContrasena(String contrasena){
+        return this.contrasena.equals(contrasena);
+    }
+
     @Override
     public String toString() {
         return "Usuario{ " + idUsuario + ", " + nombre + ", " + rol + "}";

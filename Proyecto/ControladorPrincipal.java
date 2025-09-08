@@ -35,5 +35,17 @@ public class ControladorPrincipal {
                 break;
             }
         }
+
+        // Validación del usuario y la contraseña
+        if (usuarioEncontrado != null && usuarioEncontrado.verificarContrasena(contrasena)){
+
+            // Si la validacion es correcta
+            this.usuarioActual = usuarioEncontrado;
+            System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
+        } else {
+            // Si la validacion falla
+            System.out.println("ERROR: Credenciales inválidas.");
+        }
     }
+
 }
