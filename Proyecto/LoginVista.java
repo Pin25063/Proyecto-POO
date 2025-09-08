@@ -8,9 +8,17 @@ public class LoginVista extends VBox {
     private final Label title = new Label("Iniciar Sesión");
     private final TextField txtCorreo = new TextField();
     private final PasswordField txtPass = new PasswordField();
+
+    // Es un toggle para mostrar/ocultar contraseña
+    private final TextField txtPassVisible = new TextField();
+    private final CheckBox chkMostrar = new CheckBox("Mostrar");
+
     private final Button btnIngresar = new Button("Ingresar");
     private final Button btnCrarCuenta = new Button("Crear Cuenta");
     private final Button btnLimpiar = new Button("Limpiar");
+
+    // Esta es una fila de contraseña que iremos reemplazando 
+    private HBox filaPass;
 
     public LoginVista() { 
 
@@ -31,6 +39,17 @@ public class LoginVista extends VBox {
         btnIngresar.setPrefWidth(100);
         btnCrarCuenta.setPrefWidth(110);
         btnLimpiar.setPrefWidth(90);
+
+        // estado inicial del visible
+        txtPassVisible.setManaged(false);
+        txtPassVisible.setVisible(false);
+
+        // esto sirve para sincornizar los textos de ambos campos
+        txtPassVisible.textProperty().bindBidirectional(txtPass.textProperty());
+
+        // fila de contraseña inicia con el campo oculto    
+        filaPass = new HBox(8, txtPass, chkMostrar);
+        filaPass.setAlignment(Pos.CENTER);
 
         HBox acciones = new HBox(10, btnIngresar, btnCrarCuenta, btnLimpiar);
         acciones.setAlignment(Pos.CENTER);
@@ -60,6 +79,27 @@ public class LoginVista extends VBox {
         setOnKeyPressed(e -> { // ESC limpia
             if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) limpiarCampos();
         });
+
+
+        // este es el toggle de mostrar y ocultar
+        chkMostrar.selectedProperty().addListener((o, was, show) -> {
+            int idx = getChildren().indexOf(filaPass);
+            if (show) {
+                HBox nueva = new HBox(8, txtPassVisible, chkMostrar);
+                nueva.setAlignment(Pos.CENTER);
+                getChildren().set(idx, nueva);
+                filaPass = nueva;
+                txtPassVisible.setManaged(true);
+                txtPassVisible.setVisible(true);
+            } else {
+                HBox nueva = new HBox(8, txtPass, chkMostrar);
+                nueva.setAlignment(Pos.CENTER);
+                getChildren().set(idx, nueva);
+                filaPass = nueva;
+                txtPassVisible.setManaged(false);
+                txtPassVisible.setVisible(false);
+            }
+        });
     }
 
     // Habilita o deshabilita el boton de ingresar segun los campos
@@ -77,7 +117,7 @@ public class LoginVista extends VBox {
         // la autenticación real la hace el Controlador
         mostrarInfo("Acción pendiente", "La autenticación se concetara al controlador");
     }
-    
+
     // Muestra una alerta de error
     private void mostrarError(String encabezado, String contenido){
         Alert a = new Alert(Alert.AlertType.ERROR);
