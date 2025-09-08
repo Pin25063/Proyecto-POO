@@ -19,8 +19,11 @@ public class LoginVista extends VBox {
     private final Button btnLimpiar = new Button("Limpiar");
 
     // Esta es una fila de contraseña que iremos reemplazando 
-    private HBox filaPass;
-    
+    // (ahora usamos BorderPane para centrar el campo y mandar el toggle a la derecha)
+    private BorderPane filaPass;
+
+    private ControladorPrincipal controlador;
+
     // validacion de correo 
     private static final Pattern EMAIL = Pattern.compile("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
 
@@ -41,6 +44,7 @@ public class LoginVista extends VBox {
 
         txtCorreo.setPrefWidth(280);
         txtPass.setPrefWidth(280);
+        txtPassVisible.setPrefWidth(280);
         btnIngresar.setPrefWidth(100);
         btnCrarCuenta.setPrefWidth(110);
         btnLimpiar.setPrefWidth(90);
@@ -52,9 +56,18 @@ public class LoginVista extends VBox {
         // esto sirve para sincornizar los textos de ambos campos
         txtPassVisible.textProperty().bindBidirectional(txtPass.textProperty());
 
-        // fila de contraseña inicia con el campo oculto    
-        filaPass = new HBox(8, txtPass, chkMostrar);
-        filaPass.setAlignment(Pos.CENTER);
+        // quitar texto del toggle y evitar mnemónicos (para que se vea solo la cajita)
+        chkMostrar.setText("");
+        chkMostrar.setMnemonicParsing(false);
+        chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
+
+        // fila de contraseña inicia con el campo oculto (centrado) y el toggle a la derecha
+        filaPass = new BorderPane();
+        filaPass.setPrefWidth(txtPass.getPrefWidth());
+        filaPass.setMaxWidth(Region.USE_PREF_SIZE);
+        filaPass.setCenter(txtPass);
+        filaPass.setRight(chkMostrar);
+        BorderPane.setAlignment(chkMostrar, Pos.CENTER_RIGHT);
 
         HBox acciones = new HBox(10, btnIngresar, btnCrarCuenta, btnLimpiar);
         acciones.setAlignment(Pos.CENTER);
@@ -64,29 +77,13 @@ public class LoginVista extends VBox {
         btnLimpiar.setCancelButton(true);
         txtCorreo.requestFocus();
 
-
         //tooltips
         txtCorreo.setTooltip(new Tooltip("Usa tu correo institucional (por ejemplo nombre@uvg.edu.gt)"));
         btnIngresar.setTooltip(new Tooltip("Inicia sesión"));
         btnCrarCuenta.setTooltip(new Tooltip("Crear cuenta (todavia falta que lo integren"));
         btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
-        chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
 
-        // Boton por defecto y cancel asi como el foco inicial
-        btnIngresar.setDefaultButton(true);
-        btnLimpiar.setCancelButton(true);
-        txtCorreo.requestFocus();
-
-
-        //tooltips
-        txtCorreo.setTooltip(new Tooltip("Usa tu correo institucional (por ejemplo nombre@uvg.edu.gt)"));
-        btnIngresar.setTooltip(new Tooltip("Inicia sesión"));
-        btnCrarCuenta.setTooltip(new Tooltip("Crear cuenta (todavia falta que lo integren"));
-        btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
-        chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
-
-        getChildren().addAll(title, txtCorreo, txtPass, acciones);
-
+        getChildren().addAll(title, txtCorreo, filaPass, acciones);
 
         //Validaciones en vivo 
         //en donde o = observador, a = antiguo, b = nuevo
@@ -105,25 +102,12 @@ public class LoginVista extends VBox {
             if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) limpiarCampos();
         });
 
-
         // este es el toggle de mostrar y ocultar
+        // (ahora cambiamos el centro del BorderPane para alternar entre PasswordField y TextField)
         chkMostrar.selectedProperty().addListener((o, was, show) -> {
-            int idx = getChildren().indexOf(filaPass);
-            if (show) {
-                HBox nueva = new HBox(8, txtPassVisible, chkMostrar);
-                nueva.setAlignment(Pos.CENTER);
-                getChildren().set(idx, nueva);
-                filaPass = nueva;
-                txtPassVisible.setManaged(true);
-                txtPassVisible.setVisible(true);
-            } else {
-                HBox nueva = new HBox(8, txtPass, chkMostrar);
-                nueva.setAlignment(Pos.CENTER);
-                getChildren().set(idx, nueva);
-                filaPass = nueva;
-                txtPassVisible.setManaged(false);
-                txtPassVisible.setVisible(false);
-            }
+            filaPass.setCenter(show ? txtPassVisible : txtPass);
+            txtPassVisible.setManaged(show);
+            txtPassVisible.setVisible(show);
         });
     }
 
@@ -137,15 +121,28 @@ public class LoginVista extends VBox {
 
     // Intenta iniciar sesion con las credenciales proporcionadas
     private void intentarInicioSesion(){
-        if (!EMAIL.matcher(txtCorreo.getText().trim()).find()) {
+        String correo = txtCorreo.getText().trim();
+        String pass = txtPass.getText();
+
+        if (!EMAIL.matcher(correo).find()) {
             mostrarError("Correo inválido", "Usa un formato de correo válido (ej. nombre@uvg.edu.gt).");
             return;
         }
-        if (txtPass.getText().isBlank()) {
+        if (pass.isBlank()) {
             mostrarError("Contraseña vacía", "Ingresa tu contraseña.");
             return;
         }
-        mostrarInfo("Acción pendiente", "La autenticación se conectará al controlador.");
+
+        // Conexión con el controlador (si ya fue inyectado desde Main)
+        if (controlador != null) {
+            controlador.manejarLogin(correo, pass);
+        } else {
+            mostrarInfo("Acción pendiente", "La autenticación se conectará al controlador.");
+        }
+    }
+
+    public void setControlador(ControladorPrincipal controlador) {
+        this.controlador = controlador;
     }
 
     // Muestra una alerta de error
