@@ -13,7 +13,7 @@ public class LoginVista extends VBox {
     private final Button btnLimpiar = new Button("Limpiar");
 
     public LoginVista() { 
-        
+
         //layout base  
         setPadding(new Insets(24));
         setSpacing(16);
@@ -50,11 +50,55 @@ public class LoginVista extends VBox {
         txtCorreo.textProperty().addListener((o, a, b) -> actualizarEstadoBoton());
         txtPass.textProperty().addListener((o, a, b) -> actualizarEstadoBoton());
 
+        //Atajos y acciones basicas 
+        btnIngresar.setOnAction(e -> intentarInicioSesion());
+        btnLimpiar.setOnAction(e -> limpiarCampos());
+        btnCrarCuenta.setOnAction(e -> mostrarInfo("Registro", "La pantalla de registro se implementará más adelante"));
+
+        txtPass.setOnAction(e -> intentarInicioSesion()); // Enter en contraseña
+
+        setOnKeyPressed(e -> { // ESC limpia
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) limpiarCampos();
+        });
     }
 
+    // Habilita o deshabilita el boton de ingresar segun los campos
     private void actualizarEstadoBoton() {
         boolean ok = !txtCorreo.getText().isBlank() && !txtPass.getText().isBlank();
         btnIngresar.setDisable(!ok);
+    }
+
+    // Intenta iniciar sesion con las credenciales proporcionadas
+    private void intentarInicioSesion(){
+        if (txtCorreo.getText().isBlank() || txtPass.getText().isBlank()) {
+            mostrarError("Sus credenciales estan incompletas", "Ingresa tu correo y contraseña");
+            return;
+        }
+        // la autenticación real la hace el Controlador
+        mostrarInfo("Acción pendiente", "La autenticación se concetara al controlador");
+    }
+    
+    // Muestra una alerta de error
+    private void mostrarError(String encabezado, String contenido){
+        Alert a = new Alert(Alert.AlertType.ERROR);
+        a.setHeaderText(encabezado);
+        a.setContentText(contenido);
+        a.showAndWait();
+    }
+
+    // Muestra una alerta de información
+    private void mostrarInfo(String encabezado, String contenido){
+        Alert a = new Alert(Alert.AlertType.INFORMATION);
+        a.setHeaderText(encabezado);
+        a.setContentText(contenido);
+        a.showAndWait();
+    }
+
+    // Limpia los campos 
+    private void limpiarCampos(){
+        txtCorreo.clear();
+        txtPass.clear();
+        txtCorreo.requestFocus();
     }
 }
 
