@@ -60,6 +60,13 @@ public class LoginVista extends VBox {
         txtCorreo.requestFocus();
 
 
+        //tooltips
+        txtCorreo.setTooltip(new Tooltip("Usa tu correo institucional (por ejemplo nombre@uvg.edu.gt)"));
+        btnIngresar.setTooltip(new Tooltip("Inicia sesión"));
+        btnCrarCuenta.setTooltip(new Tooltip("Crear cuenta (todavia falta que lo integren"));
+        btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
+        chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
+
         getChildren().addAll(title, txtCorreo, txtPass, acciones);
 
 
