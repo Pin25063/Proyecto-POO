@@ -1,9 +1,5 @@
-import java.io.IO;
 import java.util.ArrayList;
 import java.util.List;
-
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 
 public class ControladorPrincipal {
     
@@ -17,7 +13,7 @@ public class ControladorPrincipal {
     public ControladorPrincipal(LoginVista loginVista) {
         this.gestorDeDatos = new GestorDeDatos();
         this.loginVista = loginVista;
-        // Se cargan los usuarios una sola vez para evitar múltiples lecturas del archivo
+        // se tienen que cargar los usuarios una sola vez para no leer muchas veces el archivo
         try {
             this.listaDeUsuarios = gestorDeDatos.cargarUsuarios();
         } catch (Exception e) {
@@ -33,7 +29,7 @@ public class ControladorPrincipal {
 
         // Se busca al usuario en la lista cargada
         for (Usuario usuario : listaDeUsuarios){
-            if (usuario.getCorreo().equalsIgnoreCase(correo)){ // Ignora mayúsculas/minúsculas en el correo al comparar
+            if (usuario.getCorreo().equalsIgnoreCase(correo)){ // Ignora mayúsculas y minúsculas en el correo al comparar
                 usuarioEncontrado = usuario;
                 break;
             }
@@ -45,19 +41,12 @@ public class ControladorPrincipal {
             // Si la validacion es correcta
             this.usuarioActual = usuarioEncontrado;
             System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
-            Alert alert = new Alert(AlertType.INFORMATION);
-            alert.setTitle("Inicio de sesión EXITOSO");
-            alert.setHeaderText(null);
-            alert.setContentText("Bienvenido, " + usuarioActual.getNombre());
-            alert.showAndWait();
+            loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
+            // loginVista.IrAPerfil(this.usuarioActual); // Ir a la vista del perfil del usuario
         } else {
             // Si la validacion falla
             System.out.println("ERROR: Credenciales inválidas.");
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error de inicio de sesión");
-            alert.setHeaderText(null);
-            alert.setContentText("Correo o contraseña incorrectos.");
-            alert.showAndWait();
+            loginVista.mostrarError("Error de autenticación", "Correo o contraseña no válidos");
         }
     }
 
@@ -74,17 +63,21 @@ public class ControladorPrincipal {
         }
 
         if (correoExiste){
-            // notificar que el correo ya está en uso
+            // notificar que el correo ya está en uso sin revelar información delicada
             System.out.println("Error, información no válida para registrar. Ingrese otro correo.");
-            // LoginVista.mostrarError("Error", "El correo ya está en uso.");
-            Alert alert = new Alert(AlertType.ERROR);
-            alert.setTitle("Error de registro");
-            alert.setHeaderText(null);
-            alert.setContentText("Correo o contraseña no válidos.");
-            alert.showAndWait();
+            loginVista.mostrarError("Error", "Correo no válido.");
         } else {
             // si es un nuevo usuario, agregarlo a la lista y se guarda
             this.listaDeUsuarios.add(nuevoUsuario);
+
+            // Pasar persistencia al gestor de datos
+            // gestorDeDatos.guardarUsuarios(this.listaDeUsuarios);
+
+            loginVista.mostrarInfo("Registro exitoso", "Usuario registrado correctamente. Ahora puede iniciar sesión"); 
+            
+            // limpiar los campos de la vista
+            loginVista.limpiarCampos();
+
         }
     }
 
