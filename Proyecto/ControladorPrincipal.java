@@ -106,8 +106,31 @@ public class ControladorPrincipal {
     //AGENDAMIENTO DE SESIÓN 
 
     public Sesion manejarAgendamientoSesion(int estudianteId, int tutorId, String materia, String fechaHora) {
-        System.out.println("Agendar (stub) est=" + estudianteId + " tut=" + tutorId + " mat=" + materia + " fh=" + fechaHora);
-        return null;
+        String mat = (materia == null) ? "" : materia.trim();
+        String fh  = (fechaHora == null) ? "" : fechaHora.trim();
+
+        Usuario est = buscarUsuarioPorId(estudianteId);
+        if (est == null || est.getRol() != Rol.ESTUDIANTE) {
+            System.out.println("Agendar ERROR: estudiante no válido.");
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Estudiante no válido.");
+            return null;
+        }
+
+        Usuario tut = buscarUsuarioPorId(tutorId);
+        if (tut == null || tut.getRol() != Rol.TUTOR) {
+            System.out.println("Agendar ERROR: tutor no válido.");
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Tutor no válido.");
+            return null;
+        }
+
+        if (mat.isBlank() || fh.isBlank()) {
+            System.out.println("Agendar ERROR: materia/fecha vacías.");
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Materia y fecha/hora son obligatorias.");
+            return null;
+        }
+
+        System.out.println("Validaciones mínimas OK.");
+        return null; 
     }
 
     //HELPERS 
