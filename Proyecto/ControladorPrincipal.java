@@ -135,12 +135,18 @@ public class ControladorPrincipal {
             return null;
         }
 
-        System.out.println("Validaciones + colisión OK.");
-        return null;
+        String nuevoId = generarIdSesion();
+        Sesion nueva = new Sesion(nuevoId, estudianteId, tutorId, mat, fh, EstadoSesion.PROGRAMADA);
+        listaDeSesiones.add(nueva);
+        System.out.println("Agendada en memoria: " + nueva);
+
+        if (loginVista != null) {
+            loginVista.mostrarInfo("Agendamiento", "Sesión programada: " + mat + " – " + fh);
+        }
+        return nueva;
     }
 
     //HELPERS 
-us
     private Usuario buscarUsuarioPorId(int id) {
         for (Usuario u : listaDeUsuarios) if (u.getIdUsuario() == id) return u;
         return null;
@@ -155,6 +161,15 @@ us
             }
         }
         return false;
+    }
+
+    private String generarIdSesion() {
+        int max = 0;
+        for (Sesion s : listaDeSesiones) {
+            try { max = Math.max(max, Integer.parseInt(s.getIdSesion())); }
+            catch (NumberFormatException ignored) {}
+        }
+        return String.valueOf(max + 1);
     }
 
 }
