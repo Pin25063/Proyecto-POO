@@ -2,6 +2,9 @@ import java.io.IO;
 import java.util.ArrayList;
 import java.util.List;
 
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
+
 public class ControladorPrincipal {
     
     // ATRIBUTOS
@@ -24,7 +27,7 @@ public class ControladorPrincipal {
         }
     }
 
-    // Procesamiento únicamente del inicio de sesión
+    // PROCESAMIENTO únicamente del inicio de sesión
     public void manejarLogin(String correo, String contrasena){
         Usuario usuarioEncontrado = null;
 
@@ -42,9 +45,32 @@ public class ControladorPrincipal {
             // Si la validacion es correcta
             this.usuarioActual = usuarioEncontrado;
             System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
+            Alert alert = new Alert(AlertType.INFORMATION);
+            alert.setTitle("Inicio de sesión EXITOSO");
+            alert.setHeaderText(null);
+            alert.setContentText("Bienvenido, " + usuarioActual.getNombre());
+            alert.showAndWait();
         } else {
             // Si la validacion falla
             System.out.println("ERROR: Credenciales inválidas.");
+            Alert alert = new Alert(AlertType.ERROR);
+            alert.setTitle("Error de inicio de sesión");
+            alert.setHeaderText(null);
+            alert.setContentText("Correo o contraseña incorrectos.");
+            alert.showAndWait();
+        }
+    }
+
+    // PROCESO de registro de un nuevo usuario
+    public void registrar(Usuario nuevoUsuario){
+        // confirmar si no se está usando el correo
+        boolean correoExiste = false;
+        for (Usuario usuario : listaDeUsuarios){
+            if (usuario.getCorreo().equalsIgnoreCase(nuevoUsuario.getCorreo()))
+            {
+                correoExiste = true;
+                break;
+            }
         }
     }
 
