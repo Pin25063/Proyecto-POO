@@ -24,6 +24,16 @@ public class ControladorPrincipal {
         }
     }
 
-    // Procesamiento del inicio de sesión
-    
+    // Procesamiento únicamente del inicio de sesión
+    public void manejarLogin(String correo, String contrasena){
+        Usuario usuarioEncontrado = null;
+
+        // Se busca al usuario en la lista cargada
+        for (Usuario usuario : listaDeUsuarios){
+            if (usuario.getCorreo().equalsIgnoreCase(correo)){ // Ignora mayúsculas/minúsculas en el correo al comparar
+                usuarioEncontrado = usuario;
+                break;
+            }
+        }
+    }
 }
