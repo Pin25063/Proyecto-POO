@@ -1,0 +1,4 @@
+idSesion;estudianteId;tutorId;materia;fechaHora;estado
+1;1;2;Matemática;14:45 10/09/25;PROGRAMADA
+2;2;2;Física;13:30 11/09/25;CANCELADA
+3;3;3;Estadística;16:15 12/09/25;COMPLETADA
