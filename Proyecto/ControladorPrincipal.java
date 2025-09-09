@@ -79,7 +79,6 @@ public class ControladorPrincipal {
             this.listaDeUsuarios.add(nuevoUsuario);
 
             // Pasar persistencia al gestor de datos
-            // gestorDeDatos.guardarUsuarios(this.listaDeUsuarios);
 
             loginVista.mostrarInfo("Registro exitoso", "Usuario registrado correctamente. Ahora puede iniciar sesión"); 
             
@@ -92,22 +91,20 @@ public class ControladorPrincipal {
     //Flujo Estudiante 
 
     public List<Usuario> manejarBusquedaTutor(String materia) {
-        String criterio = (materia == null) ? "" : materia.trim().toLowerCase();
+        String criterio = normLower(materia);
         List<Usuario> tutores = new ArrayList<>();
-        for (Usuario u : listaDeUsuarios) {
-            if (u.getRol() == Rol.TUTOR) {
-                tutores.add(u);
-            }
-        }
-        System.out.println("Buscar Tutor materia='" + criterio + "' → " + tutores.size() + " tutor(es)");
+        for (Usuario u : listaDeUsuarios) if (u.getRol() == Rol.TUTOR) tutores.add(u);
+        System.out.println("[BuscarTutor] materia='" + criterio + "' → " + tutores.size() + " tutor(es)");
         return tutores;
     }
 
     //AGENDAMIENTO DE SESIÓN 
 
     public Sesion manejarAgendamientoSesion(int estudianteId, int tutorId, String materia, String fechaHora) {
-        String mat = (materia == null) ? "" : materia.trim();
-        String fh  = (fechaHora == null) ? "" : fechaHora.trim();
+        String mat = norm(materia);
+        String fh  = norm(fechaHora);
+
+        System.out.println("[Agendar] est=" + estudianteId + " tut=" + tutorId + " mat='" + mat + "' fh='" + fh + "'");
 
         Usuario est = buscarUsuarioPorId(estudianteId);
         if (est == null || est.getRol() != Rol.ESTUDIANTE) {
@@ -162,11 +159,9 @@ public class ControladorPrincipal {
 
     // Verifica si el tutor ya tiene una sesión en ese horario exacto
     private boolean tutorOcupadoEnFecha(int tutorId, String fechaHora) {
-        String fh = (fechaHora == null) ? "" : fechaHora.trim();
+        String fh = norm(fechaHora);
         for (Sesion s : listaDeSesiones) {
-            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) {
-                return true;
-            }
+            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) return true;
         }
         return false;
     }
@@ -179,5 +174,8 @@ public class ControladorPrincipal {
         }
         return String.valueOf(max + 1);
     }
+
+    private String norm(String s) { return (s == null) ? "" : s.trim(); }
+    private String normLower(String s) { return norm(s).toLowerCase(); }
 
 }
