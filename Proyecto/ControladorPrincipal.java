@@ -99,7 +99,7 @@ public class ControladorPrincipal {
                 tutores.add(u);
             }
         }
-        System.out.println("[BuscarTutor] materia='" + criterio + "' → " + tutores.size() + " tutor(es)");
+        System.out.println("Buscar Tutor materia='" + criterio + "' → " + tutores.size() + " tutor(es)");
         return tutores;
     }
 
@@ -139,6 +139,14 @@ public class ControladorPrincipal {
         Sesion nueva = new Sesion(nuevoId, estudianteId, tutorId, mat, fh, EstadoSesion.PROGRAMADA);
         listaDeSesiones.add(nueva);
         System.out.println("Agendada en memoria: " + nueva);
+
+        // Persistir en CSV
+        try {
+            gestorDeDatos.appendSesion(nueva);
+        } catch (Exception ex) {
+            System.out.println("AVISO: sesión creada en memoria pero no se pudo guardar en CSV: " + ex.getMessage());
+            if (loginVista != null) loginVista.mostrarError("Persistencia", "Sesión guardada en memoria, pero no en archivo.");
+        }
 
         if (loginVista != null) {
             loginVista.mostrarInfo("Agendamiento", "Sesión programada: " + mat + " – " + fh);
