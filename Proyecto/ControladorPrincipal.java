@@ -1,3 +1,6 @@
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -9,6 +12,7 @@ public class ControladorPrincipal {
     private LoginVista loginVista;
     private List<Usuario> listaDeUsuarios;
     private List<Sesion> listaDeSesiones;
+    private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
 
     // CONSTRUCTOR: para inicializar el controlador
     public ControladorPrincipal(LoginVista loginVista) {
@@ -119,16 +123,37 @@ public class ControladorPrincipal {
             if (loginVista != null) loginVista.mostrarError("Agendamiento", "Tutor no válido.");
             return null;
         }
-
+        
         if (mat.isBlank() || fh.isBlank()) {
             System.out.println("Agendar ERROR: materia/fecha vacías.");
             if (loginVista != null) loginVista.mostrarError("Agendamiento", "Materia y fecha/hora son obligatorias.");
             return null;
         }
-           // Colisión simple: mismo tutor y misma fecha/hora
+
+        // Validar formato de fecha/hora y que no sea en el pasado (usa FMT y parseFechaHora)
+        LocalDateTime dt = parseFechaHora(fh);
+        if (dt == null) {
+            System.out.println("Agendar ERROR: formato de fecha/hora inválido (esperado HH:mm dd/MM/yy).");
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Formato inválido. Usa: HH:mm dd/MM/yy (ej. 14:45 10/09/25).");
+            return null;
+        }
+        if (dt.isBefore(LocalDateTime.now())) {
+            System.out.println("Agendar ERROR: se intentó agendar en el pasado (" + fh + ").");
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "No puedes agendar una sesión en el pasado.");
+            return null;
+        }
+
+        // Colisión simple: mismo tutor y misma fecha/hora
         if (tutorOcupadoEnFecha(tutorId, fh)) {
             System.out.println("Agendar ERROR: tutor ocupado en " + fh);
             if (loginVista != null) loginVista.mostrarError("Agendamiento", "El tutor ya tiene una sesión en ese horario.");
+            return null;
+        }
+
+        // Evitar doble reserva del estudiante en el mismo horario
+        if (estudianteOcupadoEnFecha(estudianteId, fh)) {
+            System.out.println("Agendar ERROR: estudiante ya tiene una sesión en " + fh);
+            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Ya tienes una sesión en ese horario.");
             return null;
         }
 
@@ -161,7 +186,19 @@ public class ControladorPrincipal {
     private boolean tutorOcupadoEnFecha(int tutorId, String fechaHora) {
         String fh = norm(fechaHora);
         for (Sesion s : listaDeSesiones) {
-            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) return true;
+            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean estudianteOcupadoEnFecha(int estudianteId, String fechaHora) {
+        String fh = norm(fechaHora);
+        for (Sesion s : listaDeSesiones) {
+            if (s.getEstudianteId() == estudianteId && fh.equalsIgnoreCase(s.getFechaHora())) {
+                return true;
+            }
         }
         return false;
     }
@@ -178,4 +215,12 @@ public class ControladorPrincipal {
     private String norm(String s) { return (s == null) ? "" : s.trim(); }
     private String normLower(String s) { return norm(s).toLowerCase(); }
 
+    private LocalDateTime parseFechaHora(String fh) {
+        try {
+            return LocalDateTime.parse(fh, FMT);
+        } catch (DateTimeParseException ex) {
+            return null;
+        }
+    }
 }
+
