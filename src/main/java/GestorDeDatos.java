@@ -72,4 +72,23 @@ public class GestorDeDatos {
         }
         return out;
     }
+     // agregar sesión al CSV 
+    public synchronized void appendSesion(Sesion s) throws IOException {
+        boolean existe = Files.exists(SESIONES);
+        try (BufferedWriter bw = new BufferedWriter(new FileWriter(SESIONES.toString(), true))) {
+            if (!existe) {
+                // Escribir header con el mismo separador usado al leer
+                bw.write("idSesion" + SEP + "estudianteId" + SEP + "tutorId" + SEP + "materia" + SEP + "fechaHora" + SEP + "estado");
+                bw.newLine();
+            }
+            String linea = s.getIdSesion() + SEP
+                    + s.getEstudianteId() + SEP
+                    + s.getTutorId() + SEP
+                    + s.getMateria() + SEP
+                    + s.getFechaHora() + SEP
+                    + s.getEstado();
+            bw.write(linea);
+            bw.newLine();
+        }
+    }
 }
