@@ -65,9 +65,9 @@ El proyecto usa:
 ## 🚀 Ejecución desde IDE
 
 ### VS Code
-1. Abre el archivo principal (`src/main/java/Main.java`)
-2. Haz clic en el botón **"Run"** (▶️) arriba del método `main`
-3. O presiona **F5** para depurar
+1. Abrir el archivo principal (`src/main/java/Main.java`)
+2. Configurar archivos .vscode para poder correrlo desde vs code
+3. Darle a Run And Debug para correrlo
 
 
 ## 🔄 Flujo de Trabajo Recomendado
@@ -79,14 +79,14 @@ El proyecto usa:
 
 2. **Crear una rama para nueva funcionalidad:**
    ```bash
-   git checkout -b nombre-de-la-rama
+   git checkout -b nombre-rama
    ```
 
 3. **Después de hacer cambios:**
    ```bash
    git add .
-   git commit -m "Descripción de los cambios"
-   git push origin nombre-de-la-rama
+   git commit -m "Descripción de cambios"
+   git push origin nombre-rama
    ```
 
 4. **Probar los cambios:**
@@ -94,6 +94,7 @@ El proyecto usa:
    mvn clean compile
    mvn javafx:run
    ```
+
 
 ## ❌ Solución de Problemas Comunes
 
@@ -107,6 +108,7 @@ mvn clean compile
 ```
 
 
+
 ## 🤝 Contribución al Proyecto
 
 1. Sincronizar tu repositorio local con los últimos cambios
@@ -116,4 +118,6 @@ mvn clean compile
 5. Crear un Pull Request en GitHub
 
 
-**¡SUERTE CODEANDO UVGENIO! 🎉**
+---
+
+**🎉 ¡SUERTE CODEANDO UVGENIO! 🎉**
