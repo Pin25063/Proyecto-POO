@@ -7,6 +7,10 @@ public class Main extends Application {
     @Override 
     public void start(Stage stage) {
         LoginVista root = new LoginVista();
+
+        ControladorPrincipal ctrl = new ControladorPrincipal(root);
+        root.setControlador(ctrl);
+
         Scene scene = new Scene(root, 420, 520);
 
         URL cssUrl = getClass().getResource("styles.css");
