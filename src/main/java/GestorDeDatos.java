@@ -1,86 +1,96 @@
-import java.io.*;
-import java.nio.file.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Pattern;
+
 public class GestorDeDatos {
-    private static final Path USUARIOS = Paths.get("usuarios.csv");  // Ruta relativa al archivo CSV
-    private static final Path SESIONES = Paths.get("sesiones.csv");  // Ruta relativa al archivo CSV
+
+    // Rutas relativas a los archivos CSV en resources
+    private static final Path USUARIOS = Paths.get("src/main/resources/data/usuarios.csv");
+    private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv");
+
     private static final String SEP = ";";
-    private static final String HDR_USU = "idUsuario,nombre,correo,contrasena,rol";
-    private static final String HDR_SES = "idSesion,estudianteId,tutorId,materia,fechaHora,estado";
-    // Método para cargar usuarios desde el archivo CSV
+    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol";
+    private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado";
+    private static final String NL  = System.lineSeparator();
+    private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP));
+
+    // USUARIOS CSV
     public synchronized List<Usuario> cargarUsuarios() throws IOException {
         List<Usuario> out = new ArrayList<>();
-        // Verificación si el archivo existe
         if (!Files.exists(USUARIOS)) {
             System.out.println("El archivo de usuarios no existe.");
-            return out;
+            return out; 
         }
-        // Lectura del archivo CSV
-        try (BufferedReader br = new BufferedReader(new FileReader(USUARIOS.toString()))) { // Convertir Path a String
-            String line = br.readLine(); // header (salta la primera línea que contiene los encabezados)
-            // Leer las líneas siguientes
+
+        try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) {
+            String line = br.readLine(); // header
             while ((line = br.readLine()) != null) {
-                if (line.isBlank()) continue;  // Saltar líneas en blanco
-                String[] raw = line.split(SEP);  // Dividir la línea por las comas
-                if (raw.length < 5) continue;  // Si la línea no tiene suficientes campos, saltar
-                // Parsear los valores leídos
-                int id = Integer.parseInt(raw[0]);  // Convertir el primer valor a int (idUsuario)
-                String nombre = raw[1];  // El segundo valor es el nombre
-                String correo = raw[2];  // El tercer valor es el correo
-                String pass = raw[3];    // El cuarto valor es la contraseña
-                Rol rol = Rol.valueOf(raw[4].toUpperCase());  // Convertir el rol a enum Rol
-                // Crear el objeto Usuario y agregarlo a la lista
+                if (line.isBlank()) continue;
+                String[] raw = SEP_PATTERN.split(line, -1);
+                if (raw.length < 5) continue;
+
+                int id = Integer.parseInt(raw[0].trim());
+                String nombre  = raw[1].trim();
+                String correo  = raw[2].trim();
+                String pass    = raw[3].trim();
+                Rol rol = Rol.valueOf(raw[4].trim().toUpperCase());
+
                 out.add(new Usuario(id, nombre, correo, pass, rol));
+                System.out.println("Usuario cargado: " + nombre + ", " + correo); // Verificación temporal de carga de archivo CSV
             }
-        } catch (IOException e) {
-            // Si ocurre un error al leer el archivo
-            System.out.println("Error al leer el archivo de usuarios: " + e.getMessage());
-            throw e;
         }
         return out;
     }
+
+    // SESIONES CSV
     public synchronized List<Sesion> cargarSesiones() throws IOException {
         List<Sesion> out = new ArrayList<>();
-
-        // Verificación si el archivo existe
         if (!Files.exists(SESIONES)) {
             System.out.println("El archivo de sesiones no existe.");
-            return out;
+            return out;  
         }
-        // Lectura del archivo CSV
-        try (BufferedReader br = new BufferedReader(new FileReader(SESIONES.toString()))) { // Convertir Path a String
-            String line = br.readLine(); // header (salta la primera línea que contiene los encabezados)
-            // Leer las líneas siguientes
+
+        try (BufferedReader br = Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) {
+            String line = br.readLine(); // header
             while ((line = br.readLine()) != null) {
-                if (line.isBlank()) continue;  // Saltar líneas en blanco
-                String[] raw = line.split(SEP);  // Dividir la línea por las comas
-                if (raw.length < 6) continue;  // Si la línea no tiene suficientes campos, saltar
-                // Parsear los valores leídos
-                String id = raw[0];  // El primer valor es el idSesion
-                int estId = Integer.parseInt(raw[1]);  // Convertir el segundo valor a int (estudianteId)
-                int tutId = Integer.parseInt(raw[2]);  // Convertir el tercer valor a int (tutorId)
-                String materia = raw[3];  // El cuarto valor es la materia
-                String fechaHora = raw[4];  // Se mantiene como String
-                EstadoSesion estado = EstadoSesion.valueOf(raw[5].toUpperCase());  // Convertir el estado a enum EstadoSesion
-                // Crear el objeto Sesion y agregarlo a la lista
+                if (line.isBlank()) continue;
+                String[] raw = SEP_PATTERN.split(line, -1);
+                if (raw.length < 6) continue;
+                String id       = raw[0].trim();
+                int estId       = Integer.parseInt(raw[1].trim());
+                int tutId       = Integer.parseInt(raw[2].trim());
+                String materia  = raw[3].trim();
+                String fechaHora= raw[4].trim(); 
+                EstadoSesion estado = EstadoSesion.valueOf(raw[5].trim().toUpperCase());
+
                 out.add(new Sesion(id, estId, tutId, materia, fechaHora, estado));
+                System.out.println("Sesion cargada: " + id + ", " + materia + ", " + estado); // Verificación temporal de carga de archivo CSV
             }
-        } catch (IOException e) {
-            // Si ocurre un error al leer el archivo
-            System.out.println("Error al leer el archivo de sesiones: " + e.getMessage());
-            throw e;
         }
         return out;
     }
-     // agregar sesión al CSV 
+
+    // APPEND SESION
     public synchronized void appendSesion(Sesion s) throws IOException {
-        boolean existe = Files.exists(SESIONES);
-        try (BufferedWriter bw = new BufferedWriter(new FileWriter(SESIONES.toString(), true))) {
-            if (!existe) {
-                // Escribir header con el mismo separador usado al leer
-                bw.write("idSesion" + SEP + "estudianteId" + SEP + "tutorId" + SEP + "materia" + SEP + "fechaHora" + SEP + "estado");
-                bw.newLine();
-            }
+        // Aquí solo se muestra un mensaje si el archivo no existe
+        if (!Files.exists(SESIONES)) {
+            System.out.println("El archivo de sesiones no existe.");
+            return;
+        }
+
+        try (BufferedWriter bw = Files.newBufferedWriter(
+                SESIONES,
+                StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.APPEND)) {
+
             String linea = s.getIdSesion() + SEP
                     + s.getEstudianteId() + SEP
                     + s.getTutorId() + SEP
@@ -88,7 +98,7 @@ public class GestorDeDatos {
                     + s.getFechaHora() + SEP
                     + s.getEstado();
             bw.write(linea);
-            bw.newLine();
+            bw.write(NL);
         }
     }
 }
