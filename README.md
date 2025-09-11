@@ -4,9 +4,9 @@ Este proyecto usa **Maven** como herramienta de construcción y gestión de depe
 
 ## 📋 Requisitos Previos
 
-- **JDK 24** o superior ([Descargar](https://adoptium.net/))
+- **JDK 24** o superior ([Descargar](https://www.oracle.com/java/technologies/downloads/))
 - **Maven 3.6+** ([Descargar](https://maven.apache.org/download.cgi))
-- **Git** ([Descargar](https://git-scm.com/))
+- **Git** ([Descargar](https://git-scm.com/downloads))
 
 ## 🏗️ Estructura del Proyecto
 
