@@ -17,9 +17,15 @@ public class Tutor extends Usuario {
     public void aceptarSolicitud(Sesion sesion) {
         sesion.setEstado(EstadoSesion.AGENDADA);
     }
-    
+
     public void rechazarSolicitud(Sesion sesion) {
         sesion.setEstado(EstadoSesion.NEGADA);
+    }
+    
+    //Eliminados getters redundantes 
+
+    public ArrayList<String> getMaterias() {
+        return this.materias;
     }
 
     public double getTarifa() {
