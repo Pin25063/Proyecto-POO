@@ -16,7 +16,24 @@ public class Curso {
         this.nombreCurso = "";
     }
 
+    //getters 
+    public String getNombreCurso() {
+        return nombreCurso;
+    }
+    public int getCodigoCurso(){
+        return codigoCurso; 
+    }
 
+    //setters
+
+    public void setNombreCurso(String nombreCurso){
+        this.nombreCurso = nombreCurso;
+    }
+    public void setCodigoCrusto(int codigoCurso){
+        this.codigoCurso = codigoCurso;
+    }
+
+    
 
 
 }
