@@ -8,5 +8,24 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox>
-<Label>
+<VBox aligment="CENTER" spacing="15.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ControladorAdministradores">
+
+    <Label text="Asignar Tutoría">
+
+        <font>
+            <Font name="System Bold" size="24.0" />
+        </font>
+
+    </Label>
+
+    <ComboBox fx:id="estudianteComboBox" promptText="Seleccionar Estudiante" />
+
+    <ComboBox fx:id="tutorComboBox" promptText="Seleccionar Tutor" />
+
+    <ComboBox fx:id="cursoComboBox" promptText="Seleccionar Curso" />
+
+    <Button fx:id="asignarButton" onAction="#handleAsignarTutoria" text="Asignar Tutoría" />
+
+    <Label fx:id="statusLabel" text="" />
+
+</VBox>
