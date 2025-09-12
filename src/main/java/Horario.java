@@ -20,4 +20,30 @@ public class Horario {
         this.horaFin = horaFin;
     }
 
+    // constructor con strings
+
+    public Horario(String dia, String horaInicio, String horaFin){
+        this.dia = DayOfWeek.valueOf(dia.toUpperCase());
+        this.horaInicio = LocalTime.parse(horaInicio, TIME_FORMAT);
+        this.horaFin = LocalTime.parse(horaFin, TIME_FORMAT);
+
+
+        if(this.horaInicio.isAfter(this.horaFin)){
+            throw new IllegalArgumentException("La hora de inicio no puede ser posterior a la hora de fin.");    
+        }
+    }
+
+    // Constructor con índice de día (1=LUNES, 2=MARTES, etc.)
+    public Horario(int indiceDia, String horaInicio, String horaFin) {
+        if (indiceDia < 1 || indiceDia > 7) {
+            throw new IllegalArgumentException("Índice de día debe estar entre 1 y 7");
+        }
+        this.dia = DayOfWeek.of(indiceDia);
+        this.horaInicio = LocalTime.parse(horaInicio, TIME_FORMAT);
+        this.horaFin = LocalTime.parse(horaFin, TIME_FORMAT);
+        
+        if (this.horaInicio.isAfter(this.horaFin)) {
+            throw new IllegalArgumentException("La hora de inicio no puede ser posterior a la hora de fin");
+        }
+    }
 }
