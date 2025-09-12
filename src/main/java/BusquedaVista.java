@@ -44,5 +44,40 @@ public class BusquedaVista extends VBox{
 
         
         });
+
+        tablaResultados.getColumns().addAll(colNombre, colCorreo, colMateria);
+        tablaResultados.setPrefHeight(220);
+        tablaResultados.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+        btnBuscar.setOnAction(e -> buscarTutores());
+
+        getChildren().addAll(titulo, filaBusqueda, tablaResultados);
+    }
+
+        private void buscarTutores() {
+        String filtro = campoMateria.getText().trim().toLowerCase();
+        ObservableList<Tutor> resultados = FXCollections.observableArrayList();
+
+        for (Tutor t : tutores) {
+            for (String materia : t.getMaterias()) {
+                if (materia.toLowerCase().contains(filtro)) {
+                    resultados.add(t);
+                    break;
+                }
+            }
+        }
+
+        if (resultados.isEmpty()) {
+            mostrarInfo("Sin resultados", "No se encontraron tutores para esa materia.");
+        }
+
+        tablaResultados.setItems(resultados);
+    }
+
+    private void mostrarInfo(String header, String contenido) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setHeaderText(header);
+        alerta.setContentText(contenido);
+        alerta.showAndWait();
     }
 }
