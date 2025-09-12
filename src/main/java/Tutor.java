@@ -4,7 +4,7 @@ public class Tutor extends Usuario {
     private ArrayList<String> materias;
     //private ArrayList<Horario> disponibilidad; //Horario todavia no esta creado
     private ArrayList<Resena> resenas;
-    private double tarifa; //Quitado el final
+    private double tarifa;
 
     // Constructor
     public Tutor(int idUsuario, String nombre, String correo, String contrasena, Rol rol, ArrayList<String> materias, double tarifa) {
@@ -14,26 +14,13 @@ public class Tutor extends Usuario {
     }
 
     //Cambiar los estados de sesion
-    /*public void aceptarSolicitud(Sesion sesion) {
-        sesion.setEstado(EstadoSesion.COMPLETADA);
-    }*/
-
-    /*public void rechazarSolicitud(Sesion sesion) {
-        sesion.setEstado(EstadoSesion.CANCELADA);
-    }*/
-
-    public String getNombre() {
-    return super.getNombre();
-}
-
-    public String getCorreo() {
-    return super.getCorreo();
-}
-
-    public ArrayList<String> getMaterias() {
-    return materias;
-}
-
+    public void aceptarSolicitud(Sesion sesion) {
+        sesion.setEstado(EstadoSesion.AGENDADA);
+    }
+    
+    public void rechazarSolicitud(Sesion sesion) {
+        sesion.setEstado(EstadoSesion.NEGADA);
+    }
 
     public double getTarifa() {
         return tarifa;
