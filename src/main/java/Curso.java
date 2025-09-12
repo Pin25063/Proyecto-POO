@@ -33,7 +33,28 @@ public class Curso {
         this.codigoCurso = codigoCurso;
     }
 
-    
+    //Metodo para validar si el curso esta completo
+
+    public boolean esValido(){
+        return codigoCurso > 0 && nombreCurso != null && !nombreCurso.trim().isEmpty();
+    }
 
 
+    // Obtener representacion corta del curso
+    public String getCodigoNombre(){
+        return codigoCurso + " - " + nombreCurso;
+    }
+
+    @Override
+    public String toString() {
+        return "Curso{" +
+                "codigo=" + codigoCurso +
+                ", nombre='" + nombreCurso + '\'' +
+                '}';
+    }
+
+    @Override
+    public int hashCode(){
+        return Integer.hashCode(codigoCurso);
+    }
 }
