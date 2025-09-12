@@ -1,6 +1,8 @@
 import javafx.scene.control.Label;
+import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 public class VistaPrincipalTutor extends VBox{
@@ -23,5 +25,15 @@ public class VistaPrincipalTutor extends VBox{
         Label lblMaterias = new Label("Materias que imparte:");
         listaMaterias = new ListView<>();
         listaMaterias.getItems().addAll(tutor.getMaterias());
+        listaMaterias.setPrefHeight(100);
+
+        btnEditarPerfil = new Button("Editar Perfil");
+        btnVerSesiones = new Button("Ver Sesiones");
+        btnVerResenas = new Button("Ver Reseñas");
+
+        HBox botones = new HBox(10, btnEditarPerfil, btnVerSesiones, btnVerResenas);
+        botones.setAlignment(Pos.CENTER);
+
+        
     }
 }
