@@ -21,9 +21,14 @@ public class BusquedaVista extends VBox{
         setAlignment(Pos.CENTER);
         setFillWidth(true);
 
-        // --- COMMIT 1 ---
         Label titulo = new Label("Buscar Tutores por Materia");
         titulo.getStyleClass().add("titulo");
+
+        campoMateria.setPromptText("Escribe una materia...");
+        campoMateria.setPrefWidth(300);
+        btnBuscar.setPrefWidth(100);
+        HBox filaBusqueda = new HBox(10, campoMateria, btnBuscar);
+        filaBusqueda.setAlignment(Pos.CENTER);
     }
     
 }
