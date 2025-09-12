@@ -1,5 +1,7 @@
 import javafx.scene.control.Label;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.layout.HBox;
@@ -34,6 +36,31 @@ public class VistaPrincipalTutor extends VBox{
         HBox botones = new HBox(10, btnEditarPerfil, btnVerSesiones, btnVerResenas);
         botones.setAlignment(Pos.CENTER);
 
-        
+        setSpacing(10);
+        setPadding(new Insets(20));
+        getChildren().addAll(titulo, lblNombre, lblCorreo, lblTarifa, lblMaterias, listaMaterias, botones);
+
+        btnEditarPerfil.setOnAction(e -> editarPerfil());
+        btnVerResenas.setOnAction(e -> verResenas());
+        btnVerSesiones.setOnAction(e -> verSesiones());
+    }
+    
+    private void editarPerfil() {
+        mostrarInfo("Editar Perfil", "Esta Funcion esta actualmente en desarrollo.");
+    }
+
+    private void verResenas() {
+        mostrarInfo("Ver Reseñas","Aqui se muestran las reseñas que ha recibido.");
+    }
+
+    private void verSesiones() {
+        mostrarInfo("Sesiones","Aqui se muestran sus sesiones activas o pasadas");
+    }
+
+    private void mostrarInfo(String header, String contenido) {
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setHeaderText(header);
+        alerta.setContentText(contenido);
+        alerta.showAndWait();
     }
 }
