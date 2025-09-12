@@ -29,6 +29,20 @@ public class BusquedaVista extends VBox{
         btnBuscar.setPrefWidth(100);
         HBox filaBusqueda = new HBox(10, campoMateria, btnBuscar);
         filaBusqueda.setAlignment(Pos.CENTER);
+
+        TableColumn<Tutor, String> colNombre = new TableColumn<>("Nombre");
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+
+        TableColumn<Tutor, String> colCorreo = new TableColumn<>("Correo");
+        colCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
+
+        TableColumn<Tutor, String> colMateria = new TableColumn<>("Primera Materia");
+        colMateria.setCellValueFactory(data -> {
+            ArrayList<String> materias = data.getValue().getMaterias();
+            String materia = (materias != null && !materias.isEmpty()) ? materias.get(0) : "—";
+            return new javafx.beans.property.SimpleStringProperty(materia);
+
+        
+        });
     }
-    
 }
