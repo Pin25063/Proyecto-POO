@@ -8,4 +8,15 @@ public class Curso {
         this.codigoCurso = codigoCurso;
         this.nombreCurso = nombreCurso;
     }
+
+    //constructor adicional solo con codigo 
+
+    public Curso(int codigoCurso) {
+        this.codigoCurso = codigoCurso;
+        this.nombreCurso = "";
+    }
+
+
+
+
 }
