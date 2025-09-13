@@ -1,14 +1,14 @@
-# 🚀 Proyecto-POO Java con Maven y JavaFX
+# 📖 Proyecto-POO Java con Maven y JavaFX
 
 Este proyecto usa **Maven** como herramienta de construcción y gestión de dependencias, y **JavaFX** para la interfaz gráfica.
 
-## 📋 Requisitos Previos
+## 📖 Requisitos Previos
 
 - **JDK 24** o superior ([Descargar](https://www.oracle.com/java/technologies/downloads/))
 - **Maven 3.6+** ([Descargar](https://maven.apache.org/download.cgi))
 - **Git** ([Descargar](https://git-scm.com/downloads))
 
-## 🏗️ Estructura del Proyecto
+## 📖 Estructura del Proyecto
 
 ```
 Proyecto-POO/
@@ -26,7 +26,7 @@ Proyecto-POO/
 
 ---
 
-## ⚡ Comandos Esenciales
+## 📖 Comandos Esenciales
 
 ### Compilar el proyecto
 ```bash
@@ -50,7 +50,7 @@ mvn test
 
 ---
 
-## 🔧 Configuración del Entorno de Desarrollo
+## 📖 Configuración del Entorno de Desarrollo
 
 ### VS Code
 - Instalar las extensiones:
@@ -59,7 +59,7 @@ mvn test
 
 ---
 
-## 📦 Dependencias Principales
+## 📖 Dependencias Principales
 
 El proyecto usa:
 - **JavaFX 20.0.2** para la interfaz gráfica
@@ -67,16 +67,7 @@ El proyecto usa:
 
 ---
 
-## 🚀 Ejecución desde IDE
-
-### VS Code
-1. Abrir el archivo principal
-2. Configurar archivos .vscode para poder correrlo desde vs code
-3. Darle a Run And Debug para correrlo
-
----
-
-## 🤝 Contribución al Proyecto
+## 📖 Contribución al Proyecto
 
 1. Sincronizar repositorio local con los últimos cambios
 2. Crear una rama para funcionalidad
