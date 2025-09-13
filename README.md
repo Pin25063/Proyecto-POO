@@ -67,15 +67,6 @@ El proyecto usa:
 
 ---
 
-## 📖 Ejecución desde IDE
-
-### VS Code
-1. Abrir el archivo principal
-2. Configurar archivos .vscode para poder correrlo desde vs code
-3. Darle a Run And Debug para correrlo
-
----
-
 ## 📖 Contribución al Proyecto
 
 1. Sincronizar repositorio local con los últimos cambios
