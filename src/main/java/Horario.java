@@ -122,4 +122,22 @@ public class Horario {
                !horaFin.isAfter(finAcademico);
     }
 
+        // Formato para mostrar al usuario
+    public String formatearHorario() {
+        return String.format("%s: %s - %s", 
+                           getNombreDiaEspanol(),
+                           horaInicio.format(TIME_FORMAT),
+                           horaFin.format(TIME_FORMAT));
+    }
+
+    // Formato compacto
+    public String formatearCompacto() {
+        return String.format("%s %s-%s", 
+                           dia.toString().substring(0, 3),
+                           horaInicio.format(TIME_FORMAT),
+                           horaFin.format(TIME_FORMAT));
+    }
+
+
+
 }
