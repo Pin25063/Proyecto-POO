@@ -14,19 +14,19 @@ public class Usuario {
     }
     //Metodos getters
     public int getIdUsuario() { 
-        return idUsuario; 
+        return this.idUsuario; 
     }
     public String getNombre() { 
-        return nombre; 
+        return this.nombre; 
     }
     public String getCorreo() { 
-        return correo; 
+        return this.correo; 
     }
     public String getContrasena() { 
-        return contrasena; 
+        return this.contrasena; 
     }
     public Rol getRol() { 
-        return rol; 
+        return this.rol; 
     }
 
     public boolean verificarContrasena(String contrasena){
