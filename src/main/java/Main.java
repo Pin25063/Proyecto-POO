@@ -7,14 +7,17 @@ import javafx.stage.Stage;
 public class Main extends Application {
     @Override 
     public void start(Stage stage) {
-        BusquedaVista root = new BusquedaVista();
+        LoginVista root = new LoginVista();
+
+        ControladorPrincipal ctrl = new ControladorPrincipal(root);
+        root.setControlador(ctrl);
 
         Scene scene = new Scene(root, 420, 520);
 
         URL cssUrl = getClass().getResource("styles.css");
         if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
 
-        stage.setTitle("Buscar Tutores");
+        stage.setTitle("Gestor de Tutorías - Login");
         stage.setScene(scene);
         stage.show();
     }
