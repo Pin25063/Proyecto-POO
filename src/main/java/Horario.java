@@ -46,4 +46,36 @@ public class Horario {
             throw new IllegalArgumentException("La hora de inicio no puede ser posterior a la hora de fin");
         }
     }
+
+    // Métodos getters
+    public DayOfWeek getDia() {
+        return dia;
+    }
+
+    public LocalTime getHoraInicio() {
+        return horaInicio;
+    }
+
+    public LocalTime getHoraFin() {
+        return horaFin;
+    }
+
+    // Métodos setters con validación
+    public void setDia(DayOfWeek dia) {
+        this.dia = dia;
+    }
+
+    public void setHoraInicio(LocalTime horaInicio) {
+        if (horaInicio.isAfter(this.horaFin)) {
+            throw new IllegalArgumentException("La hora de inicio no puede ser posterior a la hora de fin");
+        }
+        this.horaInicio = horaInicio;
+    }
+
+    public void setHoraFin(LocalTime horaFin) {
+        if (this.horaInicio.isAfter(horaFin)) {
+            throw new IllegalArgumentException("La hora de fin no puede ser anterior a la hora de inicio");
+        }
+        this.horaFin = horaFin;
+    }
 }
