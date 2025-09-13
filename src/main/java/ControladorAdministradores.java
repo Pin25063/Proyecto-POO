@@ -2,14 +2,14 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ComboBox;
+import javafx.scene.control.*;
 import javafx.scene.control.Label;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Optional;
+import java.io.IOException;
 
 // Controlador para la vista del Catedrático y roles de administrador
 public class ControladorAdministradores {
@@ -35,7 +35,7 @@ public class ControladorAdministradores {
     private GestorDeDatos gestorDatos;
     private List<Usuario> listaDeUsuarios;
     private List<Sesion> listaDeSesiones;
-    private List<Curso> listaDeCursos;
+    private ArrayList<Curso> listaDeCursos;
 
     // CONSTRUCTOR 
     public ControladorAdministradores(){
