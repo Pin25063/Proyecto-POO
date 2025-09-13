@@ -139,5 +139,29 @@ public class Horario {
     }
 
 
+    @Override
+    public String toString() {
+        return "Horario{" +
+               "dia=" + dia +
+               ", horaInicio=" + horaInicio +
+               ", horaFin=" + horaFin +
+               '}';
+    }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) return true;
+        if (obj == null || getClass() != obj.getClass()) return false;
+        Horario horario = (Horario) obj;
+        return dia == horario.dia &&
+               horaInicio.equals(horario.horaInicio) &&
+               horaFin.equals(horario.horaFin);
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(dia, horaInicio, horaFin);
+    }
+
+    
 }
