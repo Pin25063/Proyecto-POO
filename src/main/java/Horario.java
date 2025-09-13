@@ -78,4 +78,19 @@ public class Horario {
         }
         this.horaFin = horaFin;
     }
+
+    // obtiene el nombre del dia en espanol 
+    public String getNombreDiaEspanol() {
+        return switch (dia) {
+            case MONDAY -> "Lunes";
+            case TUESDAY -> "Martes";
+            case WEDNESDAY -> "Miércoles";
+            case THURSDAY -> "Jueves";
+            case FRIDAY -> "Viernes";
+            case SATURDAY -> "Sábado";
+            case SUNDAY -> "Domingo";
+        };
+    }
+
+    
 }
