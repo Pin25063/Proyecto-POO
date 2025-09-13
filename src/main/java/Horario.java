@@ -162,6 +162,21 @@ public class Horario {
     public int hashCode() {
         return java.util.Objects.hash(dia, horaInicio, horaFin);
     }
-
     
+    // Crea un horario típico de clase (1 hora)
+    public static Horario crearHorarioClase(DayOfWeek dia, int hora) {
+        LocalTime inicio = LocalTime.of(hora, 0);
+        LocalTime fin = inicio.plusHours(1);
+        return new Horario(dia, inicio, fin);
+    }
+
+    // Valida formato de hora
+    public static boolean esHoraValida(String hora) {
+        try {
+            LocalTime.parse(hora, TIME_FORMAT);
+            return true;
+        } catch (DateTimeParseException e) {
+            return false;
+        }
+    }
 }
