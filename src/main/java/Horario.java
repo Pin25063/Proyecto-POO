@@ -91,6 +91,35 @@ public class Horario {
             case SUNDAY -> "Domingo";
         };
     }
+    // Calcula la duración en minutos
+    public long getDuracionEnMinutos() {
+        return horaInicio.until(horaFin, java.time.temporal.ChronoUnit.MINUTES);
+    }
 
-    
+    // Verifica si un horario se superpone con otro
+    public boolean seSuperponeCon(Horario otroHorario) {
+        if (!this.dia.equals(otroHorario.dia)) {
+            return false; // Días diferentes, no se superponen
+        }
+        
+        // Verifica superposición de horas
+        return !(this.horaFin.isBefore(otroHorario.horaInicio) || 
+                 this.horaInicio.isAfter(otroHorario.horaFin));
+    }
+
+    // Verifica si una hora específica está dentro de este horario
+    public boolean contieneHora(DayOfWeek dia, LocalTime hora) {
+        return this.dia.equals(dia) && 
+               !hora.isBefore(horaInicio) && 
+               !hora.isAfter(horaFin);
+    }
+
+    // Verifica si el horario es válido para un día académico (6:00 - 22:00)
+    public boolean esHorarioAcademico() {
+        LocalTime inicioAcademico = LocalTime.of(6, 0);
+        LocalTime finAcademico = LocalTime.of(22, 0);
+        return !horaInicio.isBefore(inicioAcademico) && 
+               !horaFin.isAfter(finAcademico);
+    }
+
 }
