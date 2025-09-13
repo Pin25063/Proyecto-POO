@@ -35,7 +35,7 @@ public class ControladorAdministradores {
     private GestorDeDatos gestorDatos;
     private List<Usuario> listaDeUsuarios;
     private List<Sesion> listaDeSesiones;
-    private ArrayList<Curso> listaDeCursos;
+    private List<Curso> listaDeCursos;
 
     // CONSTRUCTOR 
     public ControladorAdministradores(){
@@ -79,6 +79,25 @@ public class ControladorAdministradores {
         estudianteComboBox.setItems(estudiantes);
         tutorComboBox.setItems(tutores);
         
-        
+    }
+
+    // Metodo para cuando el usuario hace click en el botón "Asignar tutoría"
+    @FXML
+    private void handleAsignarTutoria(ActionEvent event){
+
+        // Sacar los objetos seleccionados en el ComboBox
+        Estudiante estudianteSeleccionado = estudianteComboBox.getValue();
+        Tutor tutorSeleccionado = tutorComboBox.getValue();
+        Curso cursoSeleccionado = cursoComboBox.getValue();
+
+        // Confirmar que se haya seleccionado algo en todos los ComboBox
+        if (estudianteSeleccionado == null || tutorSeleccionado == null || cursoSeleccionado == null) {
+            statusLabel.setText("ERROR: Debe de seleccionar un estudiante, un tutor y un curso");
+            statusLabel.setStyle("-fx-text-fill: red;"); // cambio de color el texto
+            return;
+        }
+
+        Sesion nuevaSesion = new Sesion(null, 0, 0, null, null, null);
+        // Pendiente: Corregir la creación de las sesiones para que se puedan asignar los valores correctos.
     }
 }
