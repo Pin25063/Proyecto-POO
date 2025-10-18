@@ -13,69 +13,69 @@ import java.util.regex.Pattern;
 public class GestorDeDatos {
 
     // Rutas relativas a los archivos CSV en resources
-    private static final Path USUARIOS = Paths.get("src/main/resources/data/usuarios.csv");
-    private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv");
+    private static final Path USUARIOS = Paths.get("src/main/resources/data/usuarios.csv"); //path en el cual se encuentra el archivo CSV de los usuarios
+    private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv"); //path en el cual se encuentra el archivo CSV de las sesiones
 
-    private static final String SEP = ";";
-    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol";
-    private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado";
-    private static final String NL  = System.lineSeparator();
-    private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP));
+    private static final String SEP = ";"; //Separador utilizado en el archivo CSV
+    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol"; //Formato en el que se encuentran los dato s de los usuarios
+    private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado"; //Formato en el que se encuentran los datos de las sesiones
+    private static final String NL  = System.lineSeparator(); // Separador de fin de línea según el sistema operativo. Se utiliza al escribir en los archivos CSV para añadir saltos de línea correctos.
+    private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP)); // Patrón compilado para dividir las líneas CSV usando el separador SEP. Se usa Pattern.quote(SEP) para escapar caracteres especiales del separador.
 
     // USUARIOS CSV
     public synchronized List<Usuario> cargarUsuarios() throws IOException {
-        List<Usuario> out = new ArrayList<>();
-        if (!Files.exists(USUARIOS)) {
-            System.out.println("El archivo de usuarios no existe.");
-            return out; 
+        List<Usuario> out = new ArrayList<>(); // Lista de salida donde se almacenarán los usuarios leídos
+        if (!Files.exists(USUARIOS)) { // Comprueba si el archivo de usuarios existe
+            System.out.println("El archivo de usuarios no existe."); // Mensaje informativo si no existe el archivo
+            return out; // Devuelve la lista vacía si no existe el archivo
         }
 
-        try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) {
-            String line = br.readLine(); // header
-            while ((line = br.readLine()) != null) {
-                if (line.isBlank()) continue;
-                String[] raw = SEP_PATTERN.split(line, -1);
-                if (raw.length < 5) continue;
+        try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) { // Abre un BufferedReader con codificación UTF-8 para leer el archivo CSV
+            String line = br.readLine();  // Lee la primera línea y la descarta
+            while ((line = br.readLine()) != null) { // Lee línea por línea hasta el final del archivo
+                if (line.isBlank()) continue; // Omite líneas en blanco
+                String[] raw = SEP_PATTERN.split(line, -1); // Divide la línea usando el separador definido (SEP), conservando campos vacíos
+                if (raw.length < 5) continue; // Si la línea no tiene suficientes columnas, se ignora
 
-                int id = Integer.parseInt(raw[0].trim());
-                String nombre  = raw[1].trim();
-                String correo  = raw[2].trim();
-                String pass    = raw[3].trim();
-                Rol rol = Rol.valueOf(raw[4].trim().toUpperCase());
+                int id = Integer.parseInt(raw[0].trim()); // Parse del ID de usuario desde la primera columna
+                String nombre  = raw[1].trim(); // Nombre del usuario desde la segunda columna (recortado)
+                String correo  = raw[2].trim(); // Correo del usuario desde la tercera columna (recortado)
+                String pass    = raw[3].trim(); // Contraseña desde la cuarta columna (recortada)
+                Rol rol = Rol.valueOf(raw[4].trim().toUpperCase()); // Convierte la quinta columna a un valor del enum Rol (mayúsculas)
 
-                out.add(new Usuario(id, nombre, correo, pass, rol));
+                out.add(new Usuario(id, nombre, correo, pass, rol)); // Crea un objeto Usuario y lo añade a la lista de salida
                 System.out.println("Usuario cargado: " + nombre + ", " + correo); // Verificación temporal de carga de archivo CSV
             }
         }
-        return out;
+        return out;  // Devuelve la lista con los usuarios cargados
     }
 
     // SESIONES CSV
     public synchronized List<Sesion> cargarSesiones() throws IOException {
-        List<Sesion> out = new ArrayList<>();
-        if (!Files.exists(SESIONES)) {
+        List<Sesion> out = new ArrayList<>(); // Lista de salida para las sesiones leídas
+        if (!Files.exists(SESIONES)) { // Comprueba si el archivo de sesiones existe
             System.out.println("El archivo de sesiones no existe.");
-            return out;  
+            return out;  // Devuelve lista vacía si no existe el archivo
         }
 
-        try (BufferedReader br = Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) {
-            String line = br.readLine(); // header
-            while ((line = br.readLine()) != null) {
-                if (line.isBlank()) continue;
-                String[] raw = SEP_PATTERN.split(line, -1);
-                if (raw.length < 6) continue;
-                String id       = raw[0].trim();
-                int estId       = Integer.parseInt(raw[1].trim());
-                int tutId       = Integer.parseInt(raw[2].trim());
-                String materia  = raw[3].trim();
-                String fechaHora= raw[4].trim(); 
-                EstadoSesion estado = EstadoSesion.valueOf(raw[5].trim().toUpperCase());
+        try (BufferedReader br = Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) { // Abre BufferedReader con codificación UTF-8
+            String line = br.readLine(); //Lee la primera línea y la descarta
+            while ((line = br.readLine()) != null) { // Lee línea por línea hasta el final del archivo
+                if (line.isBlank()) continue; // Omite líneas en blanco
+                String[] raw = SEP_PATTERN.split(line, -1); // Divide la línea usando el separador SEP conservando campos vacíos
+                if (raw.length < 6) continue; // Si no hay suficientes columnas, ignora la línea
+                String id       = raw[0].trim(); // Lee y recorta el id de la sesión
+                int estId       = Integer.parseInt(raw[1].trim()); // Lee y convierte el id del estudiante a entero
+                int tutId       = Integer.parseInt(raw[2].trim()); // Lee y convierte el id del tutor a entero
+                String materia  = raw[3].trim(); // Lee y recorta la materia
+                String fechaHora= raw[4].trim(); // Lee y recorta la fecha y hora
+                EstadoSesion estado = EstadoSesion.valueOf(raw[5].trim().toUpperCase()); // Convierte el estado a enum (en mayúsculas)
 
-                out.add(new Sesion(id, estId, tutId, materia, fechaHora, estado));
+                out.add(new Sesion(id, estId, tutId, materia, fechaHora, estado)); // Crea la sesión y la añade a la lista
                 System.out.println("Sesion cargada: " + id + ", " + materia + ", " + estado); // Verificación temporal de carga de archivo CSV
             }
         }
-        return out;
+        return out; // Devuelve la lista de sesiones cargadas
     }
 
     // APPEND SESION
