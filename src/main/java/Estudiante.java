@@ -1,8 +1,8 @@
 import java.util.ArrayList;
 
 public class Estudiante extends Usuario {
-private ArrayList<Sesion> historialSesiones;
-    public Estudiante(int idUsuario, String nombre, String correo, String contrasena, Rol rol, ArrayList<Sesion> historialSesiones) {
+    private ArrayList<Sesion> historialSesiones;
+    public Estudiante(int idUsuario, String nombre, String correo, String contrasena, Rol rol) {
         super(idUsuario, nombre, correo, contrasena, rol); 
         this.historialSesiones = new ArrayList<>();
     };

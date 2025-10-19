@@ -43,8 +43,23 @@ public class GestorDeDatos {
                 String pass    = raw[3].trim(); // Contraseña desde la cuarta columna (recortada)
                 Rol rol = Rol.valueOf(raw[4].trim().toUpperCase()); // Convierte la quinta columna a un valor del enum Rol (mayúsculas)
 
+                // Soporte para materias (columna 6, si existe)
+                ArrayList<String> materias = new ArrayList<>();
+                if (raw.length >= 6 && !raw[5].isBlank()) { //Validacion de datos en el CSV
+                    for (String mat : raw[5].split(",")) {
+                        materias.add(mat.trim());
+                    }
+                }
+
+            Usuario u;
+            switch (rol) {
+                case TUTOR -> u = new Tutor(id, nombre, correo, pass, rol, materias, 0.0);
+                case ESTUDIANTE -> u = new Estudiante(id, nombre, correo, pass, rol);
+                default -> u = new Usuario(id, nombre, correo, pass, rol);
+            }
+
                 out.add(new Usuario(id, nombre, correo, pass, rol)); // Crea un objeto Usuario y lo añade a la lista de salida
-                System.out.println("Usuario cargado: " + nombre + ", " + correo); // Verificación temporal de carga de archivo CSV
+                System.out.println("Usuario cargado: " + nombre + ", " + correo + ", Materias: " + materias); // Verificación temporal de carga de archivo CSV
             }
         }
         return out;  // Devuelve la lista con los usuarios cargados
