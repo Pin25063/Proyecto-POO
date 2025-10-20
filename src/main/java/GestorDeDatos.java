@@ -17,7 +17,7 @@ public class GestorDeDatos {
     private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv"); //path en el cual se encuentra el archivo CSV de las sesiones
 
     private static final String SEP = ";"; //Separador utilizado en el archivo CSV
-    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol"; //Formato en el que se encuentran los dato s de los usuarios
+    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol;materias"; //Formato en el que se encuentran los dato s de los usuarios
     private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado"; //Formato en el que se encuentran los datos de las sesiones
     private static final String NL  = System.lineSeparator(); // Separador de fin de línea según el sistema operativo. Se utiliza al escribir en los archivos CSV para añadir saltos de línea correctos.
     private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP)); // Patrón compilado para dividir las líneas CSV usando el separador SEP. Se usa Pattern.quote(SEP) para escapar caracteres especiales del separador.
@@ -116,4 +116,32 @@ public class GestorDeDatos {
             bw.write(NL);
         }
     }
+
+    public synchronized void appendUsuario(Usuario u) throws IOException { 
+        if (!Files.exists(USUARIOS)) { 
+            Files.write(USUARIOS, (HDR_USU + NL).getBytes(StandardCharsets.UTF_8)); // escribe cabecera con campo materias y nueva línea en UTF-8
+        } 
+
+        try (BufferedWriter bw = Files.newBufferedWriter( // abre un BufferedWriter
+            USUARIOS, // archivo
+            StandardCharsets.UTF_8, // codificación UTF-8
+            StandardOpenOption.APPEND)) { // abre en modo append para añadir al final
+
+            StringBuilder linea = new StringBuilder(); // crea un StringBuilder para construir la línea CSV
+            linea.append(u.getIdUsuario()).append(SEP) // añade id de usuario y separador
+                .append(u.getNombre()).append(SEP) // añade nombre y separador
+                .append(u.getCorreo()).append(SEP) // añade correo y separador
+                .append(u.getContrasena()).append(SEP) // añade contraseña y separador
+                .append(u.getRol()); // añade rol (sin separador final aun)
+
+            if (u instanceof Tutor tutor) {
+                linea.append(SEP).append(String.join(",", tutor.getMaterias())); // añade separador y las materias unidas por comas
+            } else { 
+                linea.append(SEP); // añade campo vacío para materias
+            }
+
+            bw.write(linea.toString()); // escribe la línea construida en el archivo
+            bw.write(NL); // escribe nueva línea
+        } 
+    } 
 }
