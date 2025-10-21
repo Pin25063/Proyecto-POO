@@ -59,7 +59,6 @@ public class GestorDeDatos {
             }
 
                 out.add(new Usuario(id, nombre, correo, pass, rol)); // Crea un objeto Usuario y lo añade a la lista de salida
-                System.out.println("Usuario cargado: " + nombre + ", " + correo + ", Materias: " + materias); // Verificación temporal de carga de archivo CSV
             }
         }
         return out;  // Devuelve la lista con los usuarios cargados
@@ -87,7 +86,6 @@ public class GestorDeDatos {
                 EstadoSesion estado = EstadoSesion.valueOf(raw[5].trim().toUpperCase()); // Convierte el estado a enum (en mayúsculas)
 
                 out.add(new Sesion(id, estId, tutId, materia, fechaHora, estado)); // Crea la sesión y la añade a la lista
-                System.out.println("Sesion cargada: " + id + ", " + materia + ", " + estado); // Verificación temporal de carga de archivo CSV
             }
         }
         return out; // Devuelve la lista de sesiones cargadas
