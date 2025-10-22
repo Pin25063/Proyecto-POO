@@ -17,18 +17,13 @@ public class GestorDeDatos {
     private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv"); //path en el cual se encuentra el archivo CSV de las sesiones
 
     private static final String SEP = ";"; //Separador utilizado en el archivo CSV
-    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol;materias"; //Formato en el que se encuentran los dato s de los usuarios
-    private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado"; //Formato en el que se encuentran los datos de las sesiones
+        
     private static final String NL  = System.lineSeparator(); // Separador de fin de línea según el sistema operativo. Se utiliza al escribir en los archivos CSV para añadir saltos de línea correctos.
     private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP)); // Patrón compilado para dividir las líneas CSV usando el separador SEP. Se usa Pattern.quote(SEP) para escapar caracteres especiales del separador.
 
     // USUARIOS CSV
     public synchronized List<Usuario> cargarUsuarios() throws IOException {
         List<Usuario> out = new ArrayList<>(); // Lista de salida donde se almacenarán los usuarios leídos
-        if (!Files.exists(USUARIOS)) { // Comprueba si el archivo de usuarios existe
-            System.out.println("El archivo de usuarios no existe."); // Mensaje informativo si no existe el archivo
-            return out; // Devuelve la lista vacía si no existe el archivo
-        }
 
         try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) { // Abre un BufferedReader con codificación UTF-8 para leer el archivo CSV
             String line = br.readLine();  // Lee la primera línea y la descarta
@@ -50,27 +45,29 @@ public class GestorDeDatos {
                         materias.add(mat.trim());
                     }
                 }
-
-            Usuario u;
-            switch (rol) {
-                case TUTOR -> u = new Tutor(id, nombre, correo, pass, rol, materias, 0.0);
-                case ESTUDIANTE -> u = new Estudiante(id, nombre, correo, pass, rol);
-                default -> u = new Usuario(id, nombre, correo, pass, rol);
+                Usuario u;
+                double tarifa = 0.0;
+                if (rol == Rol.TUTOR && raw.length >= 7 && !raw[6].isBlank()) {
+                    try {
+                        tarifa = Double.parseDouble(raw[6].trim());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Tarifa inválida para tutor con ID " + id);
+                    }
+                }
+                switch (rol) {
+                    case TUTOR -> u = new Tutor(id, nombre, correo, pass, materias, tarifa);
+                    case CATEDRATICO -> u = new Estudiante(id, nombre, correo, pass);
+                    default -> u = new Estudiante(id, nombre, correo, pass);
+                }
+                    out.add(u); // Crea un objeto Usuario y lo añade a la lista de salida
+                }
             }
-
-                out.add(new Usuario(id, nombre, correo, pass, rol)); // Crea un objeto Usuario y lo añade a la lista de salida
-            }
+            return out;  // Devuelve la lista con los usuarios cargados
         }
-        return out;  // Devuelve la lista con los usuarios cargados
-    }
 
     // SESIONES CSV
     public synchronized List<Sesion> cargarSesiones() throws IOException {
         List<Sesion> out = new ArrayList<>(); // Lista de salida para las sesiones leídas
-        if (!Files.exists(SESIONES)) { // Comprueba si el archivo de sesiones existe
-            System.out.println("El archivo de sesiones no existe.");
-            return out;  // Devuelve lista vacía si no existe el archivo
-        }
 
         try (BufferedReader br = Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) { // Abre BufferedReader con codificación UTF-8
             String line = br.readLine(); //Lee la primera línea y la descarta
@@ -78,11 +75,11 @@ public class GestorDeDatos {
                 if (line.isBlank()) continue; // Omite líneas en blanco
                 String[] raw = SEP_PATTERN.split(line, -1); // Divide la línea usando el separador SEP conservando campos vacíos
                 if (raw.length < 6) continue; // Si no hay suficientes columnas, ignora la línea
-                String id       = raw[0].trim(); // Lee y recorta el id de la sesión
-                int estId       = Integer.parseInt(raw[1].trim()); // Lee y convierte el id del estudiante a entero
-                int tutId       = Integer.parseInt(raw[2].trim()); // Lee y convierte el id del tutor a entero
-                String materia  = raw[3].trim(); // Lee y recorta la materia
-                String fechaHora= raw[4].trim(); // Lee y recorta la fecha y hora
+                String id        = raw[0].trim(); // Lee y recorta el id de la sesión
+                int estId        = Integer.parseInt(raw[1].trim()); // Lee y convierte el id del estudiante a entero
+                int tutId        = Integer.parseInt(raw[2].trim()); // Lee y convierte el id del tutor a entero
+                String materia   = raw[3].trim(); // Lee y recorta la materia
+                String fechaHora = raw[4].trim(); // Lee y recorta la fecha y hora
                 EstadoSesion estado = EstadoSesion.valueOf(raw[5].trim().toUpperCase()); // Convierte el estado a enum (en mayúsculas)
 
                 out.add(new Sesion(id, estId, tutId, materia, fechaHora, estado)); // Crea la sesión y la añade a la lista
@@ -116,10 +113,6 @@ public class GestorDeDatos {
     }
 
     public synchronized void appendUsuario(Usuario u) throws IOException { 
-        if (!Files.exists(USUARIOS)) { 
-            Files.write(USUARIOS, (HDR_USU + NL).getBytes(StandardCharsets.UTF_8)); // escribe cabecera con campo materias y nueva línea en UTF-8
-        } 
-
         try (BufferedWriter bw = Files.newBufferedWriter( // abre un BufferedWriter
             USUARIOS, // archivo
             StandardCharsets.UTF_8, // codificación UTF-8
@@ -131,11 +124,12 @@ public class GestorDeDatos {
                 .append(u.getCorreo()).append(SEP) // añade correo y separador
                 .append(u.getContrasena()).append(SEP) // añade contraseña y separador
                 .append(u.getRol()); // añade rol (sin separador final aun)
-
+            //Si el nuevo usuario es tutor se asignan los parametros materias y tarifa
             if (u instanceof Tutor tutor) {
-                linea.append(SEP).append(String.join(",", tutor.getMaterias())); // añade separador y las materias unidas por comas
-            } else { 
-                linea.append(SEP); // añade campo vacío para materias
+                    linea.append(SEP).append(String.join(",", tutor.getMaterias()))
+                    .append(SEP).append(tutor.getTarifa());
+            } else {
+                linea.append(SEP).append(SEP); // añade campo vacío para materias y tarifa
             }
 
             bw.write(linea.toString()); // escribe la línea construida en el archivo

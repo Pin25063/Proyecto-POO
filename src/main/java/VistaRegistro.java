@@ -1,3 +1,6 @@
+import java.util.ArrayList;
+import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Alert;
@@ -22,6 +25,10 @@ public class VistaRegistro extends VBox {
     //Vbox donde se encontraran las materias
     private final VBox contenedorMaterias = new VBox(5);
 
+    //Campo para ingresar la tarifa de los tutores
+    private final TextField txtTarifa = new TextField();
+    private final VBox contenedorTarifa = new VBox(5);
+
     //Botones
     private final Button btnRegistrar = new Button("Registrar");
     private final Button btnCancelar = new Button("Cancelar");
@@ -32,7 +39,7 @@ public class VistaRegistro extends VBox {
 
     //Array de las materias disponibles hasta ahora
     private static final String[] MATERIAS = {
-        "Matemática", "Física", "Química", "Programación", "Estadística"
+        "Matematica", "Fisica", "Quimica", "Programacion", "Estadistica"
     };
 
     public VistaRegistro() {
@@ -43,7 +50,7 @@ public class VistaRegistro extends VBox {
         setFillWidth(false);
         setMaxWidth(460);
 
-        //Titulo de la pantalla
+        //Lables de texto de la pantalla
         Label titulo = new Label("Registro de Usuario");
         titulo.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
 
@@ -61,6 +68,11 @@ public class VistaRegistro extends VBox {
         contenedorMaterias.setAlignment(Pos.CENTER_LEFT);
         contenedorMaterias.setVisible(false); // Oculto por defecto
 
+        //Cuadro para ingresar tarifa de tutores
+        contenedorTarifa.setPadding(new Insets(5));
+        contenedorTarifa.setAlignment(Pos.CENTER_LEFT);
+        contenedorTarifa.setVisible(false);
+
         // Contenedor para los botones de registro y cancelacion
         HBox botones = new HBox(10, btnRegistrar, btnCancelar);
         botones.setAlignment(Pos.CENTER);
@@ -72,6 +84,7 @@ public class VistaRegistro extends VBox {
             txtCorreo,
             txtContrasena,
             comboRol,
+            contenedorTarifa,
             contenedorMaterias,
             botones
         );
@@ -80,11 +93,58 @@ public class VistaRegistro extends VBox {
         btnCancelar.setOnAction(e -> onCancel.run());
 
         //Cuando el comboRol se active, actualizar las materias dependiendo del tipo de usuario
-        comboRol.setOnAction(e -> actualizarOpcionesMaterias());
+        comboRol.setOnAction(e -> actualizarOpciones());
 
-        // Por ahora el botón Registrar solo muestra mensaje
+        //Registro y validacion de los datos para creacion de usuario
         btnRegistrar.setOnAction(e -> {
-            mostrarInfo("Función pendiente", "La funcionalidad de registro se agregará más adelante.");
+            String nombre = txtNombre.getText().trim();
+            String correo = txtCorreo.getText().trim();
+            String contrasena = txtContrasena.getText();
+            Rol rol = comboRol.getValue();
+
+            // Validacion de campos vacios
+            if (nombre.isEmpty() || correo.isEmpty() || contrasena.isEmpty() || rol == null) {
+                mostrarInfo("Campos incompletos", "Por favor complete todos los campos.");
+                return;
+            }
+
+            int id = controlador.generarNuevoIdUsuario();
+            Usuario nuevoUsuario;
+            
+            //Construccion de usuario dependiendo de su rol
+            switch (rol) {
+                case TUTOR -> {
+                    List<String> materias = getMateriasSeleccionadas();
+                    if (materias.isEmpty()) {
+                        mostrarInfo("Materias faltantes", "Selecciona al menos una materia.");
+                        return;
+                    }
+
+                    String tarifaTexto = txtTarifa.getText().trim();
+                    if (tarifaTexto.isEmpty()) {
+                        mostrarInfo("Tarifa requerida", "Ingresa la tarifa por hora.");
+                        return;
+                    }
+
+                    double tarifa;
+                    try {
+                        tarifa = Double.parseDouble(tarifaTexto);
+                        if (tarifa < 0) throw new NumberFormatException();
+                    } catch (NumberFormatException nfe) {
+                        mostrarInfo("Tarifa inválida", "Ingresa un número válido mayor o igual a 0.");
+                        return;
+                    }
+                    nuevoUsuario = new Tutor(id, nombre, correo, contrasena, new ArrayList<>(materias), tarifa);
+                }
+                case CATEDRATICO -> nuevoUsuario = new Catedratico(id, nombre, correo, contrasena);
+
+                default -> nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
+            }
+
+            controlador.registrar(nuevoUsuario);
+
+            mostrarInfo("Cuenta creada", "Tu cuenta ha sido registrada con éxito.");
+            if (onCancel != null) onCancel.run(); // Volver a login
         });
     }
     
@@ -107,20 +167,45 @@ public class VistaRegistro extends VBox {
     }
 
     //Metodo para actualizar las materias dependiendo del tipo de usuario que se este creando
-    private void actualizarOpcionesMaterias() {
-        contenedorMaterias.getChildren().clear(); // Limpia las materias anteriores al cambiar el rol
+    private void actualizarOpciones() {
+        contenedorMaterias.getChildren().clear();
+        contenedorTarifa.getChildren().clear();
 
         Rol rolSeleccionado = comboRol.getValue();
         if (rolSeleccionado == Rol.TUTOR) {
-            Label lbl = new Label("Selecciona tus materias:");
-            contenedorMaterias.getChildren().add(lbl);
+            // Materias
+            Label lblMaterias = new Label("Selecciona las materias que enseñas:");
+            contenedorMaterias.getChildren().add(lblMaterias);
+
             for (String materia : MATERIAS) {
                 CheckBox cb = new CheckBox(materia);
                 contenedorMaterias.getChildren().add(cb);
             }
             contenedorMaterias.setVisible(true);
+
+            // Tarifa
+            Label lblTarifa = new Label("Tarifa por hora:");
+            txtTarifa.setPromptText("Ej: 150.0");
+            contenedorTarifa.getChildren().addAll(lblTarifa, txtTarifa);
+            contenedorTarifa.setVisible(true);
         } else {
             contenedorMaterias.setVisible(false);
+            contenedorTarifa.setVisible(false);
         }
+    }
+
+
+    public List<String> getMateriasSeleccionadas() {
+        List<String> materias = new ArrayList<>();
+
+        // Solo aplica si el usuario seleccionó el rol Tutor
+        if (comboRol.getValue() == Rol.TUTOR) {
+            for (javafx.scene.Node node : contenedorMaterias.getChildren()) {
+                if (node instanceof CheckBox cb && cb.isSelected()) {
+                    materias.add(cb.getText());
+                }
+            }
+        }
+        return materias;
     }
 }

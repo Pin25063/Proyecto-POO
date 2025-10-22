@@ -82,7 +82,6 @@ public class ControladorPrincipal {
                 loginVista.mostrarError("Error", "No se pudo guardar el usuario.");
                 return; // Sale del método si no se pudo guardar
             }
-            loginVista.mostrarInfo("Registro exitoso", "Usuario registrado correctamente.");
             loginVista.limpiarCampos(); // Limpia los campos del formulario de registro en la vista
         }
     }
