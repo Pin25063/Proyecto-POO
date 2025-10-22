@@ -29,9 +29,9 @@ public class VistaPrincipalCatedratico extends VBox{
         Label lblCursos = new Label("Cursos a cargo:");
         ListView<String> listaCursos = new ListView<>();
 
-        if (catedratico.getCursos() != null) {
-            for (Curso curso : catedratico.getCursos()) {
-                listaCursos.getItems().add(curso.toString());
+        if (catedratico.getMaterias() != null) {
+            for (String curso : catedratico.getMaterias()) {
+                listaCursos.getItems().add(curso);
             }
         }
 

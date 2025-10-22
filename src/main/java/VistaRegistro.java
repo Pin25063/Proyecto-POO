@@ -84,8 +84,8 @@ public class VistaRegistro extends VBox {
             txtCorreo,
             txtContrasena,
             comboRol,
-            contenedorTarifa,
             contenedorMaterias,
+            contenedorTarifa,
             botones
         );
 
@@ -136,7 +136,14 @@ public class VistaRegistro extends VBox {
                     }
                     nuevoUsuario = new Tutor(id, nombre, correo, contrasena, new ArrayList<>(materias), tarifa);
                 }
-                case CATEDRATICO -> nuevoUsuario = new Catedratico(id, nombre, correo, contrasena);
+                case CATEDRATICO -> {
+                    List<String> materias = getMateriasSeleccionadas();
+                    if (materias.isEmpty()) {
+                        mostrarInfo("Materias faltantes", "Selecciona al menos una materia.");
+                        return;
+                    }
+                    nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
+                }
 
                 default -> nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
             }
@@ -172,9 +179,9 @@ public class VistaRegistro extends VBox {
         contenedorTarifa.getChildren().clear();
 
         Rol rolSeleccionado = comboRol.getValue();
-        if (rolSeleccionado == Rol.TUTOR) {
+        if (rolSeleccionado != Rol.ESTUDIANTE) {
             // Materias
-            Label lblMaterias = new Label("Selecciona las materias que enseñas:");
+            Label lblMaterias = new Label("Selecciona las materias que imparte:");
             contenedorMaterias.getChildren().add(lblMaterias);
 
             for (String materia : MATERIAS) {
@@ -182,12 +189,13 @@ public class VistaRegistro extends VBox {
                 contenedorMaterias.getChildren().add(cb);
             }
             contenedorMaterias.setVisible(true);
-
-            // Tarifa
-            Label lblTarifa = new Label("Tarifa por hora:");
-            txtTarifa.setPromptText("Ej: 150.0");
-            contenedorTarifa.getChildren().addAll(lblTarifa, txtTarifa);
-            contenedorTarifa.setVisible(true);
+            if (rolSeleccionado == Rol.TUTOR) {
+                // Tarifa
+                Label lblTarifa = new Label("Tarifa por hora:");
+                txtTarifa.setPromptText("Ej: 150.0");
+                contenedorTarifa.getChildren().addAll(lblTarifa, txtTarifa);
+                contenedorTarifa.setVisible(true);
+            }
         } else {
             contenedorMaterias.setVisible(false);
             contenedorTarifa.setVisible(false);
@@ -198,8 +206,8 @@ public class VistaRegistro extends VBox {
     public List<String> getMateriasSeleccionadas() {
         List<String> materias = new ArrayList<>();
 
-        // Solo aplica si el usuario seleccionó el rol Tutor
-        if (comboRol.getValue() == Rol.TUTOR) {
+        // Solo aplica si el usuario seleccionó un rol que no sea estudiante
+        if (comboRol.getValue() != Rol.ESTUDIANTE) {
             for (javafx.scene.Node node : contenedorMaterias.getChildren()) {
                 if (node instanceof CheckBox cb && cb.isSelected()) {
                     materias.add(cb.getText());

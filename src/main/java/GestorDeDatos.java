@@ -22,7 +22,7 @@ public class GestorDeDatos {
     private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP)); // Patrón compilado para dividir las líneas CSV usando el separador SEP. Se usa Pattern.quote(SEP) para escapar caracteres especiales del separador.
 
     // USUARIOS CSV
-    public synchronized List<Usuario> cargarUsuarios() throws IOException {
+    public List<Usuario> cargarUsuarios() throws IOException {
         List<Usuario> out = new ArrayList<>(); // Lista de salida donde se almacenarán los usuarios leídos
 
         try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) { // Abre un BufferedReader con codificación UTF-8 para leer el archivo CSV
@@ -46,6 +46,7 @@ public class GestorDeDatos {
                     }
                 }
                 Usuario u;
+                // Soporte para tarifa (columna 7, si existe)
                 double tarifa = 0.0;
                 if (rol == Rol.TUTOR && raw.length >= 7 && !raw[6].isBlank()) {
                     try {
@@ -56,7 +57,7 @@ public class GestorDeDatos {
                 }
                 switch (rol) {
                     case TUTOR -> u = new Tutor(id, nombre, correo, pass, materias, tarifa);
-                    case CATEDRATICO -> u = new Estudiante(id, nombre, correo, pass);
+                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass, materias);
                     default -> u = new Estudiante(id, nombre, correo, pass);
                 }
                     out.add(u); // Crea un objeto Usuario y lo añade a la lista de salida
@@ -66,7 +67,7 @@ public class GestorDeDatos {
         }
 
     // SESIONES CSV
-    public synchronized List<Sesion> cargarSesiones() throws IOException {
+    public List<Sesion> cargarSesiones() throws IOException {
         List<Sesion> out = new ArrayList<>(); // Lista de salida para las sesiones leídas
 
         try (BufferedReader br = Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) { // Abre BufferedReader con codificación UTF-8
@@ -89,7 +90,7 @@ public class GestorDeDatos {
     }
 
     // APPEND SESION
-    public synchronized void appendSesion(Sesion s) throws IOException {
+    public void appendSesion(Sesion s) throws IOException {
         // Aquí solo se muestra un mensaje si el archivo no existe
         if (!Files.exists(SESIONES)) {
             System.out.println("El archivo de sesiones no existe.");
@@ -112,7 +113,7 @@ public class GestorDeDatos {
         }
     }
 
-    public synchronized void appendUsuario(Usuario u) throws IOException { 
+    public void appendUsuario(Usuario u) throws IOException { 
         try (BufferedWriter bw = Files.newBufferedWriter( // abre un BufferedWriter
             USUARIOS, // archivo
             StandardCharsets.UTF_8, // codificación UTF-8
@@ -128,6 +129,9 @@ public class GestorDeDatos {
             if (u instanceof Tutor tutor) {
                     linea.append(SEP).append(String.join(",", tutor.getMaterias()))
                     .append(SEP).append(tutor.getTarifa());
+            } else if(u instanceof Catedratico cat){ //Si el nuevo usuario es catedratico se asigna solo materias
+                linea.append(SEP).append(String.join(",", cat.getMaterias()))
+                .append(SEP); //No asignar tarifa
             } else {
                 linea.append(SEP).append(SEP); // añade campo vacío para materias y tarifa
             }
