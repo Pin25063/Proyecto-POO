@@ -29,18 +29,18 @@ public class VistaPrincipalEstudiante extends VBox {
     setAlignment(Pos.TOP_CENTER);
     setFillWidth(true);
     
-    // Título de bienvenida
     Label titulo = new Label("Bienvenido, " + estudianteActual.getNombre());
     titulo.getStyleClass().add("titulo");
     titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
     
-    // NUEVO: Sección de información del perfil
     VBox seccionPerfil = crearSeccionPerfil();
     
-    // NUEVO: Sección de historial de sesiones
+    // NUEVO: Sección de botones
+    HBox seccionBotones = crearSeccionBotones();
+    
     VBox seccionHistorial = crearSeccionHistorial();
     
-    getChildren().addAll(titulo, seccionPerfil, seccionHistorial);
+    getChildren().addAll(titulo, seccionPerfil, seccionBotones, seccionHistorial);
 }
 
 // MÉTODO NUEVO: Crear sección de perfil
@@ -100,4 +100,35 @@ private VBox crearSeccionHistorial() {
     
     return seccion;
  }
+
+ // MÉTODO NUEVO: Crear barra de botones
+    private HBox crearSeccionBotones() {
+    HBox contenedor = new HBox(12);
+    contenedor.setAlignment(Pos.CENTER);
+    contenedor.setPadding(new Insets(10, 0, 10, 0));
+    
+    btnEditarPerfil = new Button("Editar Perfil");
+    btnBuscarTutores = new Button("Buscar Tutores");
+    btnAgendarSesion = new Button("Agendar Sesión");
+    btnVerHistorial = new Button("Ver Historial");
+    
+    // Estilo de botones
+    String estiloBoton = "-fx-font-size: 13px; -fx-padding: 8 15 8 15;";
+    btnEditarPerfil.setStyle(estiloBoton);
+    btnBuscarTutores.setStyle(estiloBoton);
+    btnAgendarSesion.setStyle(estiloBoton);
+    btnVerHistorial.setStyle(estiloBoton);
+    
+    // Conectar acciones (por ahora a métodos que crearemos)
+    btnEditarPerfil.setOnAction(e -> abrirEdicionPerfil());
+    btnBuscarTutores.setOnAction(e -> abrirBusquedaTutores());
+    btnAgendarSesion.setOnAction(e -> abrirAgendamiento());
+    btnVerHistorial.setOnAction(e -> mostrarHistorialCompleto());
+    
+    contenedor.getChildren().addAll(btnEditarPerfil, btnBuscarTutores, btnAgendarSesion, btnVerHistorial);
+    
+    return contenedor;
+    
+    }
+    
 }
