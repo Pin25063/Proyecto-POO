@@ -54,60 +54,11 @@ public class ControladorAdministradores {
         return nuevaSesion;
     }
 
-    // METODO: Generar reporte detallado del desempeño de todos los tutores del sistema
-    public String generarReporteDesempenoTutores() {
-        // StringBuilder es un "Constructor de Textos" usado para crear Strings de manera más eficiente
-        // ya que es mutable y sirve mucho al querer construir un String, pieza por pieza y se usa más cuando hay bucles de por medio
-        StringBuilder reporte = new StringBuilder("=== REPORTE DE DESEMPEÑO DE TUTORES ===\n\n");
-        
-        // Obtenemos solo los tutores de la lista de usuarios.
-        List<Tutor> tutores = controladorPrincipal.getListaDeUsuarios().stream().filter(u -> u instanceof Tutor).map(u -> (Tutor) u).collect(Collectors.toList());
-
-        if (tutores.isEmpty()) {
-            return "No hay tutores registrados en el sistema.";
-        }
-        
-        for (Tutor tutor : tutores) {
-            reporte.append("Tutor: ").append(tutor.getNombre()).append(" (ID: ").append(tutor.getIdUsuario()).append(")\n");
-            reporte.append("  Materias: ").append(String.join(", ", tutor.getMaterias())).append("\n");
-            reporte.append("  Tarifa: Q").append(String.format("%.2f", tutor.getTarifa())).append("\n");
-
-            // Se cuetan cuántas sesiones ha completado este tutor.
-            long sesionesCompletadas = controladorPrincipal.getListaDeSesiones().stream()
-                .filter(s -> s.getTutorId() == tutor.getIdUsuario() && s.getEstado() == EstadoSesion.COMPLETADA)
-                .count();
-            
-            reporte.append("  Total Sesiones Completadas: ").append(sesionesCompletadas).append("\n\n");
-        }
-        return reporte.toString();
+    // METODO: Generar reporte detallado del desempeño de todos los tutores del sistema (IMPLEMENTADO MÁS ADELANTE)
+    public void generarReporteDesempenoTutores() {
     }
 
-    // METODO: para generar un reporte del estado de las tutorías de un curso específico
-    public String generarReporteConsolidadoCurso(Curso curso) {
-        if (curso == null) return "Por favor, selecciona un curso para generar el reporte.";
-        
-        StringBuilder reporte = new StringBuilder();
-        reporte.append("=== REPORTE DEL CURSO: ").append(curso.toString()).append(" ===\n\n");
-
-        // Filtar las sesiones que pertenecen a este curso.
-        List<Sesion> sesionesDelCurso = controladorPrincipal.getListaDeSesiones().stream().filter(s -> s.getMateria().equalsIgnoreCase(curso.getNombreCurso())).collect(Collectors.toList());
-
-        if (sesionesDelCurso.isEmpty()) {
-            return reporte.append("No hay sesiones registradas para este curso.").toString();
-        }
-
-        // Contamos las sesiones por cada estado.
-        long pendientes = sesionesDelCurso.stream().filter(s -> s.getEstado() == EstadoSesion.PENDIENTE).count();
-        long programadas = sesionesDelCurso.stream().filter(s -> s.getEstado() == EstadoSesion.PROGRAMADA).count();
-        long completadas = sesionesDelCurso.stream().filter(s -> s.getEstado() == EstadoSesion.COMPLETADA).count();
-        long canceladas = sesionesDelCurso.stream().filter(s -> s.getEstado() == EstadoSesion.CANCELADA).count();
-
-        reporte.append("Total de sesiones registradas: ").append(sesionesDelCurso.size()).append("\n");
-        reporte.append("  - Pendientes: ").append(pendientes).append("\n");
-        reporte.append("  - Programadas: ").append(programadas).append("\n");
-        reporte.append("  - Completadas: ").append(completadas).append("\n");
-        reporte.append("  - Canceladas: ").append(canceladas).append("\n");
-
-        return reporte.toString();
+    // METODO: para generar un reporte del estado de las tutorías de un curso específico (IMPLEMENTADO MÁS ADELANTE)
+    public void generarReporteConsolidadoCurso(Curso curso) {
     }
 }

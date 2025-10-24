@@ -267,8 +267,8 @@ public class VistaPrincipalCatedratico {
             Curso cursoSeleccionado = cmbCurso.getValue();
             // Chequear validez del curso
             if (cursoSeleccionado != null) {
-                // Se llama al controlador para generar el reporte
-                String reporte = controladorAdmin.generarReporteConsolidadoCurso(cursoSeleccionado);
+                // Se llama al controladorAdmin para generar el reporte (Se implementa más adelante)
+                String reporte = null;
                 // Mostrar resultado en TextArea
                 txtReporte.setText(reporte);
             }
@@ -291,8 +291,9 @@ public class VistaPrincipalCatedratico {
         txtReporte.setPrefHeight(500);
         txtReporte.setFont(Font.font("Monospaced", 12));
         
-        // Generamos y mostramos el reporte inmediatamente al entrar a esta vista.
-        String reporte = controladorAdmin.generarReporteDesempenoTutores();
+        // Generamos y mostramos el reporte inmediatamente al entrar a esta vista
+        // Se implementará más adelante usando el controladorAdmin
+        String reporte = null;
         txtReporte.setText(reporte);
 
         panel.getChildren().addAll(lblTitulo, txtReporte);
@@ -306,13 +307,7 @@ public class VistaPrincipalCatedratico {
         boton.setPrefHeight(40); // altura preferida
         boton.setAlignment(Pos.CENTER_LEFT); // alinear texto a la izquierda del botón
         // Estilo del botón
-        boton.setStyle("-fx-background-color: transparent; -fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
-        
-        // Efecto hover para una mejor experiencia de usuario.
-        // setOnMouseEntered define qué pasa cuando el cursor entra en el área del botón
-        boton.setOnMouseEntered(e -> boton.setStyle("-fx-background-color: #96794eff; -fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;"));
-        // setOnMouseExited define qué pasa cuando el cursor sale del área del botón.
-        boton.setOnMouseExited(e -> boton.setStyle("-fx-background-color: transparent; -fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;"));
+        boton.setStyle("-fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
         
         return boton;
     }
