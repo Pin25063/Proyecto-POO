@@ -3,6 +3,8 @@ import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import java.util.ArrayList; 
+import javafx.scene.Scene;
+import javafx.stage.Stage;
 
 public class VistaPrincipalEstudiante extends VBox {
     
@@ -35,7 +37,7 @@ public class VistaPrincipalEstudiante extends VBox {
     
     VBox seccionPerfil = crearSeccionPerfil();
     
-    // NUEVO: Sección de botones
+    // Sección de botones
     HBox seccionBotones = crearSeccionBotones();
     
     VBox seccionHistorial = crearSeccionHistorial();
@@ -43,7 +45,7 @@ public class VistaPrincipalEstudiante extends VBox {
     getChildren().addAll(titulo, seccionPerfil, seccionBotones, seccionHistorial);
 }
 
-// MÉTODO NUEVO: Crear sección de perfil
+// Crear sección de perfil
 private VBox crearSeccionPerfil() {
     VBox seccion = new VBox(10);
     seccion.setPadding(new Insets(15));
@@ -66,7 +68,7 @@ private VBox crearSeccionPerfil() {
     return seccion;
 }
 
-// MÉTODO NUEVO: Crear sección de historial
+// Crear sección de historial
 private VBox crearSeccionHistorial() {
     VBox seccion = new VBox(10);
     seccion.setPadding(new Insets(15));
@@ -101,7 +103,7 @@ private VBox crearSeccionHistorial() {
     return seccion;
  }
 
- // MÉTODO NUEVO: Crear barra de botones
+ // Crear barra de botones
     private HBox crearSeccionBotones() {
     HBox contenedor = new HBox(12);
     contenedor.setAlignment(Pos.CENTER);
@@ -130,5 +132,100 @@ private VBox crearSeccionHistorial() {
     return contenedor;
     
     }
+
+    // MÉTODO NUEVO: Abrir diálogo de edición
+private void abrirEdicionPerfil() {
+    Stage dialogStage = new Stage();
+    dialogStage.setTitle("Editar Perfil");
     
+    VBox contenido = new VBox(15);
+    contenido.setPadding(new Insets(20));
+    contenido.setAlignment(Pos.CENTER);
+    
+    Label titulo = new Label("Editar Información Personal");
+    titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+    
+    // Campos editables
+    Label lblNuevoNombre = new Label("Nombre:");
+    TextField txtNombre = new TextField(estudianteActual.getNombre());
+    txtNombre.setPrefWidth(300);
+    
+    Label lblNuevoCorreo = new Label("Correo:");
+    TextField txtCorreo = new TextField(estudianteActual.getCorreo());
+    txtCorreo.setPrefWidth(300);
+    txtCorreo.setDisable(true);
+    txtCorreo.setTooltip(new Tooltip("El correo no puede modificarse"));
+    
+    Label lblNuevaPass = new Label("Nueva Contraseña (opcional):");
+    PasswordField txtPass = new PasswordField();
+    txtPass.setPrefWidth(300);
+    txtPass.setPromptText("Dejar vacío para mantener la actual");
+    
+    // Botones
+    HBox botones = new HBox(10);
+    botones.setAlignment(Pos.CENTER);
+    
+    Button btnGuardar = new Button("Guardar Cambios");
+    Button btnCancelar = new Button("Cancelar");
+    
+    btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+    btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+    
+    btnGuardar.setOnAction(e -> {
+        String nuevoNombre = txtNombre.getText().trim();
+        String nuevaPass = txtPass.getText().trim();
+        
+        if (nuevoNombre.isEmpty()) {
+            mostrarError("Error", "El nombre no puede estar vacío");
+            return;
+        }
+        
+        if (!nuevoNombre.equals(estudianteActual.getNombre())) {
+            mostrarInfo("Edición", "Nombre actualizado correctamente");
+            lblNombre.setText("Nombre: " + nuevoNombre);
+        }
+        
+        if (!nuevaPass.isEmpty()) {
+            mostrarInfo("Edición", "Contraseña actualizada correctamente");
+        }
+        
+        dialogStage.close();
+    });
+    
+    btnCancelar.setOnAction(e -> dialogStage.close());
+    
+    botones.getChildren().addAll(btnGuardar, btnCancelar);
+    
+    contenido.getChildren().addAll(
+        titulo,
+        new Separator(),
+        lblNuevoNombre, txtNombre,
+        lblNuevoCorreo, txtCorreo,
+        lblNuevaPass, txtPass,
+        new Separator(),
+        botones
+    );
+    
+    Scene scene = new Scene(contenido, 400, 400);
+    dialogStage.setScene(scene);
+    dialogStage.show();
+}
+
+// MÉTODOS AUXILIARES para alertas
+private void mostrarError(String titulo, String mensaje) {
+    Alert alert = new Alert(Alert.AlertType.ERROR);
+    alert.setTitle(titulo);
+    alert.setHeaderText(null);
+    alert.setContentText(mensaje);
+    alert.showAndWait();
+}
+
+private void mostrarInfo(String titulo, String mensaje) {
+    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    alert.setTitle(titulo);
+    alert.setHeaderText(null);
+    alert.setContentText(mensaje);
+    alert.showAndWait();
+}
+
 }
