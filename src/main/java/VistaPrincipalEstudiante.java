@@ -133,99 +133,209 @@ private VBox crearSeccionHistorial() {
     
     }
 
-    // MÉTODO NUEVO: Abrir diálogo de edición
-private void abrirEdicionPerfil() {
-    Stage dialogStage = new Stage();
-    dialogStage.setTitle("Editar Perfil");
-    
-    VBox contenido = new VBox(15);
-    contenido.setPadding(new Insets(20));
-    contenido.setAlignment(Pos.CENTER);
-    
-    Label titulo = new Label("Editar Información Personal");
-    titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-    
-    // Campos editables
-    Label lblNuevoNombre = new Label("Nombre:");
-    TextField txtNombre = new TextField(estudianteActual.getNombre());
-    txtNombre.setPrefWidth(300);
-    
-    Label lblNuevoCorreo = new Label("Correo:");
-    TextField txtCorreo = new TextField(estudianteActual.getCorreo());
-    txtCorreo.setPrefWidth(300);
-    txtCorreo.setDisable(true);
-    txtCorreo.setTooltip(new Tooltip("El correo no puede modificarse"));
-    
-    Label lblNuevaPass = new Label("Nueva Contraseña (opcional):");
-    PasswordField txtPass = new PasswordField();
-    txtPass.setPrefWidth(300);
-    txtPass.setPromptText("Dejar vacío para mantener la actual");
-    
-    // Botones
-    HBox botones = new HBox(10);
-    botones.setAlignment(Pos.CENTER);
-    
-    Button btnGuardar = new Button("Guardar Cambios");
-    Button btnCancelar = new Button("Cancelar");
-    
-    btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
-    btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
-    
-    btnGuardar.setOnAction(e -> {
-        String nuevoNombre = txtNombre.getText().trim();
-        String nuevaPass = txtPass.getText().trim();
+    // Abrir diálogo de edición
+    private void abrirEdicionPerfil() {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Editar Perfil");
         
-        if (nuevoNombre.isEmpty()) {
-            mostrarError("Error", "El nombre no puede estar vacío");
-            return;
-        }
+        VBox contenido = new VBox(15);
+        contenido.setPadding(new Insets(20));
+        contenido.setAlignment(Pos.CENTER);
         
-        if (!nuevoNombre.equals(estudianteActual.getNombre())) {
-            mostrarInfo("Edición", "Nombre actualizado correctamente");
-            lblNombre.setText("Nombre: " + nuevoNombre);
-        }
+        Label titulo = new Label("Editar Información Personal");
+        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
         
-        if (!nuevaPass.isEmpty()) {
-            mostrarInfo("Edición", "Contraseña actualizada correctamente");
-        }
+        // Campos editables
+        Label lblNuevoNombre = new Label("Nombre:");
+        TextField txtNombre = new TextField(estudianteActual.getNombre());
+        txtNombre.setPrefWidth(300);
         
-        dialogStage.close();
-    });
-    
-    btnCancelar.setOnAction(e -> dialogStage.close());
-    
-    botones.getChildren().addAll(btnGuardar, btnCancelar);
-    
-    contenido.getChildren().addAll(
-        titulo,
-        new Separator(),
-        lblNuevoNombre, txtNombre,
-        lblNuevoCorreo, txtCorreo,
-        lblNuevaPass, txtPass,
-        new Separator(),
-        botones
-    );
-    
-    Scene scene = new Scene(contenido, 400, 400);
-    dialogStage.setScene(scene);
-    dialogStage.show();
-}
+        Label lblNuevoCorreo = new Label("Correo:");
+        TextField txtCorreo = new TextField(estudianteActual.getCorreo());
+        txtCorreo.setPrefWidth(300);
+        txtCorreo.setDisable(true);
+        txtCorreo.setTooltip(new Tooltip("El correo no puede modificarse"));
+        
+        Label lblNuevaPass = new Label("Nueva Contraseña (opcional):");
+        PasswordField txtPass = new PasswordField();
+        txtPass.setPrefWidth(300);
+        txtPass.setPromptText("Dejar vacío para mantener la actual");
+        
+        // Botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER);
+        
+        Button btnGuardar = new Button("Guardar Cambios");
+        Button btnCancelar = new Button("Cancelar");
+        
+        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        
+        btnGuardar.setOnAction(e -> {
+            String nuevoNombre = txtNombre.getText().trim();
+            String nuevaPass = txtPass.getText().trim();
+            
+            if (nuevoNombre.isEmpty()) {
+                mostrarError("Error", "El nombre no puede estar vacío");
+                return;
+            }
+            
+            if (!nuevoNombre.equals(estudianteActual.getNombre())) {
+                mostrarInfo("Edición", "Nombre actualizado correctamente");
+                lblNombre.setText("Nombre: " + nuevoNombre);
+            }
+            
+            if (!nuevaPass.isEmpty()) {
+                mostrarInfo("Edición", "Contraseña actualizada correctamente");
+            }
+            
+            dialogStage.close();
+        });
+        
+        btnCancelar.setOnAction(e -> dialogStage.close());
+        
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+        
+        contenido.getChildren().addAll(
+            titulo,
+            new Separator(),
+            lblNuevoNombre, txtNombre,
+            lblNuevoCorreo, txtCorreo,
+            lblNuevaPass, txtPass,
+            new Separator(),
+            botones
+        );
+        
+        Scene scene = new Scene(contenido, 400, 400);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+    }
 
-// MÉTODOS AUXILIARES para alertas
-private void mostrarError(String titulo, String mensaje) {
-    Alert alert = new Alert(Alert.AlertType.ERROR);
-    alert.setTitle(titulo);
-    alert.setHeaderText(null);
-    alert.setContentText(mensaje);
-    alert.showAndWait();
-}
+    // MÉTODOS AUXILIARES para alertas
+    private void mostrarError(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
 
-private void mostrarInfo(String titulo, String mensaje) {
-    Alert alert = new Alert(Alert.AlertType.INFORMATION);
-    alert.setTitle(titulo);
-    alert.setHeaderText(null);
-    alert.setContentText(mensaje);
-    alert.showAndWait();
-}
+    private void mostrarInfo(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+
+    // MÉTODO NUEVO: Abrir búsqueda de tutores
+    private void abrirBusquedaTutores() {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Buscar Tutores");
+        
+        BusquedaVista busquedaVista = new BusquedaVista();
+        
+        Scene scene = new Scene(busquedaVista, 700, 500);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+    }
+
+    // MÉTODO NUEVO: Abrir formulario de agendamiento
+    private void abrirAgendamiento() {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Agendar Sesión de Tutoría");
+        
+        VBox contenido = new VBox(15);
+        contenido.setPadding(new Insets(20));
+        contenido.setAlignment(Pos.CENTER);
+        
+        Label titulo = new Label("Agendar Nueva Sesión");
+        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        // Campos del formulario
+        Label lblTutorId = new Label("ID del Tutor:");
+        TextField txtTutorId = new TextField();
+        txtTutorId.setPromptText("Ej: 2");
+        txtTutorId.setPrefWidth(300);
+        
+        Label lblMateria = new Label("Materia:");
+        TextField txtMateria = new TextField();
+        txtMateria.setPromptText("Ej: Matemática, Física, Programación");
+        txtMateria.setPrefWidth(300);
+        
+        Label lblFecha = new Label("Fecha y Hora:");
+        TextField txtFecha = new TextField();
+        txtFecha.setPromptText("Formato: HH:mm dd/MM/yy (Ej: 14:30 25/10/25)");
+        txtFecha.setPrefWidth(300);
+        
+        Label lblAyuda = new Label("💡 Tip: Busca tutores antes de agendar para obtener su ID");
+        lblAyuda.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+        
+        // Botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER);
+        
+        Button btnAgendar = new Button("Agendar");
+        Button btnCancelar = new Button("Cancelar");
+        
+        btnAgendar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        
+        btnAgendar.setOnAction(e -> {
+            String tutorIdStr = txtTutorId.getText().trim();
+            String materia = txtMateria.getText().trim();
+            String fechaHora = txtFecha.getText().trim();
+            
+            if (tutorIdStr.isEmpty() || materia.isEmpty() || fechaHora.isEmpty()) {
+                mostrarError("Error", "Todos los campos son obligatorios");
+                return;
+            }
+            
+            try {
+                int tutorId = Integer.parseInt(tutorIdStr);
+                
+                // Llamar al controlador para agendar
+                Sesion nuevaSesion = controlador.manejarAgendamientoSesion(
+                    estudianteActual.getIdUsuario(),
+                    tutorId,
+                    materia,
+                    fechaHora
+                );
+                
+                if (nuevaSesion != null) {
+                    estudianteActual.agendarSesion(nuevaSesion);
+                    mostrarInfo("Éxito", "Sesión agendada correctamente");
+                    
+                    // Actualizar la vista
+                    getChildren().clear();
+                    configurarVista();
+                    
+                    dialogStage.close();
+                }
+                
+            } catch (NumberFormatException ex) {
+                mostrarError("Error", "El ID del tutor debe ser un número válido");
+            }
+        });
+        
+        btnCancelar.setOnAction(e -> dialogStage.close());
+        
+        botones.getChildren().addAll(btnAgendar, btnCancelar);
+        
+        contenido.getChildren().addAll(
+            titulo,
+            new Separator(),
+            lblTutorId, txtTutorId,
+            lblMateria, txtMateria,
+            lblFecha, txtFecha,
+            lblAyuda,
+            new Separator(),
+            botones
+        );
+        
+        Scene scene = new Scene(contenido, 450, 450);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+    }
 
 }
