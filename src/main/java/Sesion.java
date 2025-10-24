@@ -51,7 +51,7 @@ public class Sesion {
         validarFormatoFecha(fechaHora);
         
         // la sesión no puede ser en el pasado (solo para nuevas sesiones)
-        if (estado == EstadoSesion.PENDIENTE || estado == EstadoSesion.CONFIRMADA) {
+        if (estado == EstadoSesion.PROGRAMADA || estado == EstadoSesion.AGENDADA) {
             validarFechaFutura(fechaHora);
         }
         this.idSesion = idSesion.trim();
