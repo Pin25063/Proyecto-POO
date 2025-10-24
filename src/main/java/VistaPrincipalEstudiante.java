@@ -338,4 +338,60 @@ private VBox crearSeccionHistorial() {
         dialogStage.show();
     }
 
+    // MÉTODO NUEVO: Mostrar historial completo en tabla
+    private void mostrarHistorialCompleto() {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Historial Completo de Sesiones");
+        
+        VBox contenido = new VBox(15);
+        contenido.setPadding(new Insets(20));
+        
+        Label titulo = new Label("📊 Historial Completo");
+        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        
+        TableView<Sesion> tabla = new TableView<>();
+        tabla.setPrefHeight(400);
+        
+        // Columnas
+        TableColumn<Sesion, String> colId = new TableColumn<>("ID");
+        colId.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getIdSesion()));
+        colId.setPrefWidth(50);
+        
+        TableColumn<Sesion, String> colMateria = new TableColumn<>("Materia");
+        colMateria.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getMateria()));
+        colMateria.setPrefWidth(150);
+        
+        TableColumn<Sesion, String> colFecha = new TableColumn<>("Fecha y Hora");
+        colFecha.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getFechaHora()));
+        colFecha.setPrefWidth(150);
+        
+        TableColumn<Sesion, String> colEstado = new TableColumn<>("Estado");
+        colEstado.setCellValueFactory(data -> 
+            new javafx.beans.property.SimpleStringProperty(data.getValue().getEstado().toString()));
+        colEstado.setPrefWidth(120);
+        
+        tabla.getColumns().addAll(colId, colMateria, colFecha, colEstado);
+        
+        ArrayList<Sesion> historial = estudianteActual.getHistorialSesiones();
+        if (historial != null && !historial.isEmpty()) {
+            tabla.getItems().addAll(historial);
+        }
+        
+        Button btnCerrar = new Button("Cerrar");
+        btnCerrar.setOnAction(e -> dialogStage.close());
+        
+        HBox botones = new HBox(btnCerrar);
+        botones.setAlignment(Pos.CENTER);
+        botones.setPadding(new Insets(10, 0, 0, 0));
+        
+        contenido.getChildren().addAll(titulo, tabla, botones);
+        
+        Scene scene = new Scene(contenido, 550, 500);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+    }
+
 }

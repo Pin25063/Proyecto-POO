@@ -4,6 +4,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 public class ControladorPrincipal {
     
@@ -51,17 +53,18 @@ public class ControladorPrincipal {
         // Validación del usuario y la contraseña
         if (usuarioEncontrado != null && usuarioEncontrado.verificarContrasena(contrasena)){
 
-            // Si la validacion es correcta
-            this.usuarioActual = usuarioEncontrado;
-            System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
-            loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
-            // loginVista.IrAPerfil(this.usuarioActual); // Ir a la vista del perfil del usuario
-        } else {
-            // Si la validacion falla
-            System.out.println("ERROR: Credenciales inválidas.");
-            loginVista.mostrarError("Error de autenticación", "Correo o contraseña no válidos");
+    // Si la validacion es correcta
+        this.usuarioActual = usuarioEncontrado;
+        System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
+        loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
+    
+    // NUEVO: Navegación según el rol
+        if (usuarioActual.getRol() == Rol.ESTUDIANTE) {
+        irAPerfilEstudiante();
         }
     }
+    // Aquí otros roles agregarán su navegación
+}
 
     //Registro de un nuevo usuario
     public void registrar(Usuario nuevoUsuario){
@@ -225,4 +228,17 @@ public class ControladorPrincipal {
         } 
         return max + 1; //Devuelve el nuevo ID
     }
+
+    public void irAPerfilEstudiante() {
+    if (usuarioActual != null && usuarioActual.getRol() == Rol.ESTUDIANTE) {
+        Estudiante estudiante = (Estudiante) usuarioActual;
+        VistaPrincipalEstudiante vistaEstudiante = new VistaPrincipalEstudiante(estudiante, this);
+        
+        // Cambiar la escena actual
+        Stage stage = (Stage) loginVista.getScene().getWindow();
+        Scene nuevaEscena = new Scene(vistaEstudiante, 800, 600);
+        stage.setScene(nuevaEscena);
+        stage.setTitle("Portal del Estudiante - " + estudiante.getNombre());
+    }
+}
 }
