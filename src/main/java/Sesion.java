@@ -105,12 +105,24 @@ public class Sesion {
     public EstadoSesion getEstado() { 
         return estado; 
     }
+    // programacion defensiva en setters
     public void setEstado(EstadoSesion estado) {
+        if (estado == null) {
+            throw new IllegalArgumentException("El estado no puede ser nulo");
+        }
         this.estado = estado;
     }
     
+    
     @Override
     public String toString() {
-        return "Sesion{ " + idSesion + ", " + materia + ", " + estado + "}";
+        return "Sesion{" +
+            "id=" + idSesion +
+            ", materia='" + materia + '\'' +
+            ", fecha=" + fechaHora +
+            ", estado=" + estado +
+            ", estudiante=" + estudianteId +
+            ", tutor=" + tutorId +
+            '}';
     }
 }
