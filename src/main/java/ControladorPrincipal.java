@@ -79,7 +79,7 @@ public class ControladorPrincipal {
                     break;
                 case TUTOR:
                     Tutor tutor = (Tutor) usuarioActual;
-                    VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(tutor);
+                    VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(this, tutor);
                     stage.setScene(new javafx.scene.Scene(vistaTut, 800, 600));
                     break;
                 case CATEDRATICO:

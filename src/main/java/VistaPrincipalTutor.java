@@ -1,11 +1,10 @@
-import javafx.scene.control.Label;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ListView;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.layout.*;
+import javafx.scene.Scene;
+import javafx.stage.Stage;
+import java.util.List;
 
 public class VistaPrincipalTutor extends VBox{
     private Tutor tutorActual;
@@ -25,20 +24,54 @@ public class VistaPrincipalTutor extends VBox{
         this.controlador = controlador;
         this.tutorActual = tutor;
 
-        inicializarVista();
+        configurarVista();
     }
 
-    private void inicializarVista() {
+    private void configurarVista() {
+        setPadding(new Insets(24));
+        setSpacing(16);
+        setAlignment(Pos.TOP_CENTER);
+        setFillWidth(true);
+
         Label titulo = new Label("Bienvenido, " +tutorActual.getNombre());
-        titulo.getStyleClass().add("titulo");
         titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
 
-        //Panel de estadisticas
-        VBox panelEstadisticas = crearPanelEstadisticas();
+        //Secciones que existiten para tutor
+        VBox seccionPerfil = crearSeccionPerfil();
+        //VBox seccionEstadisticas = crearSeccionEstadisticas();
+        //HBox seccionBotones = crearSeccionBotones();
+        //VBox seccionSolicitudes = crearSeccionSolicitudes();
 
-        //Informacion basica
-        
+        getChildren().addAll(titulo, seccionPerfil /*seccionEstadisticas, seccionBotones, seccionSolicitudes*/);
+    }
 
+    private VBox crearSeccionPerfil() {
+        VBox seccion = new VBox(10);
+        seccion.setPadding(new Insets(15));
+        seccion.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 5;");
+        seccion.setMaxWidth(600);
+
+        Label tituloPerfil = new Label("Información del Perfil");
+        tituloPerfil.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        lblNombre = new Label("Nombre: " + tutorActual.getNombre());
+        lblCorreo = new Label("Correo: " + tutorActual.getCorreo());
+        lblTarifa = new Label("Tarifa: Q" + tutorActual.getTarifa() + " por hora");
+
+        lblNombre.setStyle("-fx-font-size: 14px;");
+        lblCorreo.setStyle("-fx-font-size: 14px;");
+        lblTarifa.setStyle("-fx-font-size: 14px;");
+
+        Label lblMaterias = new Label("Materias que imparte:");
+        lblMaterias.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+        listaMaterias = new ListView<>();
+        listaMaterias.getItems().addAll(tutorActual.getMaterias());
+        listaMaterias.setPrefHeight(100);
+
+        seccion.getChildren().addAll(tituloPerfil, lblNombre, lblCorreo, lblTarifa, lblMaterias, listaMaterias);
+
+        return seccion;
     }
     
 }
