@@ -9,58 +9,36 @@ import javafx.scene.layout.VBox;
 
 public class VistaPrincipalTutor extends VBox{
     private Tutor tutorActual;
+    private ControladorPrincipal controlador;
+
+    //Labels que muestran informacion
     private Label lblNombre, lblCorreo, lblTarifa, lblMaterias;
+
+    //Lista que muestra las materias del tutor
     private ListView<String> listaMaterias;
+
+    //Botones para distintas acciones
     private Button btnEditarPerfil, btnVerSesiones, btnVerResenas;
 
-    public VistaPrincipalTutor(Tutor tutor){
+    //Constructor
+    public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor){
+        this.controlador = controlador;
         this.tutorActual = tutor;
 
-        Label titulo = new Label("Bienvenido, " + tutor.getNombre());
-        titulo.setStyle("-fx-font-size: 20px; -fx-font-weight: bold;");
+        inicializarVista();
+    }
 
-        lblNombre = new Label("Nombre: " + tutor.getNombre());
-        lblCorreo = new Label("Correo: " + tutor.getCorreo());
-        lblTarifa = new Label("Tarifa: Q" + tutor.getTarifa() + " por hora");
+    private void inicializarVista() {
+        Label titulo = new Label("Bienvenido, " +tutorActual.getNombre());
+        titulo.getStyleClass().add("titulo");
+        titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+
+        //Panel de estadisticas
+        VBox panelEstadisticas = crearPanelEstadisticas();
+
+        //Informacion basica
         
-        // dentro del constructor:
-        Label lblMaterias = new Label("Materias que imparte:");
-        listaMaterias = new ListView<>();
-        listaMaterias.getItems().addAll(tutor.getMaterias());
-        listaMaterias.setPrefHeight(100);
 
-        btnEditarPerfil = new Button("Editar Perfil");
-        btnVerSesiones = new Button("Ver Sesiones");
-        btnVerResenas = new Button("Ver Reseñas");
-
-        HBox botones = new HBox(10, btnEditarPerfil, btnVerSesiones, btnVerResenas);
-        botones.setAlignment(Pos.CENTER);
-
-        setSpacing(10);
-        setPadding(new Insets(20));
-        getChildren().addAll(titulo, lblNombre, lblCorreo, lblTarifa, lblMaterias, listaMaterias, botones);
-
-        btnEditarPerfil.setOnAction(e -> editarPerfil());
-        btnVerResenas.setOnAction(e -> verResenas());
-        btnVerSesiones.setOnAction(e -> verSesiones());
     }
     
-    private void editarPerfil() {
-        mostrarInfo("Editar Perfil", "Esta Funcion esta actualmente en desarrollo.");
-    }
-
-    private void verResenas() {
-        mostrarInfo("Ver Reseñas","Aqui se muestran las reseñas que ha recibido.");
-    }
-
-    private void verSesiones() {
-        mostrarInfo("Sesiones","Aqui se muestran sus sesiones activas o pasadas");
-    }
-
-    private void mostrarInfo(String header, String contenido) {
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setHeaderText(header);
-        alerta.setContentText(contenido);
-        alerta.showAndWait();
-    }
 }
