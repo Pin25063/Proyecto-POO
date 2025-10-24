@@ -113,7 +113,83 @@ public class Sesion {
         this.estado = estado;
     }
     
+    /*Logica de agendamiento: 
+     * Verifica si esta sesion tiene conflicto de horario con otra sesion
+     * Dos sesiones tienen conflicto si:
+     * - Comparten mismo tutor o mismo estudiante
+     * - Los horarios se traslapan
+     */
+
+     public boolean tieneConflicto(Sesion otra){
+        // Verificar si comparten tutor o estudiante
+        boolean compartenTutor = this.tutorId == otra.tutorId;
+        boolean compartenEstudiante = this.estudianteId == otra.estudianteId;
+
+        if (!compartenTutor && !compartenEstudiante){
+            return false; // no hay conflicto si no comparten tutor ni estudiante
+            
+        // si comparten tutor o estudiante, verificar si los horarios se traslapan
+        return this.fechaHora.equals(otra.fechaHora);
+        }
+
+        /*
+         * Logica de agendamiento:
+         * verifica si la sesion esta disponible para agendar
+         * esta disponible si:
+         * - Esta en estado PROGRAMADA o AGENDADA
+         * - La fecha y hora es en el futuro
+         */
+        
+    public boolean estaDisponibleParaAgendar() {
+        if (this.estado != EstadoSesion.PROGRAMADA && this.estado != EstadoSesion.AGENDADA) {
+            return false;
+        }
+        
+        try {
+            LocalDateTime fechaSesion = LocalDateTime.parse(this.fechaHora, FORMATO_FECHA);
+            LocalDateTime ahora = LocalDateTime.now();
+            return fechaSesion.isAfter(ahora);
+        } catch (DateTimeParseException e) {
+            return false; // Si la fecha es inválida, no está disponible
+        }
+    }
+    /*
+     * Logica de Agendamiento:
+     * Calcula las horas que faltan para la sesion
+     * Util para validaciones y recordatorios
+     */
+
+    public long horasHastaSesion() {
+        try {
+            LocalDateTime fechaSesion = LocalDateTime.parse(this.fechaHora, FORMATO_FECHA);
+            LocalDateTime ahora = LocalDateTime.now();
+            
+            if (fechaSesion.isBefore(ahora)) {
+                return -1; // La sesión ya pasó
+            }
+            
+            return java.time.Duration.between(ahora, fechaSesion).toHours();
+        } catch (DateTimeParseException e) {
+            return -1;
+        }
+    }
+
+    /*
+     * Logica de Agendamiento: 
+     * Verifica si la sesion puede ser cancelada.
+     * Se puede cancelar si:
+     * - No esta completada o ya esta cancelada
+     * - Faltan almenos 2 horas para que inicie
+     */
+
+    public boolean puedeSerCancelada() {
+    if (this.estado == EstadoSesion.COMPLETADA || this.estado == EstadoSesion.CANCELADA) {
+        return false;
+    }
     
+    long horasRestantes = horasHastaSesion();
+    return horasRestantes >= 2; // Mínimo 2 horas de anticipación
+    }
     @Override
     public String toString() {
         return "Sesion{" +
