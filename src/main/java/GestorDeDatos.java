@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GestorDeDatos {
 
@@ -45,7 +46,7 @@ public class GestorDeDatos {
                         materias.add(mat.trim());
                     }
                 }
-                Usuario u;
+
                 // Soporte para tarifa (columna 7, si existe)
                 double tarifa = 0.0;
                 if (rol == Rol.TUTOR && raw.length >= 7 && !raw[6].isBlank()) {
@@ -55,9 +56,10 @@ public class GestorDeDatos {
                         System.out.println("Tarifa inválida para tutor con ID " + id);
                     }
                 }
+                Usuario u;
                 switch (rol) {
                     case TUTOR -> u = new Tutor(id, nombre, correo, pass, materias, tarifa);
-                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass, materias);
+                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass);
                     default -> u = new Estudiante(id, nombre, correo, pass);
                 }
                     out.add(u); // Crea un objeto Usuario y lo añade a la lista de salida
@@ -130,8 +132,9 @@ public class GestorDeDatos {
                     linea.append(SEP).append(String.join(",", tutor.getMaterias()))
                     .append(SEP).append(tutor.getTarifa());
             } else if(u instanceof Catedratico cat){ //Si el nuevo usuario es catedratico se asigna solo materias
-                linea.append(SEP).append(String.join(",", cat.getMaterias()))
-                .append(SEP); //No asignar tarifa
+                String codigosCursos = cat.getCursosACargo().stream().map(Curso::getCodigoCurso).collect(Collectors.joining(","));
+                linea.append(SEP).append(codigosCursos)
+                     .append(SEP); //No asignar tarifa
             } else {
                 linea.append(SEP).append(SEP); // añade campo vacío para materias y tarifa
             }

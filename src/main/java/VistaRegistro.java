@@ -142,7 +142,7 @@ public class VistaRegistro extends VBox {
                         mostrarInfo("Materias faltantes", "Selecciona al menos una materia.");
                         return;
                     }
-                    nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
+                    nuevoUsuario = new Catedratico(id, nombre, correo, contrasena);
                 }
 
                 default -> nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
