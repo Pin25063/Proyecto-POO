@@ -6,6 +6,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import java.util.List;
 
+import javax.swing.text.View;
+
 public class VistaPrincipalTutor extends VBox{
     private Tutor tutorActual;
     private ControladorPrincipal controlador;
@@ -110,4 +112,46 @@ public class VistaPrincipalTutor extends VBox{
         return seccion;
     }
     
+    //Se crea la seccion que muestra un resumen de las solicitudes recientes
+    private VBox crearSeccionSolicitudes() {
+        //Contenedor para las solicitudes
+        VBox seccion = new VBox(10);
+        seccion.setPadding(new Insets(10));
+        seccion.setStyle("-fx-background-color: #fff3cd; -fx-background-radius: 5;");
+        seccion.setMaxWidth(600);
+
+        Label tituloSolicitudes = new Label("Solicitudes Recientes");
+        tituloSolicitudes.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+
+        //Lista para mostrar las solicitudes
+        ListView<String> listaSolicitudes = new ListView<>();
+        listaSolicitudes.setPrefHeight(150);
+
+        //Obtener solicitudes pendientes
+        List<Sesion> pendientes = controlador.obtenerSesionesPendientes(tutorActual);
+
+        //Verificar si no hay solicitudes pendientes
+        if (pendientes.isEmpty()) {
+            listaSolicitudes.getItems().add("No tienes solicitudes pendientes");
+        } else {
+            //Mostrar ultimas 5 solicitudes
+            int limite = Math.min(5, pendientes.size());
+            for (int i = 0; i < limite; i++) {
+                Sesion s = pendientes.get(i);
+                //Formatear la informacion de cada solicitud
+                String fechaStr = s.getFechaHora() != null ? s.getFechaHora().toString() : "Por coordinar";
+                String texto = String.format("%s - Estudiante: %s (%s)",
+                    s.getMateria(),
+                    s.getEstudianteId(),
+                    s.getEstado());
+                listaSolicitudes.getItems().add(texto);
+            }
+        }
+
+        //Agregar todos los elementos a la seccion
+        seccion.getChildren().addAll(tituloSolicitudes, listaSolicitudes);
+
+        return seccion;
+
+    }
 }
