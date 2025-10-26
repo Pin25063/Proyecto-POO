@@ -1,4 +1,5 @@
 import java.io.IOException;
+import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
@@ -13,15 +14,28 @@ public class ControladorPrincipal {
     private GestorDeDatos gestorDeDatos;
     private Usuario usuarioActual;
     private LoginVista loginVista;
+    private Main mainApp;
+
+    // LISTAS CON LOS DATOS DEL SISTEMA
     private List<Usuario> listaDeUsuarios;
     private List<Sesion> listaDeSesiones;
+    private List<Curso> listaDeCursos;
+
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
 
     // CONSTRUCTOR: para inicializar el controlador
-    public ControladorPrincipal(LoginVista loginVista) {
+    public ControladorPrincipal(LoginVista loginVista, Main mainApp) {
         this.gestorDeDatos = new GestorDeDatos();
         this.loginVista = loginVista;
+        this.mainApp = mainApp;
         // se tienen que cargar los usuarios una sola vez para no leer muchas veces el archivo
+
+        try {
+            this.listaDeCursos = new ArrayList<>();
+        } catch (Exception e) {
+            System.out.println("Error al cargar los cursos: " + e.getMessage());
+            this.listaDeSesiones = new ArrayList<>();
+        }
         try {
             this.listaDeUsuarios = gestorDeDatos.cargarUsuarios();
         } catch (Exception e) {
@@ -53,15 +67,34 @@ public class ControladorPrincipal {
         // Validación del usuario y la contraseña
         if (usuarioEncontrado != null && usuarioEncontrado.verificarContrasena(contrasena)){
 
-    // Si la validacion es correcta
-        this.usuarioActual = usuarioEncontrado;
-        System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
-        loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
-    
-    // NUEVO: Navegación según el rol
-        if (usuarioActual.getRol() == Rol.ESTUDIANTE) {
-        irAPerfilEstudiante();
-        }
+            // Si la validacion es correcta
+            this.usuarioActual = usuarioEncontrado;
+            System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
+            loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
+
+            Stage stage = (Stage) loginVista.getScene().getWindow();
+
+            switch (usuarioActual.getRol()) {
+                case ESTUDIANTE:
+                    loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
+                    irAPerfilEstudiante();
+                    break;
+                case TUTOR:
+                    Tutor tutor = (Tutor) usuarioActual;
+                    VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(tutor);
+                    stage.setScene(new javafx.scene.Scene(vistaTut, 800, 600));
+                    break;
+                case CATEDRATICO:
+                    Catedratico catedratico = (Catedratico) usuarioActual;
+                    VistaPrincipalCatedratico vistaCat = new VistaPrincipalCatedratico(this, catedratico, stage, mainApp);
+                    vistaCat.mostrar();
+                    break;
+            }
+
+        } else {
+            // Si la validacion falla
+            System.out.println("ERROR: Credenciales inválidas.");
+            loginVista.mostrarError("Error de autenticación", "Correo o contraseña no válidos");
     }
     // Aquí otros roles agregarán su navegación
 }
@@ -174,7 +207,7 @@ public class ControladorPrincipal {
     }
 
     //HELPERS 
-    private Usuario buscarUsuarioPorId(int id) {
+    public Usuario buscarUsuarioPorId(int id) {
         for (Usuario u : listaDeUsuarios) if (u.getIdUsuario() == id) return u;
         return null;
     }
@@ -200,13 +233,26 @@ public class ControladorPrincipal {
         return false;
     }
 
-    private String generarIdSesion() {
+    public String generarIdSesion() {
         int max = 0;
         for (Sesion s : listaDeSesiones) {
             try { max = Math.max(max, Integer.parseInt(s.getIdSesion())); }
             catch (NumberFormatException ignored) {}
         }
         return String.valueOf(max + 1);
+    }
+
+    // GETTERS
+    public List<Sesion> getListaDeSesiones() {
+        return listaDeSesiones;
+    }
+
+    public GestorDeDatos getGestorDeDatos() {
+        return gestorDeDatos;
+    }
+
+    public List<Usuario> getListaDeUsuarios() {
+        return listaDeUsuarios;
     }
 
     private String norm(String s) { return (s == null) ? "" : s.trim(); }
