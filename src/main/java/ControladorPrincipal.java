@@ -5,6 +5,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 public class ControladorPrincipal {
     
@@ -75,7 +77,7 @@ public class ControladorPrincipal {
             switch (usuarioActual.getRol()) {
                 case ESTUDIANTE:
                     loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
-                    // Aquí mostramos la vista de estudiante
+                    irAPerfilEstudiante();
                     break;
                 case TUTOR:
                     Tutor tutor = (Tutor) usuarioActual;
@@ -93,8 +95,9 @@ public class ControladorPrincipal {
             // Si la validacion falla
             System.out.println("ERROR: Credenciales inválidas.");
             loginVista.mostrarError("Error de autenticación", "Correo o contraseña no válidos");
-        }
     }
+    // Aquí otros roles agregarán su navegación
+}
 
     //Registro de un nuevo usuario
     public void registrar(Usuario nuevoUsuario){
@@ -271,4 +274,17 @@ public class ControladorPrincipal {
         } 
         return max + 1; //Devuelve el nuevo ID
     }
+
+    public void irAPerfilEstudiante() {
+    if (usuarioActual != null && usuarioActual.getRol() == Rol.ESTUDIANTE) {
+        Estudiante estudiante = (Estudiante) usuarioActual;
+        VistaPrincipalEstudiante vistaEstudiante = new VistaPrincipalEstudiante(estudiante, this);
+        
+        // Cambiar la escena actual
+        Stage stage = (Stage) loginVista.getScene().getWindow();
+        Scene nuevaEscena = new Scene(vistaEstudiante, 800, 600);
+        stage.setScene(nuevaEscena);
+        stage.setTitle("Portal del Estudiante - " + estudiante.getNombre());
+    }
+}
 }
