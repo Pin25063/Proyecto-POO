@@ -9,7 +9,6 @@ import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 public class VistaPrincipalCatedratico {
@@ -64,13 +63,13 @@ public class VistaPrincipalCatedratico {
     private HBox crearBarraSuperior() {
         HBox barra = new HBox(20); // Organiza su contenido en una fila horizontal, el 20 es el espaciado
         barra.setPadding(new Insets(15)); // Padding es el relleno interior, para que los elementos no estén pegados a los bordes
-        // barra.setStyle("-fx-background-color: #215015ff;"); // Color para la HBox
+        barra.setStyle("-fx-background-color: #215015ff;"); // Color para la HBox
         barra.setAlignment(Pos.CENTER_LEFT); // Alinear elementos al la izquierda
 
         // Crear el Label para el título de la aplicación
         Label lblTitulo = new Label("Gestor de Tutorías UVG");
         lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18)); // Estilo de fuente
-        lblTitulo.setStyle("-fx-text-fill: black;"); // Color del texto
+        lblTitulo.setStyle("-fx-text-fill: white;"); // Color del texto
         
         Region espaciador = new Region(); // atajo para crear un espacio que empuja a todos los elementos a la derecha
         // se indica al HBox que ese espaciador debe crecer tanto como sea posible, empujando todo lo que viene después hacia la derecha.
@@ -79,7 +78,7 @@ public class VistaPrincipalCatedratico {
         // Crear label de bienvenida con el nombre del catedrático actual
         Label lblBienvenida = new Label("Catedrático: " + catedratico.getNombre());
         lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        lblBienvenida.setStyle("-fx-text-fill: black;");
+        lblBienvenida.setStyle("-fx-text-fill: white;");
         
         // Crear botón para cerrar sesión
         Button btnCerrarSesion = new Button("Cerrar Sesión");
@@ -98,11 +97,11 @@ public class VistaPrincipalCatedratico {
         VBox menu = new VBox(10); // Organiza su contenido en una fila vertical, el 10 es el espaciado
         menu.setPadding(new Insets(20));
         menu.setPrefWidth(220); // Se le da un ancho fijo para que no cambie de tamaño
-        // menu.setStyle("-fx-background-color: #3d8335ff;");
+        menu.setStyle("-fx-background-color: #3d8335ff;");
     
         Label lblMenu = new Label("MENÚ");
         lblMenu.setFont(Font.font("Arial", FontWeight.BOLD, 16));
-        lblMenu.setStyle("-fx-text-fill: black;");
+        lblMenu.setStyle("-fx-text-fill: white;");
         lblMenu.setAlignment(Pos.CENTER); // Centrar el texto del label
 
         // Crear los botones de navegación usando un método auxiliar para no repetir código
@@ -267,8 +266,8 @@ public class VistaPrincipalCatedratico {
             Curso cursoSeleccionado = cmbCurso.getValue();
             // Chequear validez del curso
             if (cursoSeleccionado != null) {
-                // Se llama al controladorAdmin para generar el reporte (Se implementa más adelante)
-                String reporte = null;
+                // Se llama al controlador para generar el reporte
+                String reporte = controladorAdmin.generarReporteConsolidadoCurso(cursoSeleccionado);
                 // Mostrar resultado en TextArea
                 txtReporte.setText(reporte);
             }
@@ -276,6 +275,7 @@ public class VistaPrincipalCatedratico {
 
         panel.getChildren().addAll(lblTitulo, cmbCurso, txtReporte);
         return panel;
+
     }
 
 
@@ -291,13 +291,13 @@ public class VistaPrincipalCatedratico {
         txtReporte.setPrefHeight(500);
         txtReporte.setFont(Font.font("Monospaced", 12));
         
-        // Generamos y mostramos el reporte inmediatamente al entrar a esta vista
-        // Se implementará más adelante usando el controladorAdmin
-        String reporte = null;
+        // Generamos y mostramos el reporte inmediatamente al entrar a esta vista.
+        String reporte = controladorAdmin.generarReporteDesempenoTutores();
         txtReporte.setText(reporte);
 
         panel.getChildren().addAll(lblTitulo, txtReporte);
         return panel;
+
     }
     
     // HELPERS
@@ -307,7 +307,13 @@ public class VistaPrincipalCatedratico {
         boton.setPrefHeight(40); // altura preferida
         boton.setAlignment(Pos.CENTER_LEFT); // alinear texto a la izquierda del botón
         // Estilo del botón
-        boton.setStyle("-fx-text-fill: black; -fx-font-size: 14px; -fx-font-weight: bold;");
+        boton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+
+        // Efecto hover para una mejor experiencia de usuario.
+        // setOnMouseEntered define qué pasa cuando el cursor entra en el área del botón
+        boton.setOnMouseEntered(e -> boton.setStyle("-fx-background-color: #56554aff; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"));
+        // setOnMouseExited define qué pasa cuando el cursor sale del área del botón.
+        boton.setOnMouseExited(e -> boton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"));
         
         return boton;
     }
