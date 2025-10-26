@@ -184,6 +184,99 @@ public class VistaPrincipalTutor extends VBox{
         contenedor.getChildren().addAll(btnEditarPerfil, btnVerSesiones, btnVerResenas, btnGestionarSolicitudes);
 
         return contenedor;
-
     }
+
+    //Se crea la seccion para que el tutor pueda cambiar su informacion de perfil
+    private void abrirEdicionPerfil() {
+        //Se crea una ventana Stage
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Editar Perfil");
+
+        //Contenedor principal
+        VBox contenido = new VBox(15);
+        contenido.setPadding(new Insets(20));
+        contenido.setAlignment(Pos.CENTER);
+
+        Label titulo = new Label("Editar Información del Tutor");
+        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        //Editar la tarifa
+        Label lblNuevaTarifa = new Label("Tarifa por Hora (Q): ");
+        TextField txtTarifa = new TextField(String.valueOf(tutorActual.getTarifa()));
+        txtTarifa.setPrefWidth(300);
+
+        //Nueva contraseña (opcional)
+        Label lblNuevaPass = new Label("Nueva Contraseña (Opcional): ");
+        PasswordField txtPass = new PasswordField();
+        txtPass.setPrefWidth(300);
+        txtPass.setPromptText("Dejar vacio para mantener la contraseña actual");
+
+        //Contenedor para los botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER);
+
+        //Boton para guardar cambios
+        Button btnGuardar = new Button("Guardar Cambios");
+        Button btnCancelar = new Button("Cancelar");
+
+        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+
+        //Evento boton Guardar
+        btnGuardar.setOnAction(e -> {
+            //Se obtienen los valores de los campos a cambiar
+            String nuevaTarifaStr = txtTarifa.getText().trim();
+            String nuevaPass = txtPass.getText().trim();
+
+            try {
+                //Se convierte la tarifa a numero
+                double nuevaTarifa = Double.parseDouble(nuevaTarifaStr);
+
+                //Comprobar que la tarifa sea valida
+                if (nuevaTarifa < 0) {
+                    mostrarError("La tarifa no puede ser negativa");
+                    return;
+                }
+                
+                //Se actualiza el lbl de la tarifa
+                if (nuevaTarifa != tutorActual.getTarifa()) {
+                    lblTarifa.setText("Tarifa: Q" + nuevaTarifa + " por hora");
+                }
+
+                if (!nuevaPass.isEmpty()) {
+                    mostrarInfo("Edicion", "Contraseña actualizada correctamente");
+                }
+
+                //Mostrar mensaje
+                mostrarInfo("Exito", "Perfil actualizado correctamente");
+                dialogStage.close();
+
+            } catch (NumberFormatException ex) {
+                //Error si la tarifa no es un numero valido
+                mostrarError("Error","La tarifa debe ser un numero valido");
+            }
+        });
+
+        //Evento del boton Cancelar
+        btnCancelar.setOnAction(e -> dialogStage.close());
+
+        //Agregar botones al contenedor
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+
+        //Agregar todos los elementos al contenido del dialogo
+        contenido.getChildren().addAll(
+            titulo,
+            new Separator(), //Linea que separa
+            lblNuevaTarifa, txtTarifa,
+            lblNuevaPass, txtPass,
+            new Separator(),
+            botones
+        );
+
+        Scene scene = new Scene(contenido, 400, 450);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+    }
+
+    
 }
