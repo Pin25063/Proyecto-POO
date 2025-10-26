@@ -19,7 +19,7 @@ public class VistaPrincipalTutor extends VBox{
     private ListView<String> listaMaterias;
 
     //Botones para distintas acciones
-    private Button btnEditarPerfil, btnVerSesiones, btnVerResenas;
+    private Button btnEditarPerfil, btnVerSesiones, btnVerResenas, btnGestionarSolicitudes;
 
     //Constructor
     public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor){
@@ -152,6 +152,38 @@ public class VistaPrincipalTutor extends VBox{
         seccion.getChildren().addAll(tituloSolicitudes, listaSolicitudes);
 
         return seccion;
+    }
+
+    //Se crea la barra de botones de accion
+    private HBox crearSeccionBotones() {
+        //Contenedor vertical para los botones 
+        HBox contenedor = new HBox(12);
+        contenedor.setAlignment(Pos.CENTER);
+        contenedor.setPadding(new Insets(10, 0, 10,0));
+
+        //Se crean los botones dedicados a las acciones
+        btnEditarPerfil = new Button("Editar Perfil");
+        btnVerSesiones = new Button("Ver Sesiones");
+        btnVerResenas = new Button("Ver Reseñas");
+        btnGestionarSolicitudes = new Button("Gestionar Solicitudes");
+
+        //Estilos para los botones
+        String estiloBoton = "-fx-font-size: 13px; -fx-padding: 8 15 8 15;";
+        btnEditarPerfil.setStyle(estiloBoton);
+        btnVerSesiones.setStyle(estiloBoton);
+        btnVerResenas.setStyle(estiloBoton);
+        btnGestionarSolicitudes.setStyle(estiloBoton);
+
+        //Se conectan los eventos de los botones con sus metodos correspondientes
+        btnEditarPerfil.setOnAction(e -> abrirEdicionPerfil());
+        btnVerSesiones.setOnAction(e -> mostrarSesiones());
+        btnVerResenas.setOnAction(e -> mostrarResenas());
+        btnGestionarSolicitudes.setOnAction(e -> abrirGestionSolicitudes());
+
+        //Se agregan los botones al contenedor
+        contenedor.getChildren().addAll(btnEditarPerfil, btnVerSesiones, btnVerResenas, btnGestionarSolicitudes);
+
+        return contenedor;
 
     }
 }
