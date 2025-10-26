@@ -92,7 +92,7 @@ public class VistaPrincipalTutor extends VBox{
         tituloEstadisticas.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
 
         //Obtener datos estadisticos del tutor
-        double calificacion = tutorActual.calcularPromedioCalificacion();
+        /*double calificacion = tutorActual.calcularPromedioCalificacion();
         int totalResenas = tutorActual.getTotalResenas();
         List<Sesion> pendientes = controlador.obtenerSesionesPendientes(tutorActual);
         int solicitudesPendientes = pendientes.size();
@@ -107,7 +107,7 @@ public class VistaPrincipalTutor extends VBox{
         lblSolicitudes.setStyle("-fx-font-size: 14px;");
 
         //Se agregan todos los elementos a la seccion
-        seccion.getChildren().addAll(tituloEstadisticas, lblCalificacion, lblResenas, lblSolicitudes);
+        seccion.getChildren().addAll(tituloEstadisticas, lblCalificacion, lblResenas, lblSolicitudes);*/
 
         return seccion;
     }
@@ -120,37 +120,22 @@ public class VistaPrincipalTutor extends VBox{
         seccion.setStyle("-fx-background-color: #fff3cd; -fx-background-radius: 5;");
         seccion.setMaxWidth(600);
 
-        Label tituloSolicitudes = new Label("Solicitudes Recientes");
-        tituloSolicitudes.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
-        //Lista para mostrar las solicitudes
-        ListView<String> listaSolicitudes = new ListView<>();
-        listaSolicitudes.setPrefHeight(150);
-
-        //Obtener solicitudes pendientes
-        List<Sesion> pendientes = controlador.obtenerSesionesPendientes(tutorActual);
-
-        //Verificar si no hay solicitudes pendientes
-        if (pendientes.isEmpty()) {
-            listaSolicitudes.getItems().add("No tienes solicitudes pendientes");
-        } else {
-            //Mostrar ultimas 5 solicitudes
-            int limite = Math.min(5, pendientes.size());
-            for (int i = 0; i < limite; i++) {
-                Sesion s = pendientes.get(i);
-                //Formatear la informacion de cada solicitud
-                String fechaStr = s.getFechaHora() != null ? s.getFechaHora().toString() : "Por coordinar";
-                String texto = String.format("%s - Estudiante: %s (%s)",
-                    s.getMateria(),
-                    s.getEstudianteId(),
-                    s.getEstado());
-                listaSolicitudes.getItems().add(texto);
-            }
-        }
-
-        //Agregar todos los elementos a la seccion
-        seccion.getChildren().addAll(tituloSolicitudes, listaSolicitudes);
-
+        // Título de la sección
+        Label tituloInfo = new Label("📋 Información del Sistema");
+        tituloInfo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        
+        // Mensaje informativo
+        Label lblMensaje = new Label(
+            "Usa los botones de arriba para gestionar tus sesiones,\n" +
+            "ver tus reseñas y actualizar tu perfil.\n\n" +
+            "Las solicitudes de tutoría aparecerán automáticamente\n" +
+            "cuando los estudiantes las generen."
+        );
+        lblMensaje.setStyle("-fx-font-size: 13px;");
+        lblMensaje.setWrapText(true);
+        
+        seccion.getChildren().addAll(tituloInfo, lblMensaje);
+        
         return seccion;
     }
 
@@ -234,7 +219,7 @@ public class VistaPrincipalTutor extends VBox{
 
                 //Comprobar que la tarifa sea valida
                 if (nuevaTarifa < 0) {
-                    mostrarError("La tarifa no puede ser negativa");
+                    mostrarError("Error", "La tarifa no puede ser negativa");
                     return;
                 }
                 
@@ -278,5 +263,109 @@ public class VistaPrincipalTutor extends VBox{
         dialogStage.show();
     }
 
-    
+    //Muestra dialogo de alerta con informacion sobre sesiones
+    private void mostrarSesiones() {
+        //Se crea alerta de informacion
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setTitle("Ver Sesiones");
+        alerta.setHeaderText("Mis Sesiones");
+
+        // Mensaje informativo temporal
+        alerta.setContentText(
+            "Funcionalidad de sesiones en desarrollo.\n\n" +
+            "Aquí podrás ver:\n" +
+            "• Sesiones programadas\n" +
+            "• Sesiones completadas\n" +
+            "• Historial de tutorías\n" +
+            "• Detalles de cada sesión"
+        );
+
+        //Mostrar el dialogo y esperar a que el usuario lo cierre
+        alerta.showAndWait();
+    }
+
+    private void mostrarResenas() {
+        //Crear alerta de info
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Ver Reseñas");
+        alert.setHeaderText("Mis Reseñas");
+
+        //Obtener lista de reseñas del tutor
+        /*List<Resena> resenas = tutorActual.getResenas();
+
+        //Verificar si hay reseñas
+        if (resenas.isEmpty()) {
+            alert.setContentText("Aún no tienes reseñas de estudiantes.");
+        } else {
+            // Construir el mensaje con resumen de reseñas
+            StringBuilder contenido = new StringBuilder();
+            contenido.append(String.format(
+                "Calificación Promedio: %.1f/5.0\n"
+                //tutorActual.calcularPromedioCalificacion()
+            ));
+            contenido.append(String.format("Total de Reseñas: %d\n\n", resenas.size()));
+            
+            // Mostrar las primeras 5 reseñas
+            int count = 0;
+            for (Resena resena : resenas) {
+                if (count++ < 5) { // Limitar a 5 reseñas
+                    contenido.append(resena.toString()).append("\n\n");
+                }
+            }
+            
+            // Si hay más de 5 reseñas, indicar cuántas más hay
+            if (resenas.size() > 5) {
+                contenido.append("... y ").append(resenas.size() - 5).append(" más");
+            }
+            
+            alert.setContentText(contenido.toString());
+        }
+        */
+        
+        // Mostrar el diálogo
+        alert.showAndWait();
+    }
+
+    //Abre un dialogo para gestionar las solicitudes de tutoria
+    private void abrirGestionSolicitudes() {
+        // Crear alerta informativa
+        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
+        alerta.setTitle("Gestionar Solicitudes");
+        alerta.setHeaderText("📨 Solicitudes de Tutoría");
+        
+        // Mensaje informativo temporal
+        alerta.setContentText(
+            "Funcionalidad de gestión de solicitudes en desarrollo.\n\n" +
+            "Próximamente podrás:\n" +
+            "• Ver solicitudes pendientes de estudiantes\n" +
+            "• Aceptar solicitudes de tutoría\n" +
+            "• Rechazar solicitudes con justificación\n" +
+            "• Programar horarios de sesiones\n\n" +
+            "Las solicitudes aparecerán automáticamente cuando\n" +
+            "los estudiantes las generen en el sistema."
+        );
+        
+        alerta.showAndWait();
+    }
+
+
+    //Metodos Auxiliares
+
+    //Muestra un cuadro de dialogo de error al usuario
+    private void mostrarError(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);  // Sin encabezado adicional
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
+
+    //Muestra cuadro de dialogo informativo al usuario
+    private void mostrarInfo(String titulo, String mensaje) {
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle(titulo);
+        alert.setHeaderText(null);
+        alert.setContentText(mensaje);
+        alert.showAndWait();
+    }
 }
