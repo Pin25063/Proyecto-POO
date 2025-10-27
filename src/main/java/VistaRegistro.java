@@ -99,62 +99,103 @@ public class VistaRegistro extends VBox {
         comboRol.setOnAction(e -> actualizarOpciones());
 
         //Registro y validacion de los datos para creacion de usuario
+        //Registro y validacion de los datos para creacion de usuario
         btnRegistrar.setOnAction(e -> {
-            String nombre = txtNombre.getText().trim();
-            String correo = txtCorreo.getText().trim();
-            String contrasena = txtContrasena.getText();
+            // Validación del controlador
+            if (controlador == null) {
+                mostrarError("Error del sistema", "El controlador no está configurado.");
+                return;
+            }
+
+            String nombre = txtNombre.getText() != null ? txtNombre.getText().trim() : "";
+            String correo = txtCorreo.getText() != null ? txtCorreo.getText().trim() : "";
+            String contrasena = txtContrasena.getText() != null ? txtContrasena.getText() : "";
             Rol rol = comboRol.getValue();
 
             // Validacion de campos vacios
             if (nombre.isEmpty() || correo.isEmpty() || contrasena.isEmpty() || rol == null) {
-                mostrarInfo("Campos incompletos", "Por favor complete todos los campos.");
+                mostrarError("Campos incompletos", "Por favor complete todos los campos.");
                 return;
             }
 
-            int id = controlador.generarNuevoIdUsuario();
+            // Validación de formato de correo
+            if (!correo.matches(REGEX_EMAIL)) {
+                mostrarError("Correo inválido", "Ingresa un correo válido (ejemplo: usuario@uvg.edu.gt).");
+                return;
+            }
+
+            // Validación de contraseña
+            if (contrasena.length() < MIN_LONGITUD_CONTRASENA) {
+                mostrarError("Contraseña débil", "La contraseña debe tener al menos " + MIN_LONGITUD_CONTRASENA + " caracteres.");
+                return;
+            }
+
+            if (contrasena.contains(" ")) {
+                mostrarError("Contraseña inválida", "La contraseña no puede contener espacios.");
+                return;
+            }
+
+            int id;
+            try {
+                id = controlador.generarNuevoIdUsuario();
+            } catch (Exception ex) {
+                mostrarError("Error de sistema", "No se pudo generar un ID de usuario.");
+                return;
+            }
+
             Usuario nuevoUsuario;
             
             //Construccion de usuario dependiendo de su rol
-            switch (rol) {
-                case TUTOR -> {
-                    List<String> materias = getMateriasSeleccionadas();
-                    if (materias.isEmpty()) {
-                        mostrarInfo("Materias faltantes", "Selecciona al menos una materia.");
-                        return;
+            try {
+                switch (rol) {
+                    case TUTOR -> {
+                        List<String> materias = getMateriasSeleccionadas();
+                        if (materias.isEmpty()) {
+                            mostrarError("Materias faltantes", "Selecciona al menos una materia.");
+                            return;
+                        }
+
+                        String tarifaTexto = txtTarifa.getText() != null ? txtTarifa.getText().trim() : "";
+                        if (tarifaTexto.isEmpty()) {
+                            mostrarError("Tarifa requerida", "Ingresa la tarifa por hora.");
+                            return;
+                        }
+
+                        double tarifa;
+                        try {
+                            tarifa = Double.parseDouble(tarifaTexto);
+                            if (tarifa < 0) {
+                                mostrarError("Tarifa inválida", "La tarifa debe ser mayor o igual a 0.");
+                                return;
+                            }
+                        } catch (NumberFormatException nfe) {
+                            mostrarError("Tarifa inválida", "Ingresa un número válido (ejemplo: 150.0).");
+                            return;
+                        }
+                        nuevoUsuario = new Tutor(id, nombre, correo, contrasena, new ArrayList<>(materias), tarifa);
+                    }
+                    case CATEDRATICO -> {
+                        List<String> materias = getMateriasSeleccionadas();
+                        if (materias.isEmpty()) {
+                            mostrarError("Materias faltantes", "Selecciona al menos una materia.");
+                            return;
+                        }
+                        nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
                     }
 
-                    String tarifaTexto = txtTarifa.getText().trim();
-                    if (tarifaTexto.isEmpty()) {
-                        mostrarInfo("Tarifa requerida", "Ingresa la tarifa por hora.");
-                        return;
-                    }
-
-                    double tarifa;
-                    try {
-                        tarifa = Double.parseDouble(tarifaTexto);
-                        if (tarifa < 0) throw new NumberFormatException();
-                    } catch (NumberFormatException nfe) {
-                        mostrarInfo("Tarifa inválida", "Ingresa un número válido mayor o igual a 0.");
-                        return;
-                    }
-                    nuevoUsuario = new Tutor(id, nombre, correo, contrasena, new ArrayList<>(materias), tarifa);
+                    default -> nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
                 }
-                case CATEDRATICO -> {
-                    List<String> materias = getMateriasSeleccionadas();
-                    if (materias.isEmpty()) {
-                        mostrarInfo("Materias faltantes", "Selecciona al menos una materia.");
-                        return;
-                    }
-                    nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
-                }
 
-                default -> nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
+                controlador.registrar(nuevoUsuario);
+
+                mostrarInfo("Cuenta creada", "Tu cuenta ha sido registrada con éxito.");
+                if (onCancel != null) onCancel.run(); // Volver a login
+
+            } catch (IllegalArgumentException ex) {
+                mostrarError("Error de validación", "Datos inválidos: " + ex.getMessage());
+            } catch (Exception ex) {
+                mostrarError("Error inesperado", "Ocurrió un error al registrar el usuario.");
             }
-
-            controlador.registrar(nuevoUsuario);
-
-            mostrarInfo("Cuenta creada", "Tu cuenta ha sido registrada con éxito.");
-            if (onCancel != null) onCancel.run(); // Volver a login
         });
     }
     // Metodo para mostrar alertas de error
