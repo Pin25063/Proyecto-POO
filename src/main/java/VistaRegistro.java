@@ -208,11 +208,17 @@ public class VistaRegistro extends VBox {
     
     //Permite definir que hace cuando se presiona cancelar (Main lo define)
     public void setOnCancel(Runnable r) {
+        if (r == null) {
+            throw new IllegalArgumentException("El callback onCancel no puede ser null");
+        }
         this.onCancel = r;
     }
 
     //Conecta el controlador principal
     public void setControlador(ControladorPrincipal controlador) {
+        if (controlador == null) {
+            throw new IllegalArgumentException("El controlador no puede ser null");
+        }
         this.controlador = controlador;
     }
 
