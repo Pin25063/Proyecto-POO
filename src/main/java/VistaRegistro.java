@@ -236,6 +236,13 @@ public class VistaRegistro extends VBox {
         contenedorTarifa.getChildren().clear();
 
         Rol rolSeleccionado = comboRol.getValue();
+        
+        // validacion null
+        if (rolSeleccionado == null) {
+            contenedorMaterias.setVisible(false);
+            contenedorTarifa.setVisible(false);
+            return;
+        }
         if (rolSeleccionado != Rol.ESTUDIANTE) {
             // Materias
             Label lblMaterias = new Label("Selecciona las materias que imparte:");
@@ -264,13 +271,24 @@ public class VistaRegistro extends VBox {
         List<String> materias = new ArrayList<>();
 
         // Solo aplica si el usuario seleccionó un rol que no sea estudiante
-        if (comboRol.getValue() != Rol.ESTUDIANTE) {
+        if (comboRol.getValue() == null || comboRol.getValue() == Rol.ESTUDIANTE) {
+            return materias;
+        }
+
+        try {
             for (javafx.scene.Node node : contenedorMaterias.getChildren()) {
                 if (node instanceof CheckBox cb && cb.isSelected()) {
-                    materias.add(cb.getText());
+                    String materia = cb.getText();
+                    if (materia != null && !materia.trim().isEmpty()) {
+                        materias.add(materia.trim());
+                    }
                 }
             }
+        } catch (Exception e) {
+            // En caso de error, retornar lista vacía
+            materias.clear();
         }
+        
         return materias;
     }
 }
