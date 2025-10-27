@@ -100,7 +100,7 @@ public class VistaRegistro extends VBox {
 
         //Registro y validacion de los datos para creacion de usuario
         //Registro y validacion de los datos para creacion de usuario
-        btnRegistrar.setOnAction(e -> {
+btnRegistrar.setOnAction(e -> {
             // Validación del controlador
             if (controlador == null) {
                 mostrarError("Error del sistema", "El controlador no está configurado.");
@@ -180,14 +180,18 @@ public class VistaRegistro extends VBox {
                             mostrarError("Materias faltantes", "Selecciona al menos una materia.");
                             return;
                         }
-                        nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
+                        nuevoUsuario = new Catedratico(id, nombre, correo, contrasena);
                     }
-
-                    default -> nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
+                    case ESTUDIANTE -> {
+                        nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
+                    }
+                    default -> {
+                        mostrarError("Rol inválido", "El rol seleccionado no es válido.");
+                        return;
+                    }
                 }
 
                 controlador.registrar(nuevoUsuario);
-
                 mostrarInfo("Cuenta creada", "Tu cuenta ha sido registrada con éxito.");
                 if (onCancel != null) onCancel.run(); // Volver a login
 

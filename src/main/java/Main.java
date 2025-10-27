@@ -16,9 +16,9 @@ public class Main extends Application {
         stage.show();
     }
 
-    private void mostrarLogin() {
+    public void mostrarLogin() {
         LoginVista loginVista = new LoginVista();
-        controlador = new ControladorPrincipal(loginVista);
+        controlador = new ControladorPrincipal(loginVista, this); // se le pasa la instancia de main al controlador
         loginVista.setControlador(controlador);
 
         // Al hacer clic en Crear cuenta, se ira a VistaRegistro

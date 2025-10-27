@@ -15,7 +15,7 @@ public class Sesion {
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
     /**
-      Constructor con programacion defensiva.
+    Constructor con programacion defensiva.
      * @throws IllegalArgumentException 
      * si algún parámetro es inválido
      */
@@ -62,8 +62,8 @@ public class Sesion {
         this.estado = estado;
     }
 
-     //Valida que el formato de fecha sea correcto (yyyy-MM-dd HH:mm).
-     
+    //Valida que el formato de fecha sea correcto (yyyy-MM-dd HH:mm).
+    
     private void validarFormatoFecha(String fecha) {
         try {
             LocalDateTime.parse(fecha, FORMATO_FECHA);
@@ -120,14 +120,14 @@ public class Sesion {
      * - Los horarios se traslapan
      */
 
-     public boolean tieneConflicto(Sesion otra){
+    public boolean tieneConflicto(Sesion otra){
         // Verificar si comparten tutor o estudiante
         boolean compartenTutor = this.tutorId == otra.tutorId;
         boolean compartenEstudiante = this.estudianteId == otra.estudianteId;
 
         if (!compartenTutor && !compartenEstudiante){
             return false; // no hay conflicto si no comparten tutor ni estudiante
-        }   
+        }
         // si comparten tutor o estudiante, verificar si los horarios se traslapan
         return this.fechaHora.equals(otra.fechaHora);
         }

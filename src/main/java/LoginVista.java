@@ -9,15 +9,12 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
 //Al guardar el archivo se extienden los imports en lugar de mantener el *
 
 public class LoginVista extends VBox {
 
-    private final Label title = new Label("Iniciar Sesión");
+    Label title = new Label("Iniciar Sesión");
     private final TextField txtCorreo = new TextField();
     private final PasswordField txtPass = new PasswordField();
 
