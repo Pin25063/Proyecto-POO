@@ -67,14 +67,4 @@ El proyecto usa:
 
 ---
 
-## 📖 Contribución al Proyecto
-
-1. Sincronizar repositorio local con los últimos cambios
-2. Crear una rama para funcionalidad
-3. Realizar cambios y prueba que funcionen
-4. Hacer commit y push de la rama en la que se trabajó
-5. Crear un Pull Request en GitHub
-
----
-
-**🎉 ¡SUERTE CODEANDO UVGENIO! 🎉**
+**🎉 ¡SUERTE UVGENIO! 🎉**

@@ -1,8 +1,12 @@
+import java.io.IOException;
+import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+import javafx.stage.Stage;
+import javafx.scene.Scene;
 
 public class ControladorPrincipal {
     
@@ -10,15 +14,28 @@ public class ControladorPrincipal {
     private GestorDeDatos gestorDeDatos;
     private Usuario usuarioActual;
     private LoginVista loginVista;
+    private Main mainApp;
+
+    // LISTAS CON LOS DATOS DEL SISTEMA
     private List<Usuario> listaDeUsuarios;
     private List<Sesion> listaDeSesiones;
+    private List<Curso> listaDeCursos;
+
     private static final DateTimeFormatter FMT = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
 
     // CONSTRUCTOR: para inicializar el controlador
-    public ControladorPrincipal(LoginVista loginVista) {
+    public ControladorPrincipal(LoginVista loginVista, Main mainApp) {
         this.gestorDeDatos = new GestorDeDatos();
         this.loginVista = loginVista;
+        this.mainApp = mainApp;
         // se tienen que cargar los usuarios una sola vez para no leer muchas veces el archivo
+
+        try {
+            this.listaDeCursos = new ArrayList<>();
+        } catch (Exception e) {
+            System.out.println("Error al cargar los cursos: " + e.getMessage());
+            this.listaDeSesiones = new ArrayList<>();
+        }
         try {
             this.listaDeUsuarios = gestorDeDatos.cargarUsuarios();
         } catch (Exception e) {
@@ -54,41 +71,54 @@ public class ControladorPrincipal {
             this.usuarioActual = usuarioEncontrado;
             System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
             loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
-            // loginVista.IrAPerfil(this.usuarioActual); // Ir a la vista del perfil del usuario
+
+            Stage stage = (Stage) loginVista.getScene().getWindow();
+
+            switch (usuarioActual.getRol()) {
+                case ESTUDIANTE:
+                    loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
+                    irAPerfilEstudiante();
+                    break;
+                case TUTOR:
+                    Tutor tutor = (Tutor) usuarioActual;
+                    VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(this, tutor);
+                    stage.setScene(new javafx.scene.Scene(vistaTut, 800, 600));
+                    break;
+                case CATEDRATICO:
+                    Catedratico catedratico = (Catedratico) usuarioActual;
+                    VistaPrincipalCatedratico vistaCat = new VistaPrincipalCatedratico(this, catedratico, stage, mainApp);
+                    vistaCat.mostrar();
+                    break;
+            }
+
         } else {
             // Si la validacion falla
             System.out.println("ERROR: Credenciales inválidas.");
             loginVista.mostrarError("Error de autenticación", "Correo o contraseña no válidos");
-        }
     }
+    // Aquí otros roles agregarán su navegación
+}
 
-    // PROCESO de registro de un nuevo usuario
+    //Registro de un nuevo usuario
     public void registrar(Usuario nuevoUsuario){
-        // confirmar si no se está usando el correo
         boolean correoExiste = false;
         for (Usuario usuario : listaDeUsuarios){
-            if (usuario.getCorreo().equalsIgnoreCase(nuevoUsuario.getCorreo()))
-            {
+            if (usuario.getCorreo().equalsIgnoreCase(nuevoUsuario.getCorreo())) { 
                 correoExiste = true;
                 break;
             }
         }
-
-        if (correoExiste){
-            // notificar que el correo ya está en uso sin revelar información delicada
-            System.out.println("Error, información no válida para registrar. Ingrese otro correo.");
+        if (correoExiste){ 
             loginVista.mostrarError("Error", "Correo no válido.");
         } else {
-            // si es un nuevo usuario, agregarlo a la lista y se guarda
-            this.listaDeUsuarios.add(nuevoUsuario);
-
-            // Pasar persistencia al gestor de datos
-
-            loginVista.mostrarInfo("Registro exitoso", "Usuario registrado correctamente. Ahora puede iniciar sesión"); 
-            
-            // limpiar los campos de la vista
-            loginVista.limpiarCampos();
-
+            this.listaDeUsuarios.add(nuevoUsuario); // Agrega el nuevo usuario a la lista
+            try {
+                gestorDeDatos.appendUsuario(nuevoUsuario);
+            } catch (IOException e) { 
+                loginVista.mostrarError("Error", "No se pudo guardar el usuario.");
+                return; // Sale del método si no se pudo guardar
+            }
+            loginVista.limpiarCampos(); // Limpia los campos del formulario de registro en la vista
         }
     }
 
@@ -177,7 +207,7 @@ public class ControladorPrincipal {
     }
 
     //HELPERS 
-    private Usuario buscarUsuarioPorId(int id) {
+    public Usuario buscarUsuarioPorId(int id) {
         for (Usuario u : listaDeUsuarios) if (u.getIdUsuario() == id) return u;
         return null;
     }
@@ -203,13 +233,26 @@ public class ControladorPrincipal {
         return false;
     }
 
-    private String generarIdSesion() {
+    public String generarIdSesion() {
         int max = 0;
         for (Sesion s : listaDeSesiones) {
             try { max = Math.max(max, Integer.parseInt(s.getIdSesion())); }
             catch (NumberFormatException ignored) {}
         }
         return String.valueOf(max + 1);
+    }
+
+    // GETTERS
+    public List<Sesion> getListaDeSesiones() {
+        return listaDeSesiones;
+    }
+
+    public GestorDeDatos getGestorDeDatos() {
+        return gestorDeDatos;
+    }
+
+    public List<Usuario> getListaDeUsuarios() {
+        return listaDeUsuarios;
     }
 
     private String norm(String s) { return (s == null) ? "" : s.trim(); }
@@ -222,4 +265,26 @@ public class ControladorPrincipal {
             return null;
         }
     }
+
+    //Metodo para recorrer la lista de usuarios y obtener un nuevo ID
+    public int generarNuevoIdUsuario() { 
+        int max = 0; 
+        for (Usuario u : listaDeUsuarios) { 
+            max = Math.max(max, u.getIdUsuario()); // actualiza max con el mayor entre max y el id del usuario actual
+        } 
+        return max + 1; //Devuelve el nuevo ID
+    }
+
+    public void irAPerfilEstudiante() {
+    if (usuarioActual != null && usuarioActual.getRol() == Rol.ESTUDIANTE) {
+        Estudiante estudiante = (Estudiante) usuarioActual;
+        VistaPrincipalEstudiante vistaEstudiante = new VistaPrincipalEstudiante(estudiante, this);
+        
+        // Cambiar la escena actual
+        Stage stage = (Stage) loginVista.getScene().getWindow();
+        Scene nuevaEscena = new Scene(vistaEstudiante, 800, 600);
+        stage.setScene(nuevaEscena);
+        stage.setTitle("Portal del Estudiante - " + estudiante.getNombre());
+    }
+}
 }

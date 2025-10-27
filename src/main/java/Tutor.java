@@ -7,8 +7,8 @@ public class Tutor extends Usuario {
     private double tarifa;
 
     // Constructor
-    public Tutor(int idUsuario, String nombre, String correo, String contrasena, Rol rol, ArrayList<String> materias, double tarifa) {
-        super(idUsuario, nombre, correo, contrasena, rol);
+    public Tutor(int idUsuario, String nombre, String correo, String contrasena, ArrayList<String> materias, double tarifa) {
+        super(idUsuario, nombre, correo, contrasena, Rol.TUTOR);
         this.materias = materias;
         this.tarifa = tarifa;
     }

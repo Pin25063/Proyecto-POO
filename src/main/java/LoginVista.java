@@ -1,12 +1,20 @@
+import java.util.regex.Pattern;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
 import javafx.scene.layout.*;
-import java.util.regex.Pattern;
+//Al guardar el archivo se extienden los imports en lugar de mantener el *
 
 public class LoginVista extends VBox {
 
-    private final Label title = new Label("Iniciar Sesión");
+    Label title = new Label("Iniciar Sesión");
     private final TextField txtCorreo = new TextField();
     private final PasswordField txtPass = new PasswordField();
 
@@ -15,7 +23,7 @@ public class LoginVista extends VBox {
     private final CheckBox chkMostrar = new CheckBox("Mostrar");
 
     private final Button btnIngresar = new Button("Ingresar");
-    private final Button btnCrarCuenta = new Button("Crear Cuenta");
+    private final Button btnCrearCuenta = new Button("Crear Cuenta");
     private final Button btnLimpiar = new Button("Limpiar");
 
     // Esta es una fila de contraseña que iremos reemplazando 
@@ -27,6 +35,8 @@ public class LoginVista extends VBox {
     // validacion de correo 
     private static final Pattern EMAIL = Pattern.compile("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
 
+    //Variable runnable para la ventana de registro de usuario    
+    private Runnable onCrearCuenta;
 
     public LoginVista() { 
 
@@ -46,7 +56,7 @@ public class LoginVista extends VBox {
         txtPass.setPrefWidth(280);
         txtPassVisible.setPrefWidth(280);
         btnIngresar.setPrefWidth(100);
-        btnCrarCuenta.setPrefWidth(110);
+        btnCrearCuenta.setPrefWidth(110);
         btnLimpiar.setPrefWidth(90);
 
         // estado inicial del visible
@@ -69,7 +79,7 @@ public class LoginVista extends VBox {
         filaPass.setRight(chkMostrar);
         BorderPane.setAlignment(chkMostrar, Pos.CENTER_RIGHT);
 
-        HBox acciones = new HBox(10, btnIngresar, btnCrarCuenta, btnLimpiar);
+        HBox acciones = new HBox(10, btnIngresar, btnCrearCuenta, btnLimpiar);
         acciones.setAlignment(Pos.CENTER);
 
         // Boton por defecto y cancel asi como el foco inicial
@@ -80,7 +90,7 @@ public class LoginVista extends VBox {
         //tooltips
         txtCorreo.setTooltip(new Tooltip("Usa tu correo institucional (por ejemplo nombre@uvg.edu.gt)"));
         btnIngresar.setTooltip(new Tooltip("Inicia sesión"));
-        btnCrarCuenta.setTooltip(new Tooltip("Crear cuenta (todavia falta que lo integren"));
+        btnCrearCuenta.setTooltip(new Tooltip("Crear cuenta nueva"));
         btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
 
         getChildren().addAll(title, txtCorreo, filaPass, acciones);
@@ -94,7 +104,7 @@ public class LoginVista extends VBox {
         //Atajos y acciones basicas 
         btnIngresar.setOnAction(e -> intentarInicioSesion());
         btnLimpiar.setOnAction(e -> limpiarCampos());
-        btnCrarCuenta.setOnAction(e -> mostrarInfo("Registro", "La pantalla de registro se implementará más adelante"));
+        btnCrearCuenta.setOnAction(e -> onCrearCuenta.run()); // Cambiar de escena a VistaRegistro
 
         txtPass.setOnAction(e -> intentarInicioSesion()); // Enter en contraseña
 
@@ -166,6 +176,11 @@ public class LoginVista extends VBox {
         txtCorreo.clear();
         txtPass.clear();
         txtCorreo.requestFocus();
+    }
+
+    //Setter de la variable de la ventana de registro de cuenta
+    public void setOnCrearCuenta(Runnable onCrearCuenta) {
+    this.onCrearCuenta = onCrearCuenta;
     }
 }
 

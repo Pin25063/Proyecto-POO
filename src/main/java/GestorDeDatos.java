@@ -9,6 +9,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class GestorDeDatos {
 
@@ -17,18 +18,13 @@ public class GestorDeDatos {
     private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv"); //path en el cual se encuentra el archivo CSV de las sesiones
 
     private static final String SEP = ";"; //Separador utilizado en el archivo CSV
-    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol"; //Formato en el que se encuentran los dato s de los usuarios
-    private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado"; //Formato en el que se encuentran los datos de las sesiones
+        
     private static final String NL  = System.lineSeparator(); // Separador de fin de línea según el sistema operativo. Se utiliza al escribir en los archivos CSV para añadir saltos de línea correctos.
     private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP)); // Patrón compilado para dividir las líneas CSV usando el separador SEP. Se usa Pattern.quote(SEP) para escapar caracteres especiales del separador.
 
     // USUARIOS CSV
-    public synchronized List<Usuario> cargarUsuarios() throws IOException {
+    public List<Usuario> cargarUsuarios() throws IOException {
         List<Usuario> out = new ArrayList<>(); // Lista de salida donde se almacenarán los usuarios leídos
-        if (!Files.exists(USUARIOS)) { // Comprueba si el archivo de usuarios existe
-            System.out.println("El archivo de usuarios no existe."); // Mensaje informativo si no existe el archivo
-            return out; // Devuelve la lista vacía si no existe el archivo
-        }
 
         try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) { // Abre un BufferedReader con codificación UTF-8 para leer el archivo CSV
             String line = br.readLine();  // Lee la primera línea y la descarta
@@ -43,20 +39,38 @@ public class GestorDeDatos {
                 String pass    = raw[3].trim(); // Contraseña desde la cuarta columna (recortada)
                 Rol rol = Rol.valueOf(raw[4].trim().toUpperCase()); // Convierte la quinta columna a un valor del enum Rol (mayúsculas)
 
-                out.add(new Usuario(id, nombre, correo, pass, rol)); // Crea un objeto Usuario y lo añade a la lista de salida
-                System.out.println("Usuario cargado: " + nombre + ", " + correo); // Verificación temporal de carga de archivo CSV
+                // Soporte para materias (columna 6, si existe)
+                ArrayList<String> materias = new ArrayList<>();
+                if (raw.length >= 6 && !raw[5].isBlank()) { //Validacion de datos en el CSV
+                    for (String mat : raw[5].split(",")) {
+                        materias.add(mat.trim());
+                    }
+                }
+
+                // Soporte para tarifa (columna 7, si existe)
+                double tarifa = 0.0;
+                if (rol == Rol.TUTOR && raw.length >= 7 && !raw[6].isBlank()) {
+                    try {
+                        tarifa = Double.parseDouble(raw[6].trim());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Tarifa inválida para tutor con ID " + id);
+                    }
+                }
+                Usuario u;
+                switch (rol) {
+                    case TUTOR -> u = new Tutor(id, nombre, correo, pass, materias, tarifa);
+                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass);
+                    default -> u = new Estudiante(id, nombre, correo, pass);
+                }
+                    out.add(u); // Crea un objeto Usuario y lo añade a la lista de salida
+                }
             }
+            return out;  // Devuelve la lista con los usuarios cargados
         }
-        return out;  // Devuelve la lista con los usuarios cargados
-    }
 
     // SESIONES CSV
-    public synchronized List<Sesion> cargarSesiones() throws IOException {
+    public List<Sesion> cargarSesiones() throws IOException {
         List<Sesion> out = new ArrayList<>(); // Lista de salida para las sesiones leídas
-        if (!Files.exists(SESIONES)) { // Comprueba si el archivo de sesiones existe
-            System.out.println("El archivo de sesiones no existe.");
-            return out;  // Devuelve lista vacía si no existe el archivo
-        }
 
         try (BufferedReader br = Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) { // Abre BufferedReader con codificación UTF-8
             String line = br.readLine(); //Lee la primera línea y la descarta
@@ -64,22 +78,21 @@ public class GestorDeDatos {
                 if (line.isBlank()) continue; // Omite líneas en blanco
                 String[] raw = SEP_PATTERN.split(line, -1); // Divide la línea usando el separador SEP conservando campos vacíos
                 if (raw.length < 6) continue; // Si no hay suficientes columnas, ignora la línea
-                String id       = raw[0].trim(); // Lee y recorta el id de la sesión
-                int estId       = Integer.parseInt(raw[1].trim()); // Lee y convierte el id del estudiante a entero
-                int tutId       = Integer.parseInt(raw[2].trim()); // Lee y convierte el id del tutor a entero
-                String materia  = raw[3].trim(); // Lee y recorta la materia
-                String fechaHora= raw[4].trim(); // Lee y recorta la fecha y hora
+                String id        = raw[0].trim(); // Lee y recorta el id de la sesión
+                int estId        = Integer.parseInt(raw[1].trim()); // Lee y convierte el id del estudiante a entero
+                int tutId        = Integer.parseInt(raw[2].trim()); // Lee y convierte el id del tutor a entero
+                String materia   = raw[3].trim(); // Lee y recorta la materia
+                String fechaHora = raw[4].trim(); // Lee y recorta la fecha y hora
                 EstadoSesion estado = EstadoSesion.valueOf(raw[5].trim().toUpperCase()); // Convierte el estado a enum (en mayúsculas)
 
                 out.add(new Sesion(id, estId, tutId, materia, fechaHora, estado)); // Crea la sesión y la añade a la lista
-                System.out.println("Sesion cargada: " + id + ", " + materia + ", " + estado); // Verificación temporal de carga de archivo CSV
             }
         }
         return out; // Devuelve la lista de sesiones cargadas
     }
 
     // APPEND SESION
-    public synchronized void appendSesion(Sesion s) throws IOException {
+    public void appendSesion(Sesion s) throws IOException {
         // Aquí solo se muestra un mensaje si el archivo no existe
         if (!Files.exists(SESIONES)) {
             System.out.println("El archivo de sesiones no existe.");
@@ -101,4 +114,33 @@ public class GestorDeDatos {
             bw.write(NL);
         }
     }
+
+    public void appendUsuario(Usuario u) throws IOException { 
+        try (BufferedWriter bw = Files.newBufferedWriter( // abre un BufferedWriter
+            USUARIOS, // archivo
+            StandardCharsets.UTF_8, // codificación UTF-8
+            StandardOpenOption.APPEND)) { // abre en modo append para añadir al final
+
+            StringBuilder linea = new StringBuilder(); // crea un StringBuilder para construir la línea CSV
+            linea.append(u.getIdUsuario()).append(SEP) // añade id de usuario y separador
+                .append(u.getNombre()).append(SEP) // añade nombre y separador
+                .append(u.getCorreo()).append(SEP) // añade correo y separador
+                .append(u.getContrasena()).append(SEP) // añade contraseña y separador
+                .append(u.getRol()); // añade rol (sin separador final aun)
+            //Si el nuevo usuario es tutor se asignan los parametros materias y tarifa
+            if (u instanceof Tutor tutor) {
+                    linea.append(SEP).append(String.join(",", tutor.getMaterias()))
+                    .append(SEP).append(tutor.getTarifa());
+            } else if(u instanceof Catedratico cat){ //Si el nuevo usuario es catedratico se asigna solo materias
+                String codigosCursos = cat.getCursosACargo().stream().map(Curso::getCodigoCurso).collect(Collectors.joining(","));
+                linea.append(SEP).append(codigosCursos)
+                     .append(SEP); //No asignar tarifa
+            } else {
+                linea.append(SEP).append(SEP); // añade campo vacío para materias y tarifa
+            }
+
+            bw.write(linea.toString()); // escribe la línea construida en el archivo
+            bw.write(NL); // escribe nueva línea
+        } 
+    } 
 }
