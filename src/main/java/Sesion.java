@@ -127,7 +127,7 @@ public class Sesion {
 
         if (!compartenTutor && !compartenEstudiante){
             return false; // no hay conflicto si no comparten tutor ni estudiante
-            
+        }   
         // si comparten tutor o estudiante, verificar si los horarios se traslapan
         return this.fechaHora.equals(otra.fechaHora);
         }
