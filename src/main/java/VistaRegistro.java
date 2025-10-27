@@ -41,6 +41,9 @@ public class VistaRegistro extends VBox {
     private static final String[] MATERIAS = {
         "Matematica", "Fisica", "Quimica", "Programacion", "Estadistica"
     };
+    // Constantes para validación defensiva
+    private static final int MIN_LONGITUD_CONTRASENA = 6;
+    private static final String REGEX_EMAIL = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$";
 
     public VistaRegistro() {
         //Estilo del layout
