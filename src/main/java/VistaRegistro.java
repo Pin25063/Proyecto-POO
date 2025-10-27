@@ -157,6 +157,13 @@ public class VistaRegistro extends VBox {
             if (onCancel != null) onCancel.run(); // Volver a login
         });
     }
+    // Metodo para mostrar alertas de error
+    private void mostrarError(String header, String contenido) {
+        Alert alerta = new Alert(Alert.AlertType.ERROR);
+        alerta.setHeaderText(header);
+        alerta.setContentText(contenido);
+        alerta.showAndWait();
+    }
     
     //Permite definir que hace cuando se presiona cancelar (Main lo define)
     public void setOnCancel(Runnable r) {
