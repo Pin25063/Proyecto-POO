@@ -2,6 +2,8 @@
 
 Este proyecto usa **Maven** como herramienta de construcción y gestión de dependencias, y **JavaFX** para la interfaz gráfica.
 
+Para la entrega no.4 se realizo un merge squash con todos los commits de esta entrega. Para ver el historial de commits, se pueden ubicar en la rama de feature/newUser.
+
 ## 📖 Requisitos Previos
 
 - **JDK 24** o superior ([Descargar](https://www.oracle.com/java/technologies/downloads/))
