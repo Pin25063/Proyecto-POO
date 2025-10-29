@@ -223,4 +223,114 @@ public class VistaPrincipalTutor {
         panel.getChildren().addAll(lblTitulo, gridPerfil, lblMaterias, listaMaterias, btnEditar);
         return panel;
     }
+
+    // Panel para gestionar las solicitudes de tutoria
+
+    private VBox crearPanelSolicitudes() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+
+        Label lblTitulo = new Label("Gestionar Solicitudes");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        // area para mostrar informacion
+        TextArea txtInfo = new TextArea();
+        txtInfo.setEditable(false);
+        txtInfo.setPrefHeight(400);
+        txtInfo.setFont(Font.font("Monospaced", 12));
+
+        String info ="   GESTIÓN DE SOLICITUDES\n" +
+                     "Esta funcionalidad estará disponible próximamente.\n\n" +
+                     "Podrás:\n" +
+                     "• Ver solicitudes pendientes de estudiantes\n" +
+                     "• Aceptar o rechazar solicitudes\n" +
+                     "• Programar horarios de sesiones\n" +
+                     "• Notificar a los estudiantes\n\n" +
+                     "Las solicitudes aparecerán automáticamente\n" +
+                     "cuando los estudiantes las generen en el sistema.";
+        txtInfo.setText(info);
+        
+        panel.getChildren().addAll(lblTitulo, txtInfo);
+        return panel;
+    }
+
+    // Panel para sesiones programadas
+    private VBox crearPanelSesiones() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+
+        Label lblTitulo = new Label("Mis Sesiones");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        TextArea txtSesiones = new TextArea();
+        txtSesiones.setEditable(false);
+        txtSesiones.setPrefHeight(400);
+        txtSesiones.setFont(Font.font("Monospaced", 12));
+        
+        String info ="   MIS SESIONES\n" +
+                     "Aquí verás todas tus sesiones de tutoría.\n\n" +
+                     "Funcionalidad en desarrollo:\n" +
+                     "• Sesiones programadas\n" +
+                     "• Sesiones completadas\n" +
+                     "• Historial de tutorías\n" +
+                     "• Detalles de cada sesión\n" +
+                     "• Calificaciones de estudiantes";
+        
+        txtSesiones.setText(info);
+        
+        panel.getChildren().addAll(lblTitulo, txtSesiones);
+        return panel;
+    }
+
+    // Panel para ver reseñas recibidas
+    private VBox crearPanelResenas() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+
+        Label lblTitulo = new Label("Mis Reseñas y Calificaciones");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        // Resumen de calificaciones
+        Label lblResumen = new Label(String.format(
+            "Calificación Promedio: %.1f/5.0  |  Total de Reseñas: %d",
+            tutorActual.calcularPromedioCalificacion(),
+            tutorActual.getTotalResenas()
+        ));
+        lblResumen.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        lblResumen.setStyle("-fx-text-fill: #34495e;");
+
+        // TextArea para mostrar reseñas
+        TextArea txtResenas = new TextArea();
+        txtResenas.setEditable(false);
+        txtResenas.setPrefHeight(400);
+        txtResenas.setFont(Font.font("Monospaced", 12));
+        
+        List<Resena> resenas = tutorActual.getResenas();
+        
+        if (resenas.isEmpty()) {
+            txtResenas.setText("═══════════════════════════════════════\n" +
+                             "   SIN RESEÑAS AÚN\n" +
+                             "═══════════════════════════════════════\n\n" +
+                             "Aún no tienes reseñas de estudiantes.\n\n" +
+                             "Las reseñas aparecerán aquí cuando los\n" +
+                             "estudiantes califiquen tus tutorías.");
+        } else {
+            StringBuilder contenido = new StringBuilder();
+            contenido.append("═══════════════════════════════════════\n");
+            contenido.append("   RESEÑAS RECIBIDAS\n");
+            contenido.append("═══════════════════════════════════════\n\n");
+            
+            int count = 1;
+            for (Resena resena : resenas) {
+                contenido.append("Reseña #").append(count++).append("\n");
+                contenido.append("─────────────────────────────────\n");
+                contenido.append(resena.toString()).append("\n\n");
+            }
+            
+            txtResenas.setText(contenido.toString());
+        }
+        
+        panel.getChildren().addAll(lblTitulo, lblResumen, txtResenas);
+        return panel;
+    }
 }
