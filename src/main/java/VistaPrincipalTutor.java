@@ -123,4 +123,104 @@ public class VistaPrincipalTutor {
         
         return menu;
     }
+
+    // Paneles de contenido
+
+    private VBox crearPanelInicio() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+        panel.setAlignment(Pos.TOP_CENTER);
+        
+        Label lblTitulo = new Label("¡Bienvenido, " + tutorActual.getNombre() + "!");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+
+        // Panel de estadisticas rapidas
+        GridPane gridEstadisticas = new GridPane();
+        gridEstadisticas.setHgap(20);
+        gridEstadisticas.setVgap(20);
+        gridEstadisticas.setAlignment(Pos.CENTER);
+
+        // Obtener las estadisticas
+        double calificacion = tutorActual.calcularPromedioCalificacion();
+        int totalResenas = tutorActual.getTotalResenas();
+        int numMaterias = tutorActual.getMaterias().size();
+
+        // Crear tarjetas de estadistica
+        VBox tarjetaCalificacion = crearTarjetaCalificacion(
+            String.format("%.1f/5", calificacion),
+            "Calificación",
+            "#f39c12"
+        );
+
+        VBox tarjetaResenas = crearTarjetaEstadistica(
+            String.valueOf(totalResenas),
+            "Reseñas",
+            "#3498db"
+        );
+        VBox tarjetaMaterias = crearTarjetaEstadistica(
+            String.valueOf(numMaterias),
+            "Materias",
+            "#27ae60"
+        );
+
+        gridEstadisticas.add(tarjetaCalificacion, 0, 0);
+        gridEstadisticas.add(tarjetaResenas, 1, 0);
+        gridEstadisticas.add(tarjetaMaterias, 2, 0);
+
+        Label lblInfo = new Label(
+            "Use el menú de la izquierda para navegar por las diferentes secciones.\n" +
+            "Puede gestionar sus solicitudes, ver sesiones y revisar sus reseñas."
+        );
+        lblInfo.setFont(Font.font("Arial", 14));
+        lblInfo.setWrapText(true);
+        lblInfo.setStyle("-fx-text-alignment: center;");
+        
+        panel.getChildren().addAll(lblTitulo, new Separator(), gridEstadisticas, lblInfo);
+        return panel;
+    }
+
+    // Panel de perfil del tutor con toda su informacion
+
+    private VBox crearPanelPerfil() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+
+        Label lblTitulo = new Label("Mi Perfil");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        // GridPane para informacion del perfil
+        GridPane gridPerfil = new GridPane();
+        gridPerfil.setHgap(15);
+        gridPerfil.setVgap(15);
+        gridPerfil.setStyle("-fx-background-color: #f0f0f0; -fx-padding: 20; -fx-background-radius: 5;");
+
+        // Información del perfil
+        gridPerfil.add(new Label("Nombre:"), 0, 0);
+        gridPerfil.add(new Label(tutorActual.getNombre()), 1, 0);
+        
+        gridPerfil.add(new Label("Correo:"), 0, 1);
+        gridPerfil.add(new Label(tutorActual.getCorreo()), 1, 1);
+        
+        gridPerfil.add(new Label("ID:"), 0, 2);
+        gridPerfil.add(new Label(String.valueOf(tutorActual.getIdUsuario())), 1, 2);
+        
+        gridPerfil.add(new Label("Tarifa:"), 0, 3);
+        gridPerfil.add(new Label("Q" + tutorActual.getTarifa() + " por hora"), 1, 3);
+
+        // Sección de materias
+        Label lblMaterias = new Label("📚 Materias que imparte:");
+        lblMaterias.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
+        ListView<String> listaMaterias = new ListView<>();
+        listaMaterias.getItems().addAll(tutorActual.getMaterias());
+        listaMaterias.setPrefHeight(150);
+
+        // Botón para editar perfil
+        Button btnEditar = new Button("Editar Perfil");
+        btnEditar.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+        btnEditar.setOnAction(e -> abrirDialogoEditarPerfil());
+        
+        panel.getChildren().addAll(lblTitulo, gridPerfil, lblMaterias, listaMaterias, btnEditar);
+        return panel;
+    }
 }
