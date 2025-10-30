@@ -64,7 +64,7 @@ public class VistaPrincipalCatedratico {
     private HBox crearBarraSuperior() {
         HBox barra = new HBox(20); // Organiza su contenido en una fila horizontal, el 20 es el espaciado
         barra.setPadding(new Insets(15)); // Padding es el relleno interior, para que los elementos no estén pegados a los bordes
-        // barra.setStyle("-fx-background-color: #215015ff;"); // Color para la HBox
+        barra.setStyle("-fx-background-color: #215015ff;"); // Color para la HBox
         barra.setAlignment(Pos.CENTER_LEFT); // Alinear elementos al la izquierda
 
         // Crear el Label para el título de la aplicación
@@ -98,7 +98,7 @@ public class VistaPrincipalCatedratico {
         VBox menu = new VBox(10); // Organiza su contenido en una fila vertical, el 10 es el espaciado
         menu.setPadding(new Insets(20));
         menu.setPrefWidth(220); // Se le da un ancho fijo para que no cambie de tamaño
-        // menu.setStyle("-fx-background-color: #3d8335ff;");
+        menu.setStyle("-fx-background-color: #3d8335ff;");
     
         Label lblMenu = new Label("MENÚ");
         lblMenu.setFont(Font.font("Arial", FontWeight.BOLD, 16));
