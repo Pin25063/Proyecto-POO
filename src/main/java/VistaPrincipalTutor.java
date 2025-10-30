@@ -39,12 +39,12 @@ public class VistaPrincipalTutor {
         VBox contenidoInicial = crearPanelInicio();
 
         //Se arma el layout principal
-        layouPrincipal.setTop(barraSuperior);
-        //layouPrincipal.setLeft(menuLateral);
-        //layouPrincipal.setCenter(contenidoInicial);
+        layoutPrincipal.setTop(barraSuperior);
+        layoutPrincipal.setLeft(menuLateral);
+        layoutPrincipal.setCenter(contenidoInicial);
 
         //Se crea la escena y se configura la ventana
-        Scene escena = new Scene(layouPrincipal, 1100, 700);
+        Scene escena = new Scene(layoutPrincipal, 1100, 700);
         stage.setScene(escena);
         stage.setTitle("Panel del Tutor - Gestor de Tutorías UVG");
         stage.setMinWidth(900);
@@ -146,7 +146,7 @@ public class VistaPrincipalTutor {
         int numMaterias = tutorActual.getMaterias().size();
 
         // Crear tarjetas de estadistica
-        VBox tarjetaCalificacion = crearTarjetaCalificacion(
+        VBox tarjetaCalificacion = crearTarjetaEstadistica(
             String.format("%.1f/5", calificacion),
             "Calificación",
             "#f39c12"
@@ -208,7 +208,7 @@ public class VistaPrincipalTutor {
         gridPerfil.add(new Label("Q" + tutorActual.getTarifa() + " por hora"), 1, 3);
 
         // Sección de materias
-        Label lblMaterias = new Label("📚 Materias que imparte:");
+        Label lblMaterias = new Label("Materias que imparte:");
         lblMaterias.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         
         ListView<String> listaMaterias = new ListView<>();
