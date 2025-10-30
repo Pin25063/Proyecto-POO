@@ -136,7 +136,6 @@ public class VistaPrincipalEstudiante {
         return panel;
     }
     
-    // Paneles temporales (se implementarán en los siguientes commits)
     // PANEL MI PERFIL - Visualizar y editar información
     private VBox crearPanelMiPerfil() {
         VBox panel = new VBox(25);
@@ -297,12 +296,99 @@ public class VistaPrincipalEstudiante {
         dialogo.show();
     }
     
+    // PANEL BUSCAR TUTORES
     private VBox crearPanelBuscarTutores() {
-        VBox panel = new VBox(20);
+        VBox panel = new VBox(25);
         panel.setPadding(new Insets(40));
-        Label temp = new Label("Panel Buscar Tutores - En construcción...");
-        temp.setFont(Font.font("Arial", 18));
-        panel.getChildren().add(temp);
+        
+        Label lblTitulo = new Label("Buscar Tutores por Materia");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        
+        // Barra de búsqueda
+        HBox barraBusqueda = new HBox(15);
+        barraBusqueda.setAlignment(Pos.CENTER_LEFT);
+        
+        TextField txtBusqueda = new TextField();
+        txtBusqueda.setPromptText("Escribe una materia (ej: Matemática, Física, Programación)");
+        txtBusqueda.setPrefWidth(400);
+        txtBusqueda.setFont(Font.font("Arial", 14));
+        
+        Button btnBuscar = new Button("🔍 Buscar");
+        btnBuscar.setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 8 20;");
+        
+        barraBusqueda.getChildren().addAll(txtBusqueda, btnBuscar);
+        
+        // Tabla de resultados
+        TableView<Usuario> tablaResultados = new TableView<>();
+        tablaResultados.setPrefHeight(400);
+        tablaResultados.setPlaceholder(new Label("Escribe una materia y haz clic en Buscar para ver los tutores disponibles"));
+        
+        // Columnas
+        TableColumn<Usuario, Number> colId = new TableColumn<>("ID");
+        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getIdUsuario()));
+        colId.setPrefWidth(60);
+        
+        TableColumn<Usuario, String> colNombre = new TableColumn<>("Nombre del Tutor");
+        colNombre.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getNombre()));
+        colNombre.setPrefWidth(200);
+        
+        TableColumn<Usuario, String> colCorreo = new TableColumn<>("Correo");
+        colCorreo.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getCorreo()));
+        colCorreo.setPrefWidth(220);
+        
+        TableColumn<Usuario, String> colMaterias = new TableColumn<>("Materias");
+        colMaterias.setCellValueFactory(data -> {
+            if (data.getValue() instanceof Tutor) {
+                Tutor tutor = (Tutor) data.getValue();
+                String materias = String.join(", ", tutor.getMaterias());
+                return new javafx.beans.property.SimpleStringProperty(materias);
+            }
+            return new javafx.beans.property.SimpleStringProperty("—");
+        });
+        colMaterias.setPrefWidth(250);
+        
+        tablaResultados.getColumns().addAll(colId, colNombre, colCorreo, colMaterias);
+        
+        // Acción del botón buscar
+        btnBuscar.setOnAction(e -> {
+            String materia = txtBusqueda.getText().trim().toLowerCase();
+            
+            if (materia.isEmpty()) {
+                mostrarAlerta("Campo vacío", "Por favor escribe una materia para buscar", Alert.AlertType.WARNING);
+                return;
+            }
+            
+            // Buscar tutores que enseñen esa materia
+            ArrayList<Usuario> resultados = new ArrayList<>();
+            for (Usuario usuario : controlador.getListaDeUsuarios()) {
+                if (usuario instanceof Tutor) {
+                    Tutor tutor = (Tutor) usuario;
+                    for (String mat : tutor.getMaterias()) {
+                        if (mat.toLowerCase().contains(materia)) {
+                            resultados.add(tutor);
+                            break;
+                        }
+                    }
+                }
+            }
+            
+            if (resultados.isEmpty()) {
+                mostrarAlerta("Sin resultados", "No se encontraron tutores que enseñen '" + materia + "'", Alert.AlertType.INFORMATION);
+                tablaResultados.getItems().clear();
+            } else {
+                tablaResultados.getItems().clear();
+                tablaResultados.getItems().addAll(resultados);
+            }
+        });
+        
+        // Búsqueda al presionar Enter
+        txtBusqueda.setOnAction(e -> btnBuscar.fire());
+        
+        Label lblInfo = new Label("💡 Tip: Anota el ID del tutor para agendar una sesión con él");
+        lblInfo.setFont(Font.font("Arial", 12));
+        lblInfo.setStyle("-fx-text-fill: #7f8c8d;");
+        
+        panel.getChildren().addAll(lblTitulo, barraBusqueda, tablaResultados, lblInfo);
         return panel;
     }
     
