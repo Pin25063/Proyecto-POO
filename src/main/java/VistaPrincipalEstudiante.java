@@ -1,13 +1,25 @@
+import java.util.ArrayList;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-
-import java.util.ArrayList;
 
 public class VistaPrincipalEstudiante {
     
@@ -392,12 +404,111 @@ public class VistaPrincipalEstudiante {
         return panel;
     }
     
+    // PANEL AGENDAR SESIÓN
     private VBox crearPanelAgendarSesion() {
-        VBox panel = new VBox(20);
+        VBox panel = new VBox(25);
         panel.setPadding(new Insets(40));
-        Label temp = new Label("Panel Agendar Sesión - En construcción...");
-        temp.setFont(Font.font("Arial", 18));
-        panel.getChildren().add(temp);
+        
+        Label lblTitulo = new Label("Agendar Nueva Sesión de Tutoría");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        
+        // Tarjeta del formulario
+        VBox tarjetaFormulario = new VBox(20);
+        tarjetaFormulario.setPadding(new Insets(30));
+        tarjetaFormulario.setStyle("-fx-background-color: white; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);");
+        tarjetaFormulario.setMaxWidth(700);
+        
+        GridPane formulario = new GridPane();
+        formulario.setHgap(20);
+        formulario.setVgap(20);
+        
+        // Campo ID del Tutor
+        Label lblTutorId = new Label("ID del Tutor:");
+        lblTutorId.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        TextField txtTutorId = new TextField();
+        txtTutorId.setPromptText("Ejemplo: 2");
+        txtTutorId.setPrefWidth(300);
+        
+        // Campo Materia
+        Label lblMateria = new Label("Materia:");
+        lblMateria.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        TextField txtMateria = new TextField();
+        txtMateria.setPromptText("Ejemplo: Matemática, Física, Programación");
+        txtMateria.setPrefWidth(300);
+        
+        // Campo Fecha y Hora
+        Label lblFecha = new Label("Fecha y Hora:");
+        lblFecha.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        TextField txtFecha = new TextField();
+        txtFecha.setPromptText("Formato: HH:mm dd/MM/yy (Ej: 14:30 26/10/25)");
+        txtFecha.setPrefWidth(300);
+        
+        // Nota informativa
+        Label lblNota = new Label("💡 Tip: Busca tutores antes de agendar para obtener su ID y ver sus materias disponibles");
+        lblNota.setFont(Font.font("Arial", 11));
+        lblNota.setStyle("-fx-text-fill: #7f8c8d;");
+        lblNota.setWrapText(true);
+        lblNota.setMaxWidth(300);
+        
+        formulario.add(lblTutorId, 0, 0);
+        formulario.add(txtTutorId, 0, 1);
+        formulario.add(lblMateria, 0, 2);
+        formulario.add(txtMateria, 0, 3);
+        formulario.add(lblFecha, 0, 4);
+        formulario.add(txtFecha, 0, 5);
+        formulario.add(lblNota, 0, 6);
+        
+        tarjetaFormulario.getChildren().add(formulario);
+        
+        // Botón de agendar
+        Button btnAgendar = new Button("✅ Confirmar Agendamiento");
+        btnAgendar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; -fx-padding: 12 25;");
+        
+        btnAgendar.setOnAction(e -> {
+            String tutorIdStr = txtTutorId.getText().trim();
+            String materia = txtMateria.getText().trim();
+            String fechaHora = txtFecha.getText().trim();
+            
+            // Validar campos vacíos
+            if (tutorIdStr.isEmpty() || materia.isEmpty() || fechaHora.isEmpty()) {
+                mostrarAlerta("Campos incompletos", "Por favor completa todos los campos para agendar la sesión", Alert.AlertType.WARNING);
+                return;
+            }
+            
+            try {
+                int tutorId = Integer.parseInt(tutorIdStr);
+                
+                // Llamar al controlador para agendar
+                Sesion nuevaSesion = controlador.manejarAgendamientoSesion(
+                    estudiante.getIdUsuario(),
+                    tutorId,
+                    materia,
+                    fechaHora
+                );
+                
+                if (nuevaSesion != null) {
+                    estudiante.agendarSesion(nuevaSesion);
+                    mostrarAlerta("¡Sesión Agendada!", 
+                        "Tu sesión de " + materia + " ha sido programada exitosamente para el " + fechaHora + ".\n\n" +
+                        "Puedes ver los detalles en la sección 'Mis Sesiones'.", 
+                        Alert.AlertType.INFORMATION);
+                    
+                    // Limpiar formulario
+                    txtTutorId.clear();
+                    txtMateria.clear();
+                    txtFecha.clear();
+                }
+                
+            } catch (NumberFormatException ex) {
+                mostrarAlerta("ID inválido", "El ID del tutor debe ser un número válido", Alert.AlertType.ERROR);
+            }
+        });
+        
+        // Efecto hover
+        btnAgendar.setOnMouseEntered(e -> btnAgendar.setStyle("-fx-background-color: #229954; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; -fx-padding: 12 25;"));
+        btnAgendar.setOnMouseExited(e -> btnAgendar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; -fx-padding: 12 25;"));
+        
+        panel.getChildren().addAll(lblTitulo, tarjetaFormulario, btnAgendar);
         return panel;
     }
     
