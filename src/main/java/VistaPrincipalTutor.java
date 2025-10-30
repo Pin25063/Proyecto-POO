@@ -333,4 +333,142 @@ public class VistaPrincipalTutor {
         panel.getChildren().addAll(lblTitulo, lblResumen, txtResenas);
         return panel;
     }
+
+    // Metodos Auxiliares y dialogos
+    //Se crea una tarjeta de estadistica
+
+    private VBox crearTarjetaEstadistica(String valor, String titulo, String color) {
+        VBox tarjeta = new VBox(10);
+        tarjeta.setPrefSize(180, 120);
+        tarjeta.setAlignment(Pos.CENTER);
+        tarjeta.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-background-radius: 10; " +
+            "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);"
+        );
+        tarjeta.setPadding(new Insets(20));
+
+        Label lblValor = new Label(valor);
+        lblValor.setFont(Font.font("Arial", FontWeight.BOLD, 32));
+        lblValor.setStyle("-fx-text-fill: " + color + ";");
+
+        Label lblTitulo = new Label(titulo);
+        lblTitulo.setFont(Font.font("Arial", FontWeight.NORMAL, 14));
+        lblTitulo.setStyle("-fx-text-fill: #34495e;");
+
+        tarjeta.getChildren().addAll(lblValor, lblTitulo);
+        return tarjeta;
+    }
+
+    // Se crea boton estilizado
+    private Button crearBotonMenu(String texto) {
+        Button boton = new Button(texto);
+        boton.setPrefWidth(200);
+        boton.setPrefHeight(40);
+        boton.setAlignment(Pos.CENTER_LEFT);
+        boton.setStyle(
+            "-fx-background-color: transparent; " +
+            "-fx-text-fill: white; " +
+            "-fx-font-size: 14px; " +
+            "-fx-font-weight: bold;"
+        );
+
+        // Efectos hover
+        boton.setOnMouseEntered(e -> 
+            boton.setStyle(
+                "-fx-background-color: #3498db; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 14px; " +
+                "-fx-font-weight: bold;"
+            )
+        );
+        boton.setOnMouseExited(e -> 
+            boton.setStyle(
+                "-fx-background-color: transparent; " +
+                "-fx-text-fill: white; " +
+                "-fx-font-size: 14px; " +
+                "-fx-font-weight: bold;"
+            )
+        );
+        
+        return boton;
+    }
+
+    // Abre dialogo para editar perfil de tutor
+    private void abrirDialogoEditarPerfil() {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Editar Perfil");
+
+        VBox contenido = new VBox(15);
+        contenido.setPadding(new Insets(20));
+        contenido.setAlignment(Pos.CENTER);
+
+        Label titulo = new Label("Editar Información del Tutor");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
+        // Campo para tarifa
+        Label lblTarifa = new Label("Tarifa por Hora (Q): ");
+        TextField txtTarifa = new TextField(String.valueOf(tutorActual.getTarifa()));
+        txtTarifa.setPrefWidth(300);
+
+        // Campo para contraseña
+        Label lblPass = new Label("Nueva Contraseña (opcional):");
+        PasswordField txtPass = new PasswordField();
+        txtPass.setPrefWidth(300);
+        txtPass.setPromptText("Dejar vacío para mantener la actual");
+
+        // Botones
+        HBox botones = new HBox(10);
+        botones.setAlignment(Pos.CENTER);
+
+        Button btnGuardar = new Button("Guardar Cambios");
+        Button btnCancelar = new Button("Cancelar");
+
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnCancelar.setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        btnGuardar.setOnAction(e -> {
+            try {
+                double nuevaTarifa = Double.parseDouble(txtTarifa.getText().trim());
+                if (nuevaTarifa < 0) {
+                    mostrarAlerta("Error", "La tarifa no puede ser negativa", Alert.AlertType.ERROR);
+                    return;
+                }
+
+                tutorActual.setTarifa(nuevaTarifa);
+                mostrarAlerta("Exíto", "Perfil actualizado correctamente", Alert.AlertType.INFORMATION);
+                dialogStage.close();
+
+            } catch (NumberFormatException ex) {
+                mostrarAlerta("Error", "La tarifa debe ser un número válido", Alert.AlertType.ERROR);
+            }
+        });
+
+        btnCancelar.setOnAction(e -> dialogStage.close());
+
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+
+        contenido.getChildren().addAll(
+            titulo,
+            new Separator(),
+            lblTarifa, txtTarifa,
+            lblPass, txtPass,
+            new Separator(),
+            botones
+        );
+
+        Scene scene = new Scene(contenido, 400, 350);
+        dialogStage.setScene(scene);
+        dialogStage.show();
+    }
+
+    // Muestra una alerta genérica
+    private void mostrarAlerta(String titulo, String mensaje, Alert.AlertType tipo) {
+        Alert alerta = new Alert(tipo);
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        alerta.showAndWait();
+
+    }
 }
