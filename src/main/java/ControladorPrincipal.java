@@ -1,10 +1,11 @@
 import java.io.IOException;
-import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
+import javafx.stage.Stage;
 
 public class ControladorPrincipal {
     
@@ -74,14 +75,18 @@ public class ControladorPrincipal {
 
             switch (usuarioActual.getRol()) {
                 case ESTUDIANTE:
-                    loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
-                    // Aquí mostramos la vista de estudiante
+                    // AGREGAR ESTAS LÍNEAS:
+                    Estudiante estudiante = (Estudiante) usuarioActual;
+                    VistaPrincipalEstudiante vistaEst = new VistaPrincipalEstudiante(this, estudiante, stage, mainApp);
+                    vistaEst.mostrar();
                     break;
+                    
                 case TUTOR:
                     Tutor tutor = (Tutor) usuarioActual;
                     VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(this, tutor, stage, mainApp);
                     vistaTut.mostrar();
                     break;
+                    
                 case CATEDRATICO:
                     Catedratico catedratico = (Catedratico) usuarioActual;
                     VistaPrincipalCatedratico vistaCat = new VistaPrincipalCatedratico(this, catedratico, stage, mainApp);
@@ -249,7 +254,7 @@ public class ControladorPrincipal {
     }
 
     public List<Usuario> getListaDeUsuarios() {
-        return listaDeUsuarios;
+        return this.listaDeUsuarios;
     }
 
     private String norm(String s) { return (s == null) ? "" : s.trim(); }
@@ -271,4 +276,23 @@ public class ControladorPrincipal {
         } 
         return max + 1; //Devuelve el nuevo ID
     }
+
+    // Método para navegar al perfil del estudiante
+    public void irAPerfilEstudiante() {
+        if (usuarioActual != null && usuarioActual.getRol() == Rol.ESTUDIANTE) {
+            Estudiante estudiante = (Estudiante) usuarioActual;
+            Stage stage = (Stage) loginVista.getScene().getWindow();
+            
+            // Crear y mostrar la nueva vista
+            VistaPrincipalEstudiante vistaEstudiante = new VistaPrincipalEstudiante(
+                this, 
+                estudiante, 
+                stage, 
+                mainApp  // Necesitas pasar la referencia de Main
+            );
+            vistaEstudiante.mostrar();
+        }
+    }
+
+    
 }

@@ -1,25 +1,14 @@
-import java.util.ArrayList;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.Separator;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
+import javafx.scene.control.*;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.*;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import java.util.ArrayList;
+import java.util.List;
 
 public class VistaPrincipalEstudiante {
     
@@ -113,7 +102,7 @@ public class VistaPrincipalEstudiante {
         Button btnInicio = crearBotonMenu("INICIO");
         Button btnMiPerfil = crearBotonMenu("MI PERFIL");
         Button btnBuscarTutores = crearBotonMenu("BUSCAR TUTORES");
-        Button btnAgendarSesion = crearBotonMenu("GENDAR SESIÓN");
+        Button btnAgendarSesion = crearBotonMenu("AGENDAR SESIÓN");
         Button btnMisSesiones = crearBotonMenu("MIS SESIONES");
         
         // Acciones de los botones
@@ -396,7 +385,7 @@ public class VistaPrincipalEstudiante {
         // Búsqueda al presionar Enter
         txtBusqueda.setOnAction(e -> btnBuscar.fire());
         
-        Label lblInfo = new Label("💡 Tip: Anota el ID del tutor para agendar una sesión con él");
+        Label lblInfo = new Label("Tip: Anota el ID del tutor para agendar una sesión con él");
         lblInfo.setFont(Font.font("Arial", 12));
         lblInfo.setStyle("-fx-text-fill: #7f8c8d;");
         
@@ -461,7 +450,7 @@ public class VistaPrincipalEstudiante {
         tarjetaFormulario.getChildren().add(formulario);
         
         // Botón de agendar
-        Button btnAgendar = new Button("✅ Confirmar Agendamiento");
+        Button btnAgendar = new Button("Confirmar Agendamiento");
         btnAgendar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 15px; -fx-padding: 12 25;");
         
         btnAgendar.setOnAction(e -> {
@@ -512,12 +501,143 @@ public class VistaPrincipalEstudiante {
         return panel;
     }
     
+    // PANEL MIS SESIONES - Historial completo
     private VBox crearPanelMisSesiones() {
-        VBox panel = new VBox(20);
+        VBox panel = new VBox(25);
         panel.setPadding(new Insets(40));
-        Label temp = new Label("Panel Mis Sesiones - En construcción...");
-        temp.setFont(Font.font("Arial", 18));
-        panel.getChildren().add(temp);
+        
+        Label lblTitulo = new Label("Mi Historial de Sesiones");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        
+        // Filtros
+        HBox filtros = new HBox(15);
+        filtros.setAlignment(Pos.CENTER_LEFT);
+        
+        Label lblFiltro = new Label("Filtrar por estado:");
+        lblFiltro.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        
+        ComboBox<String> cmbFiltro = new ComboBox<>();
+        cmbFiltro.getItems().addAll("TODAS", "PROGRAMADA", "COMPLETADA", "CANCELADA", "AGENDADA");
+        cmbFiltro.setValue("TODAS");
+        cmbFiltro.setPrefWidth(150);
+        
+        filtros.getChildren().addAll(lblFiltro, cmbFiltro);
+        
+        // Tabla de sesiones
+        TableView<Sesion> tablaSesiones = new TableView<>();
+        tablaSesiones.setPrefHeight(450);
+        
+        // Columnas
+        TableColumn<Sesion, String> colId = new TableColumn<>("ID");
+        colId.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getIdSesion()));
+        colId.setPrefWidth(60);
+        
+        TableColumn<Sesion, String> colMateria = new TableColumn<>("Materia");
+        colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getMateria()));
+        colMateria.setPrefWidth(180);
+        
+        TableColumn<Sesion, String> colFecha = new TableColumn<>("Fecha y Hora");
+        colFecha.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getFechaHora()));
+        colFecha.setPrefWidth(150);
+        
+        TableColumn<Sesion, Number> colTutorId = new TableColumn<>("ID Tutor");
+        colTutorId.setCellValueFactory(data -> new javafx.beans.property.SimpleIntegerProperty(data.getValue().getTutorId()));
+        colTutorId.setPrefWidth(90);
+        
+        TableColumn<Sesion, String> colEstado = new TableColumn<>("Estado");
+        colEstado.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getEstado().toString()));
+        colEstado.setPrefWidth(120);
+        
+        // Estilo personalizado para la columna estado
+        colEstado.setCellFactory(column -> new TableCell<Sesion, String>() {
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item);
+                    // Colores según el estado
+                    switch (item) {
+                        case "PROGRAMADA":
+                        case "AGENDADA":
+                            setStyle("-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                            break;
+                        case "COMPLETADA":
+                            setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                            break;
+                        case "CANCELADA":
+                        case "NEGADA":
+                            setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                            break;
+                        default:
+                            setStyle("-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-font-weight: bold; -fx-alignment: center;");
+                    }
+                }
+            }
+        });
+        
+        tablaSesiones.getColumns().addAll(colId, colMateria, colFecha, colTutorId, colEstado);
+        
+        // Cargar sesiones inicialmente
+        ArrayList<Sesion> historial = estudiante.getHistorialSesiones();
+        if (historial != null && !historial.isEmpty()) {
+            tablaSesiones.getItems().addAll(historial);
+        } else {
+            tablaSesiones.setPlaceholder(new Label("No tienes sesiones registradas aún.\n¡Agenda tu primera sesión de tutoría!"));
+        }
+        
+        // Acción del filtro
+        cmbFiltro.setOnAction(e -> {
+            String filtroSeleccionado = cmbFiltro.getValue();
+            tablaSesiones.getItems().clear();
+            
+            if (historial != null && !historial.isEmpty()) {
+                if (filtroSeleccionado.equals("TODAS")) {
+                    tablaSesiones.getItems().addAll(historial);
+                } else {
+                    for (Sesion sesion : historial) {
+                        if (sesion.getEstado().toString().equals(filtroSeleccionado)) {
+                            tablaSesiones.getItems().add(sesion);
+                        }
+                    }
+                }
+            }
+        });
+        
+        // Estadísticas
+        HBox estadisticas = new HBox(30);
+        estadisticas.setAlignment(Pos.CENTER);
+        estadisticas.setPadding(new Insets(15));
+        estadisticas.setStyle("-fx-background-color: #ecf0f1; -fx-background-radius: 8;");
+        
+        int totalSesiones = (historial != null) ? historial.size() : 0;
+        int completadas = 0;
+        int programadas = 0;
+        
+        if (historial != null) {
+            for (Sesion s : historial) {
+                if (s.getEstado().toString().equals("COMPLETADA")) completadas++;
+                if (s.getEstado().toString().equals("PROGRAMADA") || s.getEstado().toString().equals("AGENDADA")) programadas++;
+            }
+        }
+        
+        Label lblTotal = new Label("Total: " + totalSesiones);
+        lblTotal.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
+        Label lblCompletadas = new Label("Completadas: " + completadas);
+        lblCompletadas.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        lblCompletadas.setStyle("-fx-text-fill: #27ae60;");
+        
+        Label lblProgramadas = new Label("Programadas: " + programadas);
+        lblProgramadas.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        lblProgramadas.setStyle("-fx-text-fill: #3498db;");
+        
+        estadisticas.getChildren().addAll(lblTotal, lblCompletadas, lblProgramadas);
+        
+        panel.getChildren().addAll(lblTitulo, filtros, tablaSesiones, estadisticas);
         return panel;
     }
     
@@ -544,4 +664,6 @@ public class VistaPrincipalEstudiante {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+    
 }
