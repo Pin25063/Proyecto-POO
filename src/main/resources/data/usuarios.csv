@@ -5,3 +5,4 @@ idUsuario;nombre;correo;contrasena;rol;materias;tarifa
 4;Laura Martinez;mar@uvg.edu.gt;laura123;ESTUDIANTE
 5;Cristopher Chávez;cha@uvg.edu.gt;cris123;TUTOR;Matematica,Programacion;200.0
 6;jose;jose@uvg.edu.gt;12345;TUTOR;Matematica;250.0
+7;Mauricio Corado;cor@uvg.edu.gt;mau123;ESTUDIANTE;;

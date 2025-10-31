@@ -2,21 +2,32 @@ import java.util.ArrayList;
 
 public class Estudiante extends Usuario {
     private ArrayList<Sesion> historialSesiones;
-    public Estudiante(int idUsuario, String nombre, String correo, String contrasena) {
-        super(idUsuario, nombre, correo, contrasena, Rol.ESTUDIANTE); 
+    
+    // Constructor completo (mantener el existente)
+    public Estudiante(int idUsuario, String nombre, String correo, String contrasena, Rol rol, ArrayList<Sesion> historialSesiones) {
+        super(idUsuario, nombre, correo, contrasena, rol); 
+        this.historialSesiones = historialSesiones != null ? historialSesiones : new ArrayList<>();
+    }
+    
+    // Constructor simplificado (NUEVO - para VistaRegistro)
+    public Estudiante(int idUsuario, String nombre, String correo, String contrasena, Rol rol) {
+        super(idUsuario, nombre, correo, contrasena, rol);
         this.historialSesiones = new ArrayList<>();
-    };
+    }
     
     public void agendarSesion(Sesion sesion) {
-        historialSesiones.add(sesion);  // Agregar la sesión al historial
+        if (historialSesiones == null) {
+            historialSesiones = new ArrayList<>();
+        }
+        historialSesiones.add(sesion);
     }
 
     public ArrayList<Sesion> getHistorialSesiones() {
-        return historialSesiones;
+        return historialSesiones != null ? historialSesiones : new ArrayList<>();
     }
 
     public void verHistorial() {
-        if (historialSesiones.isEmpty()) {
+        if (historialSesiones == null || historialSesiones.isEmpty()) {
             System.out.println("No tienes sesiones registradas.");
         } else {
             System.out.println("Historial de tus sesiones:");
@@ -25,9 +36,10 @@ public class Estudiante extends Usuario {
             }
         }
     }
-    //Los getters en Usuario ya estan heredados a Estudiante
+    
     @Override
     public String toString() {
-        return super.toString() + ", Historial de sesiones: " + historialSesiones.size(); //Verificar si se utilizara asi
+        int numSesiones = (historialSesiones != null) ? historialSesiones.size() : 0;
+        return super.toString() + ", Historial de sesiones: " + numSesiones;
     }
 }

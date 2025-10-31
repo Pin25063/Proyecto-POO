@@ -18,55 +18,61 @@ public class GestorDeDatos {
     private static final Path SESIONES = Paths.get("src/main/resources/data/sesiones.csv"); //path en el cual se encuentra el archivo CSV de las sesiones
 
     private static final String SEP = ";"; //Separador utilizado en el archivo CSV
-        
+    private static final String HDR_USU = "idUsuario;nombre;correo;contrasena;rol";  // ← ESTA CONSTANTE
+    private static final String HDR_SES = "idSesion;estudianteId;tutorId;materia;fechaHora;estado";
     private static final String NL  = System.lineSeparator(); // Separador de fin de línea según el sistema operativo. Se utiliza al escribir en los archivos CSV para añadir saltos de línea correctos.
     private static final Pattern SEP_PATTERN = Pattern.compile(Pattern.quote(SEP)); // Patrón compilado para dividir las líneas CSV usando el separador SEP. Se usa Pattern.quote(SEP) para escapar caracteres especiales del separador.
 
-    // USUARIOS CSV
-    public List<Usuario> cargarUsuarios() throws IOException {
-        List<Usuario> out = new ArrayList<>(); // Lista de salida donde se almacenarán los usuarios leídos
-
-        try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) { // Abre un BufferedReader con codificación UTF-8 para leer el archivo CSV
-            String line = br.readLine();  // Lee la primera línea y la descarta
-            while ((line = br.readLine()) != null) { // Lee línea por línea hasta el final del archivo
-                if (line.isBlank()) continue; // Omite líneas en blanco
-                String[] raw = SEP_PATTERN.split(line, -1); // Divide la línea usando el separador definido (SEP), conservando campos vacíos
-                if (raw.length < 5) continue; // Si la línea no tiene suficientes columnas, se ignora
-
-                int id = Integer.parseInt(raw[0].trim()); // Parse del ID de usuario desde la primera columna
-                String nombre  = raw[1].trim(); // Nombre del usuario desde la segunda columna (recortado)
-                String correo  = raw[2].trim(); // Correo del usuario desde la tercera columna (recortado)
-                String pass    = raw[3].trim(); // Contraseña desde la cuarta columna (recortada)
-                Rol rol = Rol.valueOf(raw[4].trim().toUpperCase()); // Convierte la quinta columna a un valor del enum Rol (mayúsculas)
-
-                // Soporte para materias (columna 6, si existe)
-                ArrayList<String> materias = new ArrayList<>();
-                if (raw.length >= 6 && !raw[5].isBlank()) { //Validacion de datos en el CSV
-                    for (String mat : raw[5].split(",")) {
-                        materias.add(mat.trim());
-                    }
-                }
-
-                // Soporte para tarifa (columna 7, si existe)
-                double tarifa = 0.0;
-                if (rol == Rol.TUTOR && raw.length >= 7 && !raw[6].isBlank()) {
-                    try {
-                        tarifa = Double.parseDouble(raw[6].trim());
-                    } catch (NumberFormatException e) {
-                        System.out.println("Tarifa inválida para tutor con ID " + id);
-                    }
-                }
-                Usuario u;
-                switch (rol) {
-                    case TUTOR -> u = new Tutor(id, nombre, correo, pass, materias, tarifa);
-                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass);
-                    default -> u = new Estudiante(id, nombre, correo, pass);
-                }
-                    out.add(u); // Crea un objeto Usuario y lo añade a la lista de salida
-                }
-            }
-            return out;  // Devuelve la lista con los usuarios cargados
+    // CARGAR USUARIOS CSV
+    public synchronized List<Usuario> cargarUsuarios() throws IOException {
+        List<Usuario> out = new ArrayList<>();
+        if (!Files.exists(USUARIOS)) {
+            System.out.println("El archivo de usuarios no existe.");
+            return out;
         }
+
+        try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) {
+            String line = br.readLine();  // Leer y descartar header
+            while ((line = br.readLine()) != null) {
+                if (line.isBlank()) continue;
+                String[] raw = SEP_PATTERN.split(line, -1);
+                if (raw.length < 5) continue;
+
+                int id = Integer.parseInt(raw[0].trim());
+                String nombre  = raw[1].trim();
+                String correo  = raw[2].trim();
+                String pass    = raw[3].trim();
+                Rol rol = Rol.valueOf(raw[4].trim().toUpperCase());
+
+                // Crear el tipo específico de usuario según el rol
+                Usuario usuario;
+                switch (rol) {
+                    case ESTUDIANTE:
+                        usuario = new Estudiante(id, nombre, correo, pass, rol, new ArrayList<>());
+                        break;
+                        
+                    case TUTOR:
+                        // Para tutores, crear con materias vacías y tarifa 0 (se pueden actualizar después)
+                        usuario = new Tutor(id, nombre, correo, pass, rol, new ArrayList<>(), 0.0);
+                        break;
+                        
+                    case CATEDRATICO:
+                        // Para catedráticos, crear con materias vacías
+                        usuario = new Catedratico(id, nombre, correo, pass, rol, new ArrayList<>());
+                        break;
+                        
+                    default:
+                        // Por defecto, crear Usuario genérico
+                        usuario = new Usuario(id, nombre, correo, pass, rol);
+                        break;
+                }
+                
+                out.add(usuario);
+                System.out.println("Usuario cargado: " + nombre + ", " + correo + " (" + rol + ")");
+            }
+        }
+        return out;
+    }
 
     // SESIONES CSV
     public List<Sesion> cargarSesiones() throws IOException {
@@ -143,4 +149,33 @@ public class GestorDeDatos {
             bw.write(NL); // escribe nueva línea
         } 
     } 
+
+    // GUARDAR NUEVO USUARIO EN CSV
+    public synchronized void guardarUsuario(Usuario usuario) throws IOException {
+        // Verificar si el archivo existe, si no, crearlo con header
+        if (!Files.exists(USUARIOS)) {
+            try (BufferedWriter bw = Files.newBufferedWriter(USUARIOS, StandardCharsets.UTF_8)) {
+                bw.write(HDR_USU);
+                bw.write(NL);
+            }
+        }
+        
+        // Append el nuevo usuario
+        try (BufferedWriter bw = Files.newBufferedWriter(
+                USUARIOS,
+                StandardCharsets.UTF_8,
+                StandardOpenOption.APPEND)) {
+            
+            String linea = usuario.getIdUsuario() + SEP
+                    + usuario.getNombre() + SEP
+                    + usuario.getCorreo() + SEP
+                    + usuario.getContrasena() + SEP
+                    + usuario.getRol().toString();
+            
+            bw.write(linea);
+            bw.write(NL);
+            
+            System.out.println("Usuario guardado en CSV: " + linea);
+        }
+    }
 }

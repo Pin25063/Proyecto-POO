@@ -47,15 +47,22 @@ public class Main extends Application {
         primaryStage.centerOnScreen();
     }
 
-    private void mostrarRegistro() {
-        VistaRegistro registroVista = new VistaRegistro();
-        registroVista.setControlador(controlador);
-
-        //Si el usuario presiona Cancelar, volvera a login
-        registroVista.setOnCancel(() -> mostrarLogin());
-
-        Scene scene = new Scene(registroVista, 460, 520);
-        stage.setScene(scene);
+    // MÉTODO PARA MOSTRAR REGISTRO
+    public void mostrarRegistro() {
+        VistaRegistro root = new VistaRegistro();
+        ControladorPrincipal ctrl = new ControladorPrincipal(new LoginVista(), this);
+        root.setControlador(ctrl);
+        root.setOnCancel(() -> mostrarLogin());
+        
+        Scene scene = new Scene(root, 550, 680);  // Tamaño ajustado
+        
+        URL cssUrl = getClass().getResource("styles.css");
+        if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+        
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Gestor de Tutorías UVG - Registro de Usuario");
+        primaryStage.setResizable(false);  // No redimensionable
+        primaryStage.centerOnScreen();
     }
 
     public static void main(String[] args) {

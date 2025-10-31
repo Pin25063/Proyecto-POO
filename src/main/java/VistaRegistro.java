@@ -113,21 +113,21 @@ public class VistaRegistro extends VBox {
         lblNombre.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         txtNombre.setPromptText("Ej: Juan Pérez");
         txtNombre.setPrefHeight(40);
-        txtNombre.setStyle("-fx-font-size: 14px; -fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-border-width: 2;");
+        lblNombre.setStyle("-fx-text-fill: #2c3e50;");
         
         // Campo Correo
         Label lblCorreo = new Label("Correo Institucional *");
         lblCorreo.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         txtCorreo.setPromptText("correo@uvg.edu.gt");
         txtCorreo.setPrefHeight(40);
-        txtCorreo.setStyle("-fx-font-size: 14px; -fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-border-width: 2;");
+        lblCorreo.setStyle("-fx-text-fill: #2c3e50;");
         
         // Campo Contraseña
         Label lblContrasena = new Label("Contraseña *");
         lblContrasena.setFont(Font.font("Arial", FontWeight.BOLD, 13));
         txtContrasena.setPromptText("Mínimo 6 caracteres");
         txtContrasena.setPrefHeight(40);
-        txtContrasena.setStyle("-fx-font-size: 14px; -fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-border-width: 2;");
+        lblContrasena.setStyle("-fx-text-fill: #2c3e50;");
         
         seccion.getChildren().addAll(
             lblSeccion,
@@ -180,11 +180,11 @@ public class VistaRegistro extends VBox {
         
         Label lblMaterias = new Label("📚 Materias que Impartes *");
         lblMaterias.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        lblMaterias.setStyle("-fx-text-fill: #34495e;");
+        lblMaterias.setStyle("-fx-text-fill: #2c3e50;");  // ← CAMBIAR DE #34495e A #2c3e50
         
         Label lblInstruccion = new Label("Selecciona al menos una materia:");
         lblInstruccion.setFont(Font.font("Arial", 12));
-        lblInstruccion.setStyle("-fx-text-fill: #7f8c8d;");
+        lblInstruccion.setStyle("-fx-text-fill: #34495e;");  // ← CAMBIAR DE #7f8c8d A #34495e
         
         // Grid de checkboxes para materias
         GridPane gridMaterias = new GridPane();
@@ -197,6 +197,7 @@ public class VistaRegistro extends VBox {
         for (String materia : MATERIAS) {
             CheckBox cb = new CheckBox(materia);
             cb.setFont(Font.font("Arial", 13));
+            cb.setStyle("-fx-text-fill: #2c3e50;");  // ← AGREGAR ESTE ESTILO
             gridMaterias.add(cb, columna, fila);
             
             columna++;
@@ -216,11 +217,11 @@ public class VistaRegistro extends VBox {
         
         Label lblTarifa = new Label("💰 Tarifa por Hora *");
         lblTarifa.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-        lblTarifa.setStyle("-fx-text-fill: #34495e;");
+        lblTarifa.setStyle("-fx-text-fill: #2c3e50;");  // ← CAMBIAR DE #34495e A #2c3e50
         
         Label lblInstruccionTarifa = new Label("Ingresa tu tarifa en Quetzales:");
         lblInstruccionTarifa.setFont(Font.font("Arial", 12));
-        lblInstruccionTarifa.setStyle("-fx-text-fill: #7f8c8d;");
+        lblInstruccionTarifa.setStyle("-fx-text-fill: #34495e;");  // ← CAMBIAR DE #7f8c8d A #34495e
         
         txtTarifa.setPromptText("Ej: 50.00");
         txtTarifa.setPrefHeight(40);
@@ -231,6 +232,7 @@ public class VistaRegistro extends VBox {
         contenedorTarifaInput.setAlignment(Pos.CENTER_LEFT);
         Label lblQuetzal = new Label("Q");
         lblQuetzal.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        lblQuetzal.setStyle("-fx-text-fill: #2c3e50;");  // ← AGREGAR ESTE ESTILO
         contenedorTarifaInput.getChildren().addAll(lblQuetzal, txtTarifa);
         
         contenedorTarifa.getChildren().addAll(lblTarifa, lblInstruccionTarifa, contenedorTarifaInput);
@@ -399,7 +401,7 @@ public class VistaRegistro extends VBox {
                 
             case ESTUDIANTE:
             default:
-                nuevoUsuario = new Estudiante(nuevoId, nombre, correo, contrasena, rol, new ArrayList<>());
+                nuevoUsuario = new Estudiante(nuevoId, nombre, correo, contrasena, rol);
                 break;
         }
         
