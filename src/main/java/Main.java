@@ -1,3 +1,4 @@
+import java.net.URL;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
@@ -6,26 +7,44 @@ public class Main extends Application {
     
     private Stage stage; // Se guarda referencia al escenario principal
     private ControladorPrincipal controlador;
+    private Stage primaryStage;
 
-    
-    @Override 
+        @Override 
     public void start(Stage stage) {
-        this.stage = stage;
-        mostrarLogin(); // Iniciar con la ventana de login
-        stage.setTitle("Sistema de Tutorías UVG");
+        this.primaryStage = stage;
+        
+        LoginVista root = new LoginVista();
+        ControladorPrincipal ctrl = new ControladorPrincipal(root, this);
+        root.setControlador(ctrl);
+        root.setOnCrearCuenta(() -> mostrarRegistro());
+
+        Scene scene = new Scene(root, 480, 620);  // Tamaño fijo
+
+        URL cssUrl = getClass().getResource("styles.css");
+        if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+
+        stage.setTitle("Gestor de Tutorías UVG - Iniciar Sesión");
+        stage.setScene(scene);
+        stage.setResizable(false);  // ← NO REDIMENSIONABLE
+        stage.centerOnScreen();     // ← CENTRAR EN PANTALLA
         stage.show();
     }
 
     public void mostrarLogin() {
-        LoginVista loginVista = new LoginVista();
-        controlador = new ControladorPrincipal(loginVista, this); // se le pasa la instancia de main al controlador
-        loginVista.setControlador(controlador);
-
-        // Al hacer clic en Crear cuenta, se ira a VistaRegistro
-        loginVista.setOnCrearCuenta(() -> mostrarRegistro());
-
-        Scene scene = new Scene(loginVista, 420, 520);
-        stage.setScene(scene);
+        LoginVista root = new LoginVista();
+        ControladorPrincipal ctrl = new ControladorPrincipal(root, this);
+        root.setControlador(ctrl);
+        root.setOnCrearCuenta(() -> mostrarRegistro());
+        
+        Scene scene = new Scene(root, 480, 620);
+        
+        URL cssUrl = getClass().getResource("styles.css");
+        if (cssUrl != null) scene.getStylesheets().add(cssUrl.toExternalForm());
+        
+        primaryStage.setScene(scene);
+        primaryStage.setTitle("Gestor de Tutorías UVG - Iniciar Sesión");
+        primaryStage.setResizable(false);  // ← NO REDIMENSIONABLE
+        primaryStage.centerOnScreen();
     }
 
     private void mostrarRegistro() {
