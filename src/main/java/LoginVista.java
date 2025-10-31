@@ -1,135 +1,248 @@
 import java.util.regex.Pattern;
-
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
-import javafx.scene.control.Tooltip;
+import javafx.scene.control.*;
 import javafx.scene.layout.*;
-//Al guardar el archivo se extienden los imports en lugar de mantener el *
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 public class LoginVista extends VBox {
 
-    Label title = new Label("Iniciar Sesión");
     private final TextField txtCorreo = new TextField();
     private final PasswordField txtPass = new PasswordField();
-
-    // Es un toggle para mostrar/ocultar contraseña
     private final TextField txtPassVisible = new TextField();
-    private final CheckBox chkMostrar = new CheckBox("Mostrar");
+    private final CheckBox chkMostrar = new CheckBox();
 
-    private final Button btnIngresar = new Button("Ingresar");
+    private final Button btnIngresar = new Button("Iniciar Sesión");
     private final Button btnCrearCuenta = new Button("Crear Cuenta");
-    private final Button btnLimpiar = new Button("Limpiar");
+    private final Button btnLimpiar = new Button("Limpiar Campos");
 
-    // Esta es una fila de contraseña que iremos reemplazando 
-    // (ahora usamos BorderPane para centrar el campo y mandar el toggle a la derecha)
     private BorderPane filaPass;
-
     private ControladorPrincipal controlador;
-
-    // validacion de correo 
-    private static final Pattern EMAIL = Pattern.compile("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
-
-    //Variable runnable para la ventana de registro de usuario    
     private Runnable onCrearCuenta;
 
+    private static final Pattern EMAIL = Pattern.compile("^[\\w._%+-]+@[\\w.-]+\\.[A-Za-z]{2,}$");
+
     public LoginVista() { 
-
-        //layout base  
-        setPadding(new Insets(24));
-        setSpacing(16);
+        // Layout base con estilo mejorado
+        setPadding(new Insets(30));
+        setSpacing(20);
         setAlignment(Pos.CENTER);
-        setFillWidth(false);
-        setMaxWidth(460);
+        setStyle("-fx-background-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);");
+        
+        // Tarjeta central para el formulario
+        VBox tarjetaLogin = new VBox(18);
+        tarjetaLogin.setPadding(new Insets(35));
+        tarjetaLogin.setAlignment(Pos.CENTER);
+        tarjetaLogin.setMaxWidth(420);
+        tarjetaLogin.setStyle(
+            "-fx-background-color: white; " +
+            "-fx-background-radius: 15; " +
+            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 15, 0, 0, 3);"
+        );
 
-        //Controles
-        title.getStyleClass().add("titulo");
+        // Título principal
+        Label titulo = new Label("Gestor de Tutorías UVG");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 26));
+        titulo.setStyle("-fx-text-fill: #429545ff;");
+        
+        // Subtítulo
+        Label subtitulo = new Label("Iniciar Sesión");
+        subtitulo.setFont(Font.font("Arial", FontWeight.NORMAL, 16));
+        subtitulo.setStyle("-fx-text-fill: #6aa96eff;");
+
+        // Separador decorativo
+        Separator separador = new Separator();
+        separador.setMaxWidth(300);
+
+        // Campo de correo con label
+        VBox contenedorCorreo = new VBox(8);
+        Label lblCorreo = new Label("📧 Correo Institucional");
+        lblCorreo.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        lblCorreo.setStyle("-fx-text-fill: #34495e;");
+        
         txtCorreo.setPromptText("correo@uvg.edu.gt");
-        txtPass.setPromptText("Contraseña");
+        txtCorreo.setPrefWidth(340);
+        txtCorreo.setPrefHeight(40);
+        txtCorreo.setStyle(
+            "-fx-font-size: 14px; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #bdc3c7; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 2;"
+        );
+        txtCorreo.setTooltip(new Tooltip("Ingresa tu correo institucional"));
+        
+        contenedorCorreo.getChildren().addAll(lblCorreo, txtCorreo);
 
-        txtCorreo.setPrefWidth(280);
-        txtPass.setPrefWidth(280);
-        txtPassVisible.setPrefWidth(280);
-        btnIngresar.setPrefWidth(100);
-        btnCrearCuenta.setPrefWidth(110);
-        btnLimpiar.setPrefWidth(90);
-
-        // estado inicial del visible
+        // Campo de contraseña con label
+        VBox contenedorPass = new VBox(8);
+        Label lblPass = new Label("🔒 Contraseña");
+        lblPass.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        lblPass.setStyle("-fx-text-fill: #34495e;");
+        
+        txtPass.setPromptText("Ingresa tu contraseña");
+        txtPass.setPrefWidth(340);
+        txtPass.setPrefHeight(40);
+        txtPass.setStyle(
+            "-fx-font-size: 14px; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #bdc3c7; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 2;"
+        );
+        
+        txtPassVisible.setPromptText("Ingresa tu contraseña");
+        txtPassVisible.setPrefWidth(340);
+        txtPassVisible.setPrefHeight(40);
+        txtPassVisible.setStyle(
+            "-fx-font-size: 14px; " +
+            "-fx-background-radius: 8; " +
+            "-fx-border-color: #bdc3c7; " +
+            "-fx-border-radius: 8; " +
+            "-fx-border-width: 2;"
+        );
         txtPassVisible.setManaged(false);
         txtPassVisible.setVisible(false);
-
-        // esto sirve para sincornizar los textos de ambos campos
         txtPassVisible.textProperty().bindBidirectional(txtPass.textProperty());
 
-        // quitar texto del toggle y evitar mnemónicos (para que se vea solo la cajita)
-        chkMostrar.setText("");
-        chkMostrar.setMnemonicParsing(false);
-        chkMostrar.setTooltip(new Tooltip("Mostrar/ocultar contraseña"));
-
-        // fila de contraseña inicia con el campo oculto (centrado) y el toggle a la derecha
+        // BorderPane para contraseña y checkbox
         filaPass = new BorderPane();
-        filaPass.setPrefWidth(txtPass.getPrefWidth());
-        filaPass.setMaxWidth(Region.USE_PREF_SIZE);
         filaPass.setCenter(txtPass);
-        filaPass.setRight(chkMostrar);
-        BorderPane.setAlignment(chkMostrar, Pos.CENTER_RIGHT);
+        
+        // Checkbox de mostrar contraseña
+        chkMostrar.setText("Mostrar contraseña");
+        chkMostrar.setFont(Font.font("Arial", 11));
+        chkMostrar.setStyle("-fx-text-fill: #7f8c8d;");
+        
+        HBox contenedorCheckbox = new HBox(chkMostrar);
+        contenedorCheckbox.setAlignment(Pos.CENTER_RIGHT);
+        contenedorCheckbox.setPadding(new Insets(5, 0, 0, 0));
+        
+        contenedorPass.getChildren().addAll(lblPass, filaPass, contenedorCheckbox);
 
-        HBox acciones = new HBox(10, btnIngresar, btnCrearCuenta, btnLimpiar);
-        acciones.setAlignment(Pos.CENTER);
+        // Botones con iconos y colores distintivos
+        btnIngresar.setPrefWidth(340);
+        btnIngresar.setPrefHeight(45);
+        btnIngresar.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        btnIngresar.setStyle(
+            "-fx-background-color: #27ae60; " +
+            "-fx-text-fill: white; " +
+            "-fx-background-radius: 8; " +
+            "-fx-cursor: hand;"
+        );
+        btnIngresar.setTooltip(new Tooltip("Ingresar al sistema"));
+        
+        btnCrearCuenta.setPrefWidth(340);
+        btnCrearCuenta.setPrefHeight(45);
+        btnCrearCuenta.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        btnCrearCuenta.setStyle(
+            "-fx-background-color: #3498db; " +
+            "-fx-text-fill: white; " +
+            "-fx-background-radius: 8; " +
+            "-fx-cursor: hand;"
+        );
+        btnCrearCuenta.setTooltip(new Tooltip("Registrar nueva cuenta"));
+        
+        btnLimpiar.setPrefWidth(340);
+        btnLimpiar.setPrefHeight(40);
+        btnLimpiar.setFont(Font.font("Arial", FontWeight.NORMAL, 13));
+        btnLimpiar.setStyle(
+            "-fx-background-color: transparent; " +
+            "-fx-text-fill: #95a5a6; " +
+            "-fx-border-color: #95a5a6; " +
+            "-fx-border-width: 2; " +
+            "-fx-border-radius: 8; " +
+            "-fx-cursor: hand;"
+        );
+        btnLimpiar.setTooltip(new Tooltip("Limpiar todos los campos"));
 
-        // Boton por defecto y cancel asi como el foco inicial
+        // Efectos hover para botones
+        btnIngresar.setOnMouseEntered(e -> btnIngresar.setStyle(
+            "-fx-background-color: #229954; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
+        ));
+        btnIngresar.setOnMouseExited(e -> btnIngresar.setStyle(
+            "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
+        ));
+        
+        btnCrearCuenta.setOnMouseEntered(e -> btnCrearCuenta.setStyle(
+            "-fx-background-color: #2980b9; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
+        ));
+        btnCrearCuenta.setOnMouseExited(e -> btnCrearCuenta.setStyle(
+            "-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
+        ));
+        
+        btnLimpiar.setOnMouseEntered(e -> btnLimpiar.setStyle(
+            "-fx-background-color: #ecf0f1; -fx-text-fill: #7f8c8d; -fx-border-color: #7f8c8d; -fx-border-width: 2; -fx-border-radius: 8; -fx-cursor: hand;"
+        ));
+        btnLimpiar.setOnMouseExited(e -> btnLimpiar.setStyle(
+            "-fx-background-color: transparent; -fx-text-fill: #95a5a6; -fx-border-color: #95a5a6; -fx-border-width: 2; -fx-border-radius: 8; -fx-cursor: hand;"
+        ));
+
+        // Añadir elementos a la tarjeta
+        tarjetaLogin.getChildren().addAll(
+            titulo,
+            subtitulo,
+            separador,
+            contenedorCorreo,
+            contenedorPass,
+            btnIngresar,
+            btnCrearCuenta,
+            btnLimpiar
+        );
+
+        getChildren().add(tarjetaLogin);
+
+        // Configurar botones y validaciones
         btnIngresar.setDefaultButton(true);
         btnLimpiar.setCancelButton(true);
         txtCorreo.requestFocus();
 
-        //tooltips
-        txtCorreo.setTooltip(new Tooltip("Usa tu correo institucional (por ejemplo nombre@uvg.edu.gt)"));
-        btnIngresar.setTooltip(new Tooltip("Inicia sesión"));
-        btnCrearCuenta.setTooltip(new Tooltip("Crear cuenta nueva"));
-        btnLimpiar.setTooltip(new Tooltip("Limpiar campos"));
-
-        getChildren().addAll(title, txtCorreo, filaPass, acciones);
-
-        //Validaciones en vivo 
-        //en donde o = observador, a = antiguo, b = nuevo
+        // Validaciones en vivo
         actualizarEstadoBoton();
         txtCorreo.textProperty().addListener((o, a, b) -> actualizarEstadoBoton());
         txtPass.textProperty().addListener((o, a, b) -> actualizarEstadoBoton());
 
-        //Atajos y acciones basicas 
+        // Acciones
         btnIngresar.setOnAction(e -> intentarInicioSesion());
         btnLimpiar.setOnAction(e -> limpiarCampos());
-        btnCrearCuenta.setOnAction(e -> onCrearCuenta.run()); // Cambiar de escena a VistaRegistro
-
-        txtPass.setOnAction(e -> intentarInicioSesion()); // Enter en contraseña
-
-        setOnKeyPressed(e -> { // ESC limpia
-            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) limpiarCampos();
+        btnCrearCuenta.setOnAction(e -> {
+            if (onCrearCuenta != null) onCrearCuenta.run();
         });
+        txtPass.setOnAction(e -> intentarInicioSesion());
 
-        // este es el toggle de mostrar y ocultar
-        // (ahora cambiamos el centro del BorderPane para alternar entre PasswordField y TextField)
+        // Toggle mostrar/ocultar contraseña
         chkMostrar.selectedProperty().addListener((o, was, show) -> {
             filaPass.setCenter(show ? txtPassVisible : txtPass);
             txtPassVisible.setManaged(show);
             txtPassVisible.setVisible(show);
+            if (show) txtPassVisible.requestFocus();
+            else txtPass.requestFocus();
+        });
+
+        // ESC para limpiar
+        setOnKeyPressed(e -> {
+            if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) limpiarCampos();
         });
     }
 
-    // Habilita o deshabilita el boton de ingresar segun los campos
     private void actualizarEstadoBoton() {
         boolean ok = !txtCorreo.getText().isBlank()
                 && EMAIL.matcher(txtCorreo.getText().trim()).find()
                 && !txtPass.getText().isBlank();
         btnIngresar.setDisable(!ok);
+        
+        if (!ok) {
+            btnIngresar.setStyle(
+                "-fx-background-color: #bdc3c7; -fx-text-fill: white; -fx-background-radius: 8;"
+            );
+        } else {
+            btnIngresar.setStyle(
+                "-fx-background-color: #27ae60; -fx-text-fill: white; -fx-background-radius: 8; -fx-cursor: hand;"
+            );
+        }
     }
 
-    // Intenta iniciar sesion con las credenciales proporcionadas
     private void intentarInicioSesion(){
         String correo = txtCorreo.getText().trim();
         String pass = txtPass.getText();
@@ -143,7 +256,6 @@ public class LoginVista extends VBox {
             return;
         }
 
-        // Conexión con el controlador (si ya fue inyectado desde Main)
         if (controlador != null) {
             controlador.manejarLogin(correo, pass);
         } else {
@@ -155,7 +267,6 @@ public class LoginVista extends VBox {
         this.controlador = controlador;
     }
 
-    // Muestra una alerta de error
     public void mostrarError(String encabezado, String contenido){
         Alert a = new Alert(Alert.AlertType.ERROR);
         a.setHeaderText(encabezado);
@@ -163,7 +274,6 @@ public class LoginVista extends VBox {
         a.showAndWait();
     }
 
-    // Muestra una alerta de información
     public void mostrarInfo(String encabezado, String contenido){
         Alert a = new Alert(Alert.AlertType.INFORMATION);
         a.setHeaderText(encabezado);
@@ -171,16 +281,15 @@ public class LoginVista extends VBox {
         a.showAndWait();
     }
 
-    // Limpia los campos 
     public void limpiarCampos(){
         txtCorreo.clear();
         txtPass.clear();
+        chkMostrar.setSelected(false);
         txtCorreo.requestFocus();
     }
 
-    //Setter de la variable de la ventana de registro de cuenta
     public void setOnCrearCuenta(Runnable onCrearCuenta) {
-    this.onCrearCuenta = onCrearCuenta;
+        this.onCrearCuenta = onCrearCuenta;
     }
-}
 
+}
