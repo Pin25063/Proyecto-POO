@@ -49,6 +49,7 @@ public class VistaPrincipalTutor {
         stage.setTitle("Panel del Tutor - Gestor de Tutorías UVG");
         stage.setMinWidth(900);
         stage.setMinHeight(600);
+        stage.setMaximized(true);  
         stage.show();
     }
 

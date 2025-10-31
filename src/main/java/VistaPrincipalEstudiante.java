@@ -53,6 +53,7 @@ public class VistaPrincipalEstudiante {
         stage.setTitle("Portal del Estudiante - Gestor de Tutorías UVG");
         stage.setMinWidth(900);
         stage.setMinHeight(600);
+        stage.setMaximized(true); 
         stage.show();
     }
     
@@ -664,6 +665,8 @@ public class VistaPrincipalEstudiante {
         alerta.setContentText(mensaje);
         alerta.showAndWait();
     }
+
+    
 
     
 }

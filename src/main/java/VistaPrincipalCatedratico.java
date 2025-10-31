@@ -57,6 +57,7 @@ public class VistaPrincipalCatedratico {
         // establecer tamaño mínimo para evitar deformaciones
         stage.setMinWidth(900);
         stage.setMinHeight(600);
+        stage.setMaximized(true);  
         stage.show(); // mostrar ventana al cliente
     }
 
