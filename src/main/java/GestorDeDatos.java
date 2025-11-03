@@ -59,7 +59,7 @@ public class GestorDeDatos {
                 Usuario u;
                 switch (rol) {
                     case TUTOR -> u = new Tutor(id, nombre, correo, pass, materias, tarifa);
-                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass);
+                    case CATEDRATICO -> u = new Catedratico(id, nombre, correo, pass, materias);
                     default -> u = new Estudiante(id, nombre, correo, pass);
                 }
                     out.add(u); // Crea un objeto Usuario y lo añade a la lista de salida
@@ -131,10 +131,12 @@ public class GestorDeDatos {
             if (u instanceof Tutor tutor) {
                     linea.append(SEP).append(String.join(",", tutor.getMaterias()))
                     .append(SEP).append(tutor.getTarifa());
+
             } else if(u instanceof Catedratico cat){ //Si el nuevo usuario es catedratico se asigna solo materias
-                String codigosCursos = cat.getCursosACargo().stream().map(Curso::getCodigoCurso).collect(Collectors.joining(","));
-                linea.append(SEP).append(codigosCursos)
-                     .append(SEP); //No asignar tarifa
+                String cursos = String.join(",", cat.getCursosACargo());
+                linea.append(SEP).append(cursos)
+                    .append(SEP); //No asignar tarifa
+                    
             } else {
                 linea.append(SEP).append(SEP); // añade campo vacío para materias y tarifa
             }

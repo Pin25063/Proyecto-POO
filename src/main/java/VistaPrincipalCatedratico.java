@@ -190,8 +190,9 @@ public class VistaPrincipalCatedratico {
         cmbTutor.getItems().addAll(tutores);
         
         // ComboBox para Cursos del Catedrático
-        ComboBox<Curso> cmbCurso = new ComboBox<>();
+        ComboBox<String> cmbCurso = new ComboBox<>();
         cmbCurso.setPromptText("Seleccionar Curso");
+
         cmbCurso.getItems().addAll(catedratico.getCursosACargo()); // se obtiene solo los cursos de este catedrático.
 
         // Boton para confirmar la asignacion
@@ -203,20 +204,21 @@ public class VistaPrincipalCatedratico {
             // obtener los valores seleccionados en el ComboBox
             Usuario est = cmbEstudiante.getValue();
             Usuario tut = cmbTutor.getValue();
-            Curso cur = cmbCurso.getValue();
+
+            String nombreCurso = cmbCurso.getValue();
             
             // Validar que se haya seleccionado una opcione en cada menú
-            if (est == null || tut == null || cur == null) {
+            if (est == null || tut == null || nombreCurso == null || nombreCurso.isEmpty()) {
                 mostrarAlerta("CAMPOS INCOMPLETOS", "Por favor, selecciona un estudiante, un tutor y un curso", Alert.AlertType.WARNING);
                 return; // se detiene si algo falla
             }
 
             // Llamar al método del controlador de administradores para que haga la lógica
-            Sesion sesionAsignada = controladorAdmin.asignarTutoria(est.getIdUsuario(), tut.getIdUsuario(), cur);
+            Sesion sesionAsignada = controladorAdmin.asignarTutoria(est.getIdUsuario(), tut.getIdUsuario(), nombreCurso);
             
             // Verificar si la asignacion fue exitosa
             if (sesionAsignada != null) {
-                mostrarAlerta("EXITO", "Tutoría para '" + cur.getNombreCurso() + "' asignada a " + est.getNombre() + " con el tutor " + tut.getNombre() + ".", Alert.AlertType.INFORMATION);
+                mostrarAlerta("EXITO", "Tutoría para '" + nombreCurso + "' asignada a " + est.getNombre() + " con el tutor " + tut.getNombre() + ".", Alert.AlertType.INFORMATION);
                 // Se limpian los ComboBox para una nueva asignación
                 cmbEstudiante.setValue(null);
                 cmbTutor.setValue(null);
@@ -249,7 +251,7 @@ public class VistaPrincipalCatedratico {
         lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
         
         // ComboBox para que el catedrático elija de cuál de sus cursos quiere ver el reporte
-        ComboBox<Curso> cmbCurso = new ComboBox<>();
+        ComboBox<String> cmbCurso = new ComboBox<>();
         cmbCurso.setPromptText("Seleccione uno de sus cursos para ver el reporte");
         cmbCurso.getItems().addAll(catedratico.getCursosACargo());
         cmbCurso.setMaxWidth(Double.MAX_VALUE); // Hacer que ocupe todo el ancho disponible
@@ -263,7 +265,8 @@ public class VistaPrincipalCatedratico {
 
         // Cuando el catedrático selecciona un curso, se genera el reporte.
         cmbCurso.setOnAction(e -> {
-            Curso cursoSeleccionado = cmbCurso.getValue();
+            String cursoSeleccionado = cmbCurso.getValue();
+            
             // Chequear validez del curso
             if (cursoSeleccionado != null) {
                 // Se llama al controlador para generar el reporte

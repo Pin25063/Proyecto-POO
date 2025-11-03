@@ -180,7 +180,7 @@ btnRegistrar.setOnAction(e -> {
                             mostrarError("Materias faltantes", "Selecciona al menos una materia.");
                             return;
                         }
-                        nuevoUsuario = new Catedratico(id, nombre, correo, contrasena);
+                        nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
                     }
                     case ESTUDIANTE -> {
                         nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
