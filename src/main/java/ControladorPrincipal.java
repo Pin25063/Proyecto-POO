@@ -86,6 +86,7 @@ public class ControladorPrincipal {
                     break;
                 case CATEDRATICO:
                     Catedratico catedratico = (Catedratico) usuarioActual;
+                    // se actualiza para que catedrático reciba sus materias directamente desde la carga de datos
                     VistaPrincipalCatedratico vistaCat = new VistaPrincipalCatedratico(this, catedratico, stage, mainApp);
                     vistaCat.mostrar();
                     break;

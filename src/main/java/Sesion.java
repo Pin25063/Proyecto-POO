@@ -14,11 +14,8 @@ public class Sesion {
     // Formato esperado para fechas: "yyyy-MM-dd HH:mm"
     private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 
-    /**
-    Constructor con programacion defensiva.
-     * @throws IllegalArgumentException 
-     * si algún parámetro es inválido
-     */
+    
+    // Constructor con programacion defensiva.
     public Sesion(String idSesion, int estudianteId, int tutorId, String materia, String fechaHora, EstadoSesion estado) {
         //  verificar nulls 
         if (idSesion == null || idSesion.trim().isEmpty()) {
@@ -46,20 +43,23 @@ public class Sesion {
         if (estudianteId == tutorId) {
             throw new IllegalArgumentException("El estudiante y el tutor no pueden ser la misma persona");
         }
-        
-        // validar formato de fecha
-        validarFormatoFecha(fechaHora);
-        
-        // la sesión no puede ser en el pasado (solo para nuevas sesiones)
-        if (estado == EstadoSesion.PROGRAMADA || estado == EstadoSesion.AGENDADA) {
-            validarFechaFutura(fechaHora);
-        }
+
         this.idSesion = idSesion.trim();
         this.estudianteId = estudianteId;
         this.tutorId = tutorId;
         this.materia = materia.trim();
         this.fechaHora = fechaHora.trim();
         this.estado = estado;
+        
+        if (this.estado != EstadoSesion.PENDIENTE) {
+            // validar formato de fecha
+            validarFormatoFecha(this.fechaHora);
+
+            // la sesión no puede ser en el pasado (solo para nuevas sesiones)
+            if (this.estado == EstadoSesion.PROGRAMADA || this.estado == EstadoSesion.AGENDADA) {
+                validarFechaFutura(this.fechaHora);
+            }
+        }
     }
 
     //Valida que el formato de fecha sea correcto (yyyy-MM-dd HH:mm).
