@@ -71,6 +71,27 @@ public class LoginVista extends VBox {
             "-fx-border-radius: 8; " +
             "-fx-border-width: 2;"
         );
+
+        txtCorreo.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                txtCorreo.setStyle(
+                    "-fx-font-size: 14px; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #3498db; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 2;"
+                );
+            } else {
+                txtCorreo.setStyle(
+                    "-fx-font-size: 14px; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #bdc3c7; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 2;"
+                );
+            }
+        });
+
         txtCorreo.setTooltip(new Tooltip("Ingresa tu correo institucional"));
         
         contenedorCorreo.getChildren().addAll(lblCorreo, txtCorreo);
@@ -102,6 +123,27 @@ public class LoginVista extends VBox {
             "-fx-border-radius: 8; " +
             "-fx-border-width: 2;"
         );
+
+        txtPass.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                txtPass.setStyle(
+                    "-fx-font-size: 14px; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #3498db; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 2;"
+                );
+            } else {
+                txtPass.setStyle(
+                    "-fx-font-size: 14px; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #bdc3c7; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 2;"
+                );
+            }
+        });
+        
         txtPassVisible.setManaged(false);
         txtPassVisible.setVisible(false);
         txtPassVisible.textProperty().bindBidirectional(txtPass.textProperty());
@@ -220,6 +262,26 @@ public class LoginVista extends VBox {
             else txtPass.requestFocus();
         });
 
+        txtPassVisible.focusedProperty().addListener((obs, wasFocused, isNowFocused) -> {
+            if (isNowFocused) {
+                txtPassVisible.setStyle(
+                    "-fx-font-size: 14px; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #3498db; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 2;"
+                );
+            } else {
+                txtPassVisible.setStyle(
+                    "-fx-font-size: 14px; " +
+                    "-fx-background-radius: 8; " +
+                    "-fx-border-color: #bdc3c7; " +
+                    "-fx-border-radius: 8; " +
+                    "-fx-border-width: 2;"
+                );
+            }
+        });
+
         // ESC para limpiar
         setOnKeyPressed(e -> {
             if (e.getCode() == javafx.scene.input.KeyCode.ESCAPE) limpiarCampos();
@@ -248,18 +310,25 @@ public class LoginVista extends VBox {
         String pass = txtPass.getText();
 
         if (!EMAIL.matcher(correo).find()) {
-            mostrarError("Correo inválido", "Usa un formato de correo válido (ej. nombre@uvg.edu.gt).");
+            mostrarError("Correo Inválido", 
+                "El formato del correo no es válido.\n\n" +
+                "Asegúrate de usar tu correo institucional.\n" +
+                "Ejemplo: nombre@uvg.edu.gt");
+            txtCorreo.requestFocus();
             return;
         }
         if (pass.isBlank()) {
-            mostrarError("Contraseña vacía", "Ingresa tu contraseña.");
+            mostrarError("Contraseña Vacía", 
+                "Por favor ingresa tu contraseña para continuar.");
+            txtPass.requestFocus();
             return;
         }
-        // Llamar al controlador para manejar el login
+
         if (controlador != null) {
             controlador.manejarLogin(correo, pass);
         } else {
-            mostrarInfo("Acción pendiente", "La autenticación se conectará al controlador.");
+            mostrarInfo("Sistema no Disponible", 
+                "El sistema no está listo. Por favor contacta al administrador.");
         }
     }
 
@@ -290,5 +359,22 @@ public class LoginVista extends VBox {
     // Setter para la acción de crear cuenta
     public void setOnCrearCuenta(Runnable onCrearCuenta) {
         this.onCrearCuenta = onCrearCuenta;
+    }
+
+    // Método adicional para mensajes más amigables
+    private void mostrarMensajeAmigable(String tipo, String titulo, String mensaje) {
+        Alert alerta = new Alert(
+            tipo.equals("ERROR") ? Alert.AlertType.ERROR : Alert.AlertType.INFORMATION
+        );
+        alerta.setTitle(titulo);
+        alerta.setHeaderText(null);
+        alerta.setContentText(mensaje);
+        
+        // Personalizar botones
+        if (tipo.equals("ERROR")) {
+            alerta.setGraphic(null);
+        }
+        
+        alerta.showAndWait();
     }
 }

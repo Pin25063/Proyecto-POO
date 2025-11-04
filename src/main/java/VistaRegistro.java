@@ -136,14 +136,21 @@ public class VistaRegistro extends VBox {
         txtContrasena.setPrefHeight(40);
         txtContrasena.setStyle("-fx-font-size: 14px; -fx-background-radius: 8; -fx-border-color: #bdc3c7; -fx-border-radius: 8; -fx-border-width: 2;");
         
+        Label lblNota = new Label("* Campos obligatorios");
+        lblNota.setFont(Font.font("Arial", 10));
+        lblNota.setStyle("-fx-text-fill: #e74c3c; -fx-font-style: italic;");
+
         seccion.getChildren().addAll(
             lblSeccion,
             lblNombre, txtNombre,
             lblCorreo, txtCorreo,
             lblContrasena, txtContrasena
         );
-        
+
+        seccion.getChildren().add(lblNota);
+
         return seccion;
+        
     }
     
     // Crear sección de selección de rol
@@ -301,6 +308,10 @@ public class VistaRegistro extends VBox {
             "-fx-text-fill: white; " +
             "-fx-background-radius: 8;"
         );
+        btnRegistrar.setTooltip(new Tooltip(
+            "Crear cuenta con la información proporcionada.\n" +
+            "Asegúrate de completar todos los campos obligatorios."
+        ));
         
         btnCancelar.setPrefWidth(200);
         btnCancelar.setPrefHeight(45);
@@ -312,6 +323,9 @@ public class VistaRegistro extends VBox {
             "-fx-border-width: 2; " +
             "-fx-border-radius: 8;"
         );
+        btnCancelar.setTooltip(new Tooltip(
+            "Cancelar el registro y volver a la pantalla de inicio de sesión."
+        ));
         
         // Efectos hover
         btnRegistrar.setOnMouseEntered(e -> btnRegistrar.setStyle(

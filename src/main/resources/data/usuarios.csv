@@ -3,3 +3,4 @@ idUsuario;nombre;correo;contrasena;rol;materias;tarifa
 2;Ana Gomez;gomez@uvg.edu.gt;ana123;TUTOR;Calculo,Estadistica,Quimica;150.0
 3;Carlos Ruiz;ruiz@uvg.edu.gt;carlos123;CATEDRATICO;Programacion,Fisica
 4;Laura Martinez;mar@uvg.edu.gt;laura123;ESTUDIANTE
+5;Mauricio Corado;cor@uvg.edu.gt;mau123;ESTUDIANTE;;
