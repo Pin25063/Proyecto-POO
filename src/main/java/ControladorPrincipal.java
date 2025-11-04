@@ -77,7 +77,9 @@ public class ControladorPrincipal {
             switch (usuarioActual.getRol()) {
                 case ESTUDIANTE:
                     loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
-                    irAPerfilEstudiante();
+                    Estudiante estudiante = (Estudiante) usuarioActual;
+                    VistaPrincipalEstudiante vistaEst = new VistaPrincipalEstudiante(estudiante, this, stage, mainApp);
+                    vistaEst.mostrar();
                     break;
                 case TUTOR:
                     Tutor tutor = (Tutor) usuarioActual;
@@ -276,16 +278,4 @@ public class ControladorPrincipal {
         return max + 1; //Devuelve el nuevo ID
     }
 
-    public void irAPerfilEstudiante() {
-    if (usuarioActual != null && usuarioActual.getRol() == Rol.ESTUDIANTE) {
-        Estudiante estudiante = (Estudiante) usuarioActual;
-        VistaPrincipalEstudiante vistaEstudiante = new VistaPrincipalEstudiante(estudiante, this);
-        
-        // Cambiar la escena actual
-        Stage stage = (Stage) loginVista.getScene().getWindow();
-        Scene nuevaEscena = new Scene(vistaEstudiante, 800, 600);
-        stage.setScene(nuevaEscena);
-        stage.setTitle("Portal del Estudiante - " + estudiante.getNombre());
-    }
-}
 }
