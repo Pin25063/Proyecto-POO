@@ -18,25 +18,27 @@ public class Main extends Application {
 
     public void mostrarLogin() {
         LoginVista loginVista = new LoginVista();
-        controlador = new ControladorPrincipal(loginVista, this); // se le pasa la instancia de main al controlador
+        controlador = new ControladorPrincipal(loginVista, this);
         loginVista.setControlador(controlador);
-
-        // Al hacer clic en Crear cuenta, se ira a VistaRegistro
         loginVista.setOnCrearCuenta(() -> mostrarRegistro());
-
-        Scene scene = new Scene(loginVista, 420, 520);
+        
+        Scene scene = new Scene(loginVista, 480, 620);  // Tamaño ajustado
         stage.setScene(scene);
+        stage.setTitle("Gestor de Tutorías UVG - Iniciar Sesión");
+        stage.setResizable(false);  // NO REDIMENSIONABLE
+        stage.centerOnScreen();     // CENTRAR EN PANTALLA
     }
-
+    
     private void mostrarRegistro() {
         VistaRegistro registroVista = new VistaRegistro();
         registroVista.setControlador(controlador);
-
-        //Si el usuario presiona Cancelar, volvera a login
         registroVista.setOnCancel(() -> mostrarLogin());
-
-        Scene scene = new Scene(registroVista, 460, 520);
+        
+        Scene scene = new Scene(registroVista, 550, 680);  // Tamaño ajustado para registro
         stage.setScene(scene);
+        stage.setTitle("Gestor de Tutorías UVG - Registro de Usuario");
+        stage.setResizable(false);  // NO REDIMENSIONABLE
+        stage.centerOnScreen();
     }
 
     public static void main(String[] args) {
