@@ -62,7 +62,7 @@ public class VistaPrincipalEstudiante {
     private HBox crearBarraSuperior() {
         HBox barra = new HBox(20);
         barra.setPadding(new Insets(15));
-        barra.setStyle("-fx-background-color: #0a2e5a;"); // Color azul marino para estudiante
+        barra.setStyle("-fx-background-color: #0a2e5a;"); // Color azul marino predominante para barra superior
         barra.setAlignment(Pos.CENTER_LEFT);
 
         // Crear el Label para el título de la aplicación
@@ -157,7 +157,7 @@ public class VistaPrincipalEstudiante {
         seccionBotones.setPadding(new Insets(20, 0, 0, 0));
         
         btnEditarPerfil = new Button("Editar Perfil");
-        btnEditarPerfil.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnEditarPerfil.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
         btnEditarPerfil.setOnAction(e -> abrirEdicionPerfil());
         
         seccionBotones.getChildren().addAll(btnEditarPerfil);
@@ -180,7 +180,7 @@ public class VistaPrincipalEstudiante {
         seccionBotones.setPadding(new Insets(20, 0, 0, 0));
         
         btnVerHistorial = new Button("Ver Historial Completo");
-        btnVerHistorial.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnVerHistorial.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
         btnVerHistorial.setOnAction(e -> mostrarHistorialCompleto());
         
         seccionBotones.getChildren().addAll(btnVerHistorial);
@@ -255,8 +255,8 @@ public class VistaPrincipalEstudiante {
         boton.setAlignment(Pos.CENTER_LEFT);
         boton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
 
-        // Efecto hover
-        boton.setOnMouseEntered(e -> boton.setStyle("-fx-background-color: #1a3f6d; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"));
+        // Efecto hover con azul marino más claro
+        boton.setOnMouseEntered(e -> boton.setStyle("-fx-background-color: #1a3f6d; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;")); // Azul marino más claro en hover
         boton.setOnMouseExited(e -> boton.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"));
         
         return boton;
@@ -297,7 +297,7 @@ public class VistaPrincipalEstudiante {
         Button btnGuardar = new Button("Guardar Cambios");
         Button btnCancelar = new Button("Cancelar");
         
-        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
         btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
         
         btnGuardar.setOnAction(e -> {
@@ -407,7 +407,7 @@ public class VistaPrincipalEstudiante {
         Button btnAgendar = new Button("Agendar");
         Button btnCancelar = new Button("Cancelar");
         
-        btnAgendar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnAgendar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
         btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
         
         btnAgendar.setOnAction(e -> {
