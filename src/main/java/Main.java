@@ -25,18 +25,27 @@ public class Main extends Application {
         Scene scene = new Scene(loginVista, 480, 620);  // Tamaño ajustado
         stage.setScene(scene);
         stage.setTitle("Gestor de Tutorías UVG - Iniciar Sesión");
+
+        // Forzamos a que la ventana NO esté maximizada
+        stage.setMaximized(false);
+        
         stage.setResizable(false);  // NO REDIMENSIONABLE
         stage.centerOnScreen();     // CENTRAR EN PANTALLA
     }
     
     private void mostrarRegistro() {
-        VistaRegistro registroVista = new VistaRegistro();
+        // Asumiendo que tienes una clase VistaRegistro
+        // (El archivo VistaRegistro.java que subiste)
+        VistaRegistro registroVista = new VistaRegistro(); 
         registroVista.setControlador(controlador);
         registroVista.setOnCancel(() -> mostrarLogin());
         
         Scene scene = new Scene(registroVista, 550, 680);  // Tamaño ajustado para registro
         stage.setScene(scene);
         stage.setTitle("Gestor de Tutorías UVG - Registro de Usuario");
+
+        stage.setMaximized(false);
+        
         stage.setResizable(false);  // NO REDIMENSIONABLE
         stage.centerOnScreen();
     }
@@ -44,4 +53,4 @@ public class Main extends Application {
     public static void main(String[] args) {
         launch(args);
     }
-}    
+}

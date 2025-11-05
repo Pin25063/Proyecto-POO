@@ -60,6 +60,9 @@ public class VistaPrincipalCatedratico {
         // iniciar maximizado pero permitir al usuario cambiar el tamaño después
         stage.setMaximized(true);
         stage.setResizable(true);
+        // asegurar que la ventana quede en primer plano
+        stage.toFront();
+        stage.requestFocus();
         stage.show(); // mostrar ventana al cliente
     }
 

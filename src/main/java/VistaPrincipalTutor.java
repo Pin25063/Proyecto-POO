@@ -46,6 +46,9 @@ public class VistaPrincipalTutor {
         // Iniciar maximizado para simular pantalla completa pero permitiendo redimensionar
         stage.setMaximized(true);
         stage.setResizable(true);
+        // asegurar que la ventana quede en primer plano
+        stage.toFront();
+        stage.requestFocus();
         stage.show();
     }
 
