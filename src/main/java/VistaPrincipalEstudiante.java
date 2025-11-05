@@ -7,6 +7,8 @@ import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
 import java.util.ArrayList; 
+import java.util.List;
+import javafx.scene.control.cell.PropertyValueFactory;
 
 public class VistaPrincipalEstudiante {
     
@@ -14,6 +16,7 @@ public class VistaPrincipalEstudiante {
     private ControladorPrincipal controlador;
     private Stage stage;
     private Main mainApp;
+    private BorderPane layoutPrincipal;
     
     // Labels para mostrar información
     private Label lblNombre, lblCorreo, lblId;
@@ -32,7 +35,7 @@ public class VistaPrincipalEstudiante {
     // Construye y muestra la interfaz del estudiante
     public void mostrar() {
         // BorderPane es un layout que divide la pantalla en 5 zonas: Top, Left, Center, Right, Bottom
-        BorderPane layoutPrincipal = new BorderPane();
+    this.layoutPrincipal = new BorderPane();
 
         // color de fondo base a toda la ventana
         layoutPrincipal.setStyle("-fx-background-color: #ecf0f1;");
@@ -55,6 +58,9 @@ public class VistaPrincipalEstudiante {
         // establecer tamaño mínimo para evitar deformaciones
         stage.setMinWidth(900);
         stage.setMinHeight(600);
+        // iniciar maximizado pero permitir al usuario cambiar el tamaño después
+        stage.setMaximized(true);
+        stage.setResizable(true);
         stage.show(); // mostrar ventana al cliente
     }
 
@@ -359,107 +365,111 @@ public class VistaPrincipalEstudiante {
 
     // MÉTODO: Abrir búsqueda de tutores
     private void abrirBusquedaTutores() {
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle("Buscar Tutores");
-        
-        BusquedaVista busquedaVista = new BusquedaVista();
-        
-        Scene scene = new Scene(busquedaVista, 700, 500);
-        dialogStage.setScene(scene);
-        dialogStage.show();
+        // Mostrar panel de búsqueda dentro del centro del BorderPane
+        layoutPrincipal.setCenter(crearPanelBusqueda());
     }
 
     // MÉTODO: Abrir formulario de agendamiento
     private void abrirAgendamiento() {
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle("Agendar Sesión de Tutoría");
-        
-        VBox contenido = new VBox(15);
-        contenido.setPadding(new Insets(20));
-        contenido.setAlignment(Pos.CENTER);
-        
+        layoutPrincipal.setCenter(crearPanelAgendamiento());
+    }
+
+    // Panel embebido: búsqueda de tutores
+    private VBox crearPanelBusqueda() {
+        VBox cont = new VBox(15);
+        cont.setPadding(new Insets(24));
+        cont.setAlignment(Pos.TOP_CENTER);
+
+        Label titulo = new Label("Buscar Tutores por Materia");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
+        TextField campoMateria = new TextField();
+        campoMateria.setPromptText("Escribe una materia...");
+        campoMateria.setPrefWidth(300);
+
+        Button btnBuscar = new Button("Buscar");
+        HBox fila = new HBox(10, campoMateria, btnBuscar);
+        fila.setAlignment(Pos.CENTER);
+
+        TableView<Tutor> tabla = new TableView<>();
+        TableColumn<Tutor, String> colNombre = new TableColumn<>("Nombre");
+        colNombre.setCellValueFactory(new PropertyValueFactory<>("nombre"));
+        TableColumn<Tutor, String> colCorreo = new TableColumn<>("Correo");
+        colCorreo.setCellValueFactory(new PropertyValueFactory<>("correo"));
+        TableColumn<Tutor, String> colMateria = new TableColumn<>("Primera Materia");
+        colMateria.setCellValueFactory(data -> {
+            List<String> materias = data.getValue().getMaterias();
+            String m = (materias != null && !materias.isEmpty()) ? materias.get(0) : "—";
+            return new javafx.beans.property.SimpleStringProperty(m);
+        });
+        tabla.getColumns().addAll(colNombre, colCorreo, colMateria);
+        tabla.setPrefHeight(300);
+
+        List<Usuario> todos = controlador.getListaDeUsuarios();
+        for (Usuario u : todos) if (u.getRol() == Rol.TUTOR) tabla.getItems().add((Tutor) u);
+
+        btnBuscar.setOnAction(e -> {
+            String filtro = campoMateria.getText().trim().toLowerCase();
+            tabla.getItems().clear();
+            for (Usuario u : todos) {
+                if (u.getRol() == Rol.TUTOR) {
+                    Tutor t = (Tutor) u;
+                    for (String mat : t.getMaterias()) {
+                        if (mat.toLowerCase().contains(filtro)) {
+                            tabla.getItems().add(t);
+                            break;
+                        }
+                    }
+                }
+            }
+        });
+
+        cont.getChildren().addAll(titulo, fila, tabla);
+        return cont;
+    }
+
+    // Panel embebido: agendamiento
+    private VBox crearPanelAgendamiento() {
+        VBox cont = new VBox(15);
+        cont.setPadding(new Insets(24));
+        cont.setAlignment(Pos.TOP_CENTER);
+
         Label titulo = new Label("Agendar Nueva Sesión");
-        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
-        
-        // Campos del formulario
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
         Label lblTutorId = new Label("ID del Tutor:");
         TextField txtTutorId = new TextField();
         txtTutorId.setPromptText("Ej: 2");
         txtTutorId.setPrefWidth(300);
-        
+
         Label lblMateria = new Label("Materia:");
         TextField txtMateria = new TextField();
         txtMateria.setPromptText("Ej: Matemática, Física, Programación");
         txtMateria.setPrefWidth(300);
-        
+
         Label lblFecha = new Label("Fecha y Hora:");
         TextField txtFecha = new TextField();
         txtFecha.setPromptText("Formato: HH:mm dd/MM/yy (Ej: 14:30 25/10/25)");
         txtFecha.setPrefWidth(300);
-        
-        Label lblAyuda = new Label("💡 Tip: Busca tutores antes de agendar para obtener su ID");
-        lblAyuda.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
-        
-        // Botones
-        HBox botones = new HBox(10);
-        botones.setAlignment(Pos.CENTER);
-        
+
         Button btnAgendar = new Button("Agendar");
-        Button btnCancelar = new Button("Cancelar");
-        
-        btnAgendar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
-        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
-        
         btnAgendar.setOnAction(e -> {
-            String tutorIdStr = txtTutorId.getText().trim();
-            String materia = txtMateria.getText().trim();
-            String fechaHora = txtFecha.getText().trim();
-            
-            if (tutorIdStr.isEmpty() || materia.isEmpty() || fechaHora.isEmpty()) {
-                mostrarError("Error", "Todos los campos son obligatorios");
-                return;
-            }
-            
             try {
-                int tutorId = Integer.parseInt(tutorIdStr);
-                
-                // Llamar al controlador para agendar
-                Sesion nuevaSesion = controlador.manejarAgendamientoSesion(
-                    estudianteActual.getIdUsuario(),
-                    tutorId,
-                    materia,
-                    fechaHora
-                );
-                
-                if (nuevaSesion != null) {
-                    estudianteActual.agendarSesion(nuevaSesion);
-                    mostrarInfo("Éxito", "Sesión agendada correctamente");
-                    dialogStage.close();
+                int tutorId = Integer.parseInt(txtTutorId.getText().trim());
+                String materia = txtMateria.getText().trim();
+                String fecha = txtFecha.getText().trim();
+                Sesion s = controlador.manejarAgendamientoSesion(estudianteActual.getIdUsuario(), tutorId, materia, fecha);
+                if (s != null) {
+                    mostrarInfo("Éxito", "Sesión agendada: " + materia + " – " + fecha);
+                    layoutPrincipal.setCenter(crearPanelHistorial());
                 }
-                
             } catch (NumberFormatException ex) {
                 mostrarError("Error", "El ID del tutor debe ser un número válido");
             }
         });
-        
-        btnCancelar.setOnAction(e -> dialogStage.close());
-        
-        botones.getChildren().addAll(btnAgendar, btnCancelar);
-        
-        contenido.getChildren().addAll(
-            titulo,
-            new Separator(),
-            lblTutorId, txtTutorId,
-            lblMateria, txtMateria,
-            lblFecha, txtFecha,
-            lblAyuda,
-            new Separator(),
-            botones
-        );
-        
-        Scene scene = new Scene(contenido, 450, 450);
-        dialogStage.setScene(scene);
-        dialogStage.show();
+
+        cont.getChildren().addAll(titulo, lblTutorId, txtTutorId, lblMateria, txtMateria, lblFecha, txtFecha, btnAgendar);
+        return cont;
     }
 
     // MÉTODO: Mostrar historial completo en tabla

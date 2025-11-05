@@ -18,6 +18,7 @@ public class VistaPrincipalCatedratico {
     private Catedratico catedratico;
     private Stage stage;
     private Main mainApp; // Referencia a la aplicación principal para poder cerrar sesión.
+    private BorderPane layoutPrincipal;
 
     public VistaPrincipalCatedratico(ControladorPrincipal controlador, Catedratico catedratico, Stage stage, Main mainApp) {
         this.controlador = controlador;
@@ -33,7 +34,7 @@ public class VistaPrincipalCatedratico {
     // Construye y muestra la interfaz del catedrático
     public void mostrar() {
         // BorderPane es un layout que divide la pantalla en 5 zonas: Top, Left, Center, Right, Bottom
-        BorderPane layoutPrincipal = new BorderPane();
+    this.layoutPrincipal = new BorderPane();
 
         // color de fondo base a toda la ventana
         layoutPrincipal.setStyle("-fx-background-color: #ecf0f1;");
@@ -56,6 +57,9 @@ public class VistaPrincipalCatedratico {
         // establecer tamaño mínimo para evitar deformaciones
         stage.setMinWidth(900);
         stage.setMinHeight(600);
+        // iniciar maximizado pero permitir al usuario cambiar el tamaño después
+        stage.setMaximized(true);
+        stage.setResizable(true);
         stage.show(); // mostrar ventana al cliente
     }
 

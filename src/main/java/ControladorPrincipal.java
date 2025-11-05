@@ -70,13 +70,11 @@ public class ControladorPrincipal {
             // Si la validacion es correcta
             this.usuarioActual = usuarioEncontrado;
             System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
-            loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
 
             Stage stage = (Stage) loginVista.getScene().getWindow();
 
             switch (usuarioActual.getRol()) {
                 case ESTUDIANTE:
-                    loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
                     Estudiante estudiante = (Estudiante) usuarioActual;
                     VistaPrincipalEstudiante vistaEst = new VistaPrincipalEstudiante(estudiante, this, stage, mainApp);
                     vistaEst.mostrar();
