@@ -1,3 +1,5 @@
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -9,6 +11,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
@@ -524,15 +527,10 @@ public class VistaPrincipalEstudiante {
 
         tablaTutores.getColumns().addAll(colId, colNombre, colCorreo, colTarifa);
 
-        // Label para mostrar tutor seleccionado
-        Label lblTutorSeleccionado = new Label("Ningún tutor seleccionado");
-        lblTutorSeleccionado.setFont(Font.font("Arial", FontWeight.BOLD, 13));
-        lblTutorSeleccionado.setStyle("-fx-text-fill: #dc3545;");
-
-        seccionTutor.getChildren().addAll(lblPaso2, lblInfoTutor, tablaTutores, lblTutorSeleccionado);
+        seccionTutor.getChildren().addAll(lblPaso2, lblInfoTutor, tablaTutores);
 
         // PASO 3: Fecha y Hora (inicialmente oculto)
-        VBox seccionFecha = new VBox(10);
+        VBox seccionFecha = new VBox(15);
         seccionFecha.setPadding(new Insets(15));
         seccionFecha.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8;");
         seccionFecha.setVisible(false);
@@ -542,16 +540,40 @@ public class VistaPrincipalEstudiante {
         lblPaso3.setFont(Font.font("Arial", FontWeight.BOLD, 16));
         lblPaso3.setStyle("-fx-text-fill: #0a2e5a;");
 
-        Label lblFecha = new Label("Fecha y Hora:");
+        // === SELECTOR DE FECHA ===
+        Label lblFecha = new Label("Fecha de la sesión:");
         lblFecha.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         
-        TextField txtFecha = new TextField();
-        txtFecha.setPromptText("Formato: HH:mm dd/MM/yy (Ej: 14:30 25/10/25)");
-        txtFecha.setPrefWidth(400);
-        txtFecha.setPrefHeight(35);
-        txtFecha.setStyle("-fx-font-size: 14px;");
+        DatePicker datePicker = new DatePicker();
+        datePicker.setPromptText("Selecciona una fecha");
+        datePicker.setPrefWidth(250);
+        datePicker.setPrefHeight(35);
+        datePicker.setStyle("-fx-font-size: 14px;");
 
-        seccionFecha.getChildren().addAll(lblPaso3, lblFecha, txtFecha);
+        // SELECTOR DE HORA (Temporal con TextField)
+        Label lblHora = new Label("Hora de la sesión:");
+        lblHora.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
+        TextField txtHora = new TextField();
+        txtHora.setPromptText("Formato: HH:mm (Ej: 14:30)");
+        txtHora.setPrefWidth(250);
+        txtHora.setPrefHeight(35);
+        txtHora.setStyle("-fx-font-size: 14px;");
+
+        // Layout para fecha
+        VBox contenedorFecha = new VBox(5);
+        contenedorFecha.getChildren().addAll(lblFecha, datePicker);
+
+        // Layout para hora
+        VBox contenedorHora = new VBox(5);
+        contenedorHora.getChildren().addAll(lblHora, txtHora);
+
+        // Contenedor horizontal para fecha y hora
+        HBox contenedorFechaHora = new HBox(20);
+        contenedorFechaHora.setAlignment(Pos.CENTER_LEFT);
+        contenedorFechaHora.getChildren().addAll(contenedorFecha, contenedorHora);
+
+        seccionFecha.getChildren().addAll(lblPaso3, contenedorFechaHora);
 
         // Botón de agendar
         Button btnAgendar = new Button("Agendar Sesión");
@@ -592,8 +614,6 @@ public class VistaPrincipalEstudiante {
                 seccionTutor.setManaged(true);
                 
                 // Resetear selección
-                lblTutorSeleccionado.setText("Ningún tutor seleccionado");
-                lblTutorSeleccionado.setStyle("-fx-text-fill: #dc3545;");
                 seccionFecha.setVisible(false);
                 seccionFecha.setManaged(false);
                 btnAgendar.setDisable(true);
@@ -608,10 +628,7 @@ public class VistaPrincipalEstudiante {
 
         // Cuando se selecciona un tutor de la tabla
         tablaTutores.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-            if (newSelection != null) {
-                lblTutorSeleccionado.setText("Tutor seleccionado: " + newSelection.getNombre() + " (ID: " + newSelection.getIdUsuario() + ")");
-                lblTutorSeleccionado.setStyle("-fx-text-fill: #28a745;");
-                
+            if (newSelection != null) {                
                 // Mostrar paso de fecha
                 seccionFecha.setVisible(true);
                 seccionFecha.setManaged(true);
@@ -623,18 +640,29 @@ public class VistaPrincipalEstudiante {
         btnAgendar.setOnAction(e -> {
             String materiaSeleccionada = comboMaterias.getValue();
             Tutor tutorSeleccionado = tablaTutores.getSelectionModel().getSelectedItem();
-            String fecha = txtFecha.getText().trim();
+            LocalDate fechaSeleccionada = datePicker.getValue();
+            String horaTexto = txtHora.getText().trim();
 
             // Validaciones
-            if (materiaSeleccionada == null || materiaSeleccionada.isEmpty() || tutorSeleccionado == null || fecha.isEmpty()) {
-                mostrarError("Error", "Debes de llenar todos los campos");                
+            if (materiaSeleccionada == null || materiaSeleccionada.isEmpty() || tutorSeleccionado == null || fechaSeleccionada == null || horaTexto.isEmpty()) {
+                mostrarError("Error", "Debe de llenar todos los espacios");
                 return;
             }
 
-            Sesion s = controlador.manejarAgendamientoSesion( estudianteActual.getIdUsuario(), tutorSeleccionado.getIdUsuario(), materiaSeleccionada, fecha );
+            // Construir fecha y hora en el formato que espera el sistema
+            DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yy");
+            String fechaFormateada = fechaSeleccionada.format(formatterFecha);
+            String fechaHoraCompleta = horaTexto + " " + fechaFormateada;
+
+            Sesion s = controlador.manejarAgendamientoSesion( estudianteActual.getIdUsuario(), tutorSeleccionado.getIdUsuario(), materiaSeleccionada, fechaHoraCompleta );
             
             if (s != null) {
-                mostrarInfo("Éxito", "Sesión agendada correctamente\n\n" + "Materia: " + materiaSeleccionada + "\n" + "Tutor: " + tutorSeleccionado.getNombre() + "\n" + "Fecha: " + fecha);
+                mostrarInfo("Éxito", 
+                    "Sesión agendada correctamente\n\n" + 
+                    "Materia: " + materiaSeleccionada + "\n" + 
+                    "Tutor: " + tutorSeleccionado.getNombre() + "\n" + 
+                    "Fecha: " + fechaFormateada + "\n" +
+                    "Hora: " + horaTexto);
                 layoutPrincipal.setCenter(crearPanelHistorial());
             }
         });
