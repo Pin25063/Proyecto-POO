@@ -1,14 +1,31 @@
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.ListView;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TableColumn;
+import javafx.scene.control.TableView;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
-import java.util.ArrayList; 
-import java.util.List;
-import javafx.scene.control.cell.PropertyValueFactory;
 
 public class VistaPrincipalEstudiante {
     
@@ -430,37 +447,177 @@ public class VistaPrincipalEstudiante {
 
     // Panel embebido: agendamiento
     private VBox crearPanelAgendamiento() {
-        VBox cont = new VBox(15);
-        cont.setPadding(new Insets(24));
+        VBox cont = new VBox(20);
+        cont.setPadding(new Insets(30));
         cont.setAlignment(Pos.TOP_CENTER);
+        cont.setStyle("-fx-background-color: #ffffff; -fx-background-radius: 10;");
+        cont.setMaxWidth(700);
 
+        // Título principal
         Label titulo = new Label("Agendar Nueva Sesión");
-        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        titulo.setStyle("-fx-text-fill: #0a2e5a;");
+
+        Separator separador = new Separator();
+        separador.setPrefWidth(650);
+
+        // PASO 1: Selección de Materia
+        VBox seccionMateria = new VBox(10);
+        seccionMateria.setPadding(new Insets(15));
+        seccionMateria.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8;");
+
+        Label lblPaso1 = new Label("PASO 1: Selecciona la Materia");
+        lblPaso1.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        lblPaso1.setStyle("-fx-text-fill: #0a2e5a;");
+
+        Label lblInstruccion = new Label("Elige la materia para la cual necesitas tutoría:");
+        lblInstruccion.setFont(Font.font("Arial", 13));
+        lblInstruccion.setStyle("-fx-text-fill: #6c757d;");
+
+        ComboBox<String> comboMaterias = new ComboBox<>();
+        comboMaterias.setPromptText("Selecciona una materia...");
+        comboMaterias.setPrefWidth(400);
+        comboMaterias.setPrefHeight(40);
+        comboMaterias.setStyle("-fx-font-size: 14px;");
+
+        // Cargar materias disponibles desde los tutores
+        Set<String> materiasDisponibles = obtenerMateriasDisponibles();
+        comboMaterias.getItems().addAll(materiasDisponibles);
+
+        // Etiqueta para mostrar cantidad de tutores disponibles
+        Label lblTutoresDisponibles = new Label("");
+        lblTutoresDisponibles.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        lblTutoresDisponibles.setStyle("-fx-text-fill: #28a745;");
+        lblTutoresDisponibles.setVisible(false);
+
+        seccionMateria.getChildren().addAll(lblPaso1, lblInstruccion, comboMaterias, lblTutoresDisponibles);
+
+        // PASO 2: Información del Tutor (inicialmente oculto)
+        VBox seccionTutor = new VBox(10);
+        seccionTutor.setPadding(new Insets(15));
+        seccionTutor.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8;");
+        seccionTutor.setVisible(false);
+        seccionTutor.setManaged(false);
+
+        Label lblPaso2 = new Label("PASO 2: Ingresa el ID del Tutor");
+        lblPaso2.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        lblPaso2.setStyle("-fx-text-fill: #0a2e5a;");
+
+        Label lblInfoTutor = new Label("Consulta la sección 'Buscar Tutores' para ver tutores disponibles y sus IDs");
+        lblInfoTutor.setFont(Font.font("Arial", 12));
+        lblInfoTutor.setStyle("-fx-text-fill: #6c757d; -fx-font-style: italic;");
+        lblInfoTutor.setWrapText(true);
+
+        HBox filaTutor = new HBox(10);
+        filaTutor.setAlignment(Pos.CENTER_LEFT);
 
         Label lblTutorId = new Label("ID del Tutor:");
+        lblTutorId.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
         TextField txtTutorId = new TextField();
         txtTutorId.setPromptText("Ej: 2");
-        txtTutorId.setPrefWidth(300);
+        txtTutorId.setPrefWidth(150);
+        txtTutorId.setPrefHeight(35);
+        txtTutorId.setStyle("-fx-font-size: 14px;");
 
-        Label lblMateria = new Label("Materia:");
-        TextField txtMateria = new TextField();
-        txtMateria.setPromptText("Ej: Matemática, Física, Programación");
-        txtMateria.setPrefWidth(300);
+        filaTutor.getChildren().addAll(lblTutorId, txtTutorId);
+
+        seccionTutor.getChildren().addAll(lblPaso2, lblInfoTutor, filaTutor);
+
+        // PASO 3: Fecha y Hora (inicialmente oculto)
+        VBox seccionFecha = new VBox(10);
+        seccionFecha.setPadding(new Insets(15));
+        seccionFecha.setStyle("-fx-background-color: #f8f9fa; -fx-background-radius: 8; -fx-border-color: #dee2e6; -fx-border-width: 1; -fx-border-radius: 8;");
+        seccionFecha.setVisible(false);
+        seccionFecha.setManaged(false);
+
+        Label lblPaso3 = new Label("PASO 3: Selecciona Fecha y Hora");
+        lblPaso3.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        lblPaso3.setStyle("-fx-text-fill: #0a2e5a;");
 
         Label lblFecha = new Label("Fecha y Hora:");
+        lblFecha.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
         TextField txtFecha = new TextField();
         txtFecha.setPromptText("Formato: HH:mm dd/MM/yy (Ej: 14:30 25/10/25)");
-        txtFecha.setPrefWidth(300);
+        txtFecha.setPrefWidth(400);
+        txtFecha.setPrefHeight(35);
+        txtFecha.setStyle("-fx-font-size: 14px;");
 
-        Button btnAgendar = new Button("Agendar");
+        seccionFecha.getChildren().addAll(lblPaso3, lblFecha, txtFecha);
+
+        // Botón de agendar
+        Button btnAgendar = new Button("Agendar Sesión");
+        btnAgendar.setPrefWidth(250);
+        btnAgendar.setPrefHeight(45);
+        btnAgendar.setFont(Font.font("Arial", FontWeight.BOLD, 15));
+        btnAgendar.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 8;");
+        btnAgendar.setDisable(true);
+
+        // Efectos hover
+        btnAgendar.setOnMouseEntered(e -> {
+            if (!btnAgendar.isDisabled()) {
+                btnAgendar.setStyle("-fx-background-color: #218838; -fx-text-fill: white; -fx-background-radius: 8;");
+            }
+        });
+        btnAgendar.setOnMouseExited(e -> {
+            if (!btnAgendar.isDisabled()) {
+                btnAgendar.setStyle("-fx-background-color: #28a745; -fx-text-fill: white; -fx-background-radius: 8;");
+            }
+        });
+
+        HBox contenedorBoton = new HBox(btnAgendar);
+        contenedorBoton.setAlignment(Pos.CENTER);
+        contenedorBoton.setPadding(new Insets(20, 0, 0, 0));
+
+        // Lógica cuando se selecciona una materia, mostrar siguiente paso
+        comboMaterias.setOnAction(e -> {
+            String materiaSeleccionada = comboMaterias.getValue();
+            if (!materiaSeleccionada.isEmpty()) {
+                // Contar tutores disponibles para esta materia
+                int cantidadTutores = contarTutoresPorMateria(materiaSeleccionada);
+                lblTutoresDisponibles.setText(cantidadTutores + " tutor(es) disponible(s) para esta materia");
+                lblTutoresDisponibles.setVisible(true);
+                
+                // Mostrar siguiente paso
+                seccionTutor.setVisible(true);
+                seccionTutor.setManaged(true);
+                seccionFecha.setVisible(true);
+                seccionFecha.setManaged(true);
+                btnAgendar.setDisable(false);
+            } else {
+                lblTutoresDisponibles.setVisible(false);
+                seccionTutor.setVisible(false);
+                seccionTutor.setManaged(false);
+                seccionFecha.setVisible(false);
+                seccionFecha.setManaged(false);
+                btnAgendar.setDisable(true);
+            }
+        });
+
+        // Acción del botón agendar
         btnAgendar.setOnAction(e -> {
+            String materiaSeleccionada = comboMaterias.getValue();
+            String tutorIdStr = txtTutorId.getText().trim();
+            String fecha = txtFecha.getText().trim();
+
+            // Validaciones
+            if (materiaSeleccionada == null || materiaSeleccionada.isEmpty() || tutorIdStr.isEmpty() || fecha.isEmpty()) {
+                mostrarError("Error", "Debes de llenar todos los campos");
+                return;
+            }
             try {
-                int tutorId = Integer.parseInt(txtTutorId.getText().trim());
-                String materia = txtMateria.getText().trim();
-                String fecha = txtFecha.getText().trim();
-                Sesion s = controlador.manejarAgendamientoSesion(estudianteActual.getIdUsuario(), tutorId, materia, fecha);
+                int tutorId = Integer.parseInt(tutorIdStr);
+                // Verificar que el tutor imparte la materia seleccionada
+                if (!tutorImparteMateria(tutorId, materiaSeleccionada)) {
+                    mostrarError("Error", "El tutor seleccionado no imparte la materia: " + materiaSeleccionada);
+                    return;
+                }
+
+                Sesion s = controlador.manejarAgendamientoSesion( estudianteActual.getIdUsuario(), tutorId, materiaSeleccionada, fecha );
+                
                 if (s != null) {
-                    mostrarInfo("Éxito", "Sesión agendada: " + materia + " – " + fecha);
+                    mostrarInfo("Éxito", "Sesión agendada: " + materiaSeleccionada + " - " + fecha);
                     layoutPrincipal.setCenter(crearPanelHistorial());
                 }
             } catch (NumberFormatException ex) {
@@ -468,7 +625,7 @@ public class VistaPrincipalEstudiante {
             }
         });
 
-        cont.getChildren().addAll(titulo, lblTutorId, txtTutorId, lblMateria, txtMateria, lblFecha, txtFecha, btnAgendar);
+        cont.getChildren().addAll( titulo,separador,seccionMateria,seccionTutor,seccionFecha,contenedorBoton);
         return cont;
     }
 
@@ -518,4 +675,48 @@ public class VistaPrincipalEstudiante {
         layoutPrincipal.setCenter(contenido);
     }
 
+    //Obtiene un conjunto de todas las materias únicas que imparten los tutores registrados
+    private Set<String> obtenerMateriasDisponibles() {
+        Set<String> materias = new HashSet<>();
+        
+        List<Usuario> usuarios = controlador.getListaDeUsuarios();
+        for (Usuario u : usuarios) {
+            if (u.getRol() == Rol.TUTOR) {
+                Tutor tutor = (Tutor) u;
+                List<String> materiasTutor = tutor.getMaterias();
+                if (materiasTutor != null) {
+                    materias.addAll(materiasTutor);
+                }
+            }
+        }
+        return materias;
+    }
+
+    private int contarTutoresPorMateria(String materia) {
+        int contador = 0;
+        
+        List<Usuario> usuarios = controlador.getListaDeUsuarios();
+        for (Usuario u : usuarios) {
+            if (u.getRol() == Rol.TUTOR) {
+                Tutor tutor = (Tutor) u;
+                List<String> materiasTutor = tutor.getMaterias();
+                if (materiasTutor != null && materiasTutor.contains(materia)) {
+                    contador++;
+                }
+            }
+        }
+        return contador;
+    }
+
+    private boolean tutorImparteMateria(int tutorId, String materia) {
+        Usuario usuario = controlador.buscarUsuarioPorId(tutorId);
+        
+        if (usuario == null || usuario.getRol() != Rol.TUTOR) {
+            return false;
+        }
+        Tutor tutor = (Tutor) usuario;
+        List<String> materiasTutor = tutor.getMaterias();
+        
+        return materiasTutor != null && materiasTutor.contains(materia);
+    }
 }
