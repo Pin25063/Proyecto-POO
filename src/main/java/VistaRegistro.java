@@ -1,9 +1,21 @@
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
-import javafx.scene.control.*;
-import javafx.scene.layout.*;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.CheckBox;
+import javafx.scene.control.ComboBox;
+import javafx.scene.control.Label;
+import javafx.scene.control.PasswordField;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.control.Separator;
+import javafx.scene.control.TextField;
+import javafx.scene.control.Tooltip;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 public class VistaRegistro extends VBox {
@@ -166,7 +178,7 @@ public class VistaRegistro extends VBox {
         lblRol.setStyle("-fx-text-fill: #2c3e50;");
         
         comboRol.setPromptText("¿Qué tipo de usuario eres?");
-        comboRol.getItems().setAll(Rol.values());
+        comboRol.getItems().setAll(Rol.ESTUDIANTE, Rol.TUTOR);
         comboRol.setPrefHeight(40);
         comboRol.setPrefWidth(400);
         comboRol.setStyle("-fx-font-size: 14px;");
@@ -174,8 +186,7 @@ public class VistaRegistro extends VBox {
         // Descripciones de roles
         Label lblDescripcion = new Label(
             "• ESTUDIANTE: Buscar tutores y agendar sesiones\n" +
-            "• TUTOR: Ofrecer tutorías y gestionar sesiones\n" +
-            "• CATEDRÁTICO: Asignar tutorías y gestionar cursos"
+            "• TUTOR: Ofrecer tutorías y gestionar sesiones"
         );
         lblDescripcion.setFont(Font.font("Arial", 11));
         lblDescripcion.setStyle("-fx-text-fill: #7f8c8d; -fx-padding: 10 0 0 10;");
@@ -275,13 +286,6 @@ public class VistaRegistro extends VBox {
                 contenedorMaterias.setManaged(true);
                 contenedorTarifa.setVisible(true);
                 contenedorTarifa.setManaged(true);
-                break;
-                
-            case CATEDRATICO:
-                contenedorMaterias.setVisible(true);
-                contenedorMaterias.setManaged(true);
-                contenedorTarifa.setVisible(false);
-                contenedorTarifa.setManaged(false);
                 break;
                 
             case ESTUDIANTE:
@@ -426,14 +430,6 @@ public class VistaRegistro extends VBox {
                     }
 
                     nuevoUsuario = new Tutor(id, nombre, correo, contrasena, new ArrayList<>(materias), tarifa);
-                }
-                case CATEDRATICO -> {
-                    List<String> materias = getMateriasSeleccionadas();
-                    if (materias.isEmpty()) {
-                        mostrarError("Materias Faltantes", "Selecciona al menos una materia");
-                        return;
-                    }
-                    nuevoUsuario = new Catedratico(id, nombre, correo, contrasena, new ArrayList<>(materias));
                 }
                 case ESTUDIANTE -> {
                     nuevoUsuario = new Estudiante(id, nombre, correo, contrasena);
