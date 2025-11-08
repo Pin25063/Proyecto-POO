@@ -16,6 +16,8 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.Separator;
+import javafx.scene.control.Spinner;
+import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
@@ -550,23 +552,44 @@ public class VistaPrincipalEstudiante {
         datePicker.setPrefHeight(35);
         datePicker.setStyle("-fx-font-size: 14px;");
 
-        // SELECTOR DE HORA (Temporal con TextField)
+        // SELECTOR DE HORA CON SPINNER
         Label lblHora = new Label("Hora de la sesión:");
         lblHora.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         
-        TextField txtHora = new TextField();
-        txtHora.setPromptText("Formato: HH:mm (Ej: 14:30)");
-        txtHora.setPrefWidth(250);
-        txtHora.setPrefHeight(35);
-        txtHora.setStyle("-fx-font-size: 14px;");
+        // Spinner de horas (0-23)
+        Spinner<Integer> spinnerHora = new Spinner<>();
+        SpinnerValueFactory<Integer> valueFactoryHora = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 23, 0);
+        spinnerHora.setValueFactory(valueFactoryHora);
+        spinnerHora.setPrefWidth(80);
+        spinnerHora.setPrefHeight(35);
+        spinnerHora.setEditable(true);
+        spinnerHora.setStyle("-fx-font-size: 14px;");
+        
+        Label lblDosPuntos = new Label(":");
+        lblDosPuntos.setFont(Font.font("Arial", FontWeight.BOLD, 20));
+        lblDosPuntos.setStyle("-fx-text-fill: #2c3e50;");
+        
+        // Spinner de minutos (0-59)
+        Spinner<Integer> spinnerMinuto = new Spinner<>();
+        SpinnerValueFactory<Integer> valueFactoryMinuto = new SpinnerValueFactory.IntegerSpinnerValueFactory(0, 59, 0);
+        spinnerMinuto.setValueFactory(valueFactoryMinuto);
+        spinnerMinuto.setPrefWidth(80);
+        spinnerMinuto.setPrefHeight(35);
+        spinnerMinuto.setEditable(true);
+        spinnerMinuto.setStyle("-fx-font-size: 14px;");
 
         // Layout para fecha
         VBox contenedorFecha = new VBox(5);
         contenedorFecha.getChildren().addAll(lblFecha, datePicker);
 
-        // Layout para hora
+        // Layout para hora con spinners
+        HBox spinnersHora = new HBox(5);
+        spinnersHora.setAlignment(Pos.CENTER_LEFT);
+        spinnersHora.getChildren().addAll(spinnerHora, lblDosPuntos, spinnerMinuto);
+        
         VBox contenedorHora = new VBox(5);
-        contenedorHora.getChildren().addAll(lblHora, txtHora);
+        contenedorHora.getChildren().addAll(lblHora, spinnersHora);
+
 
         // Contenedor horizontal para fecha y hora
         HBox contenedorFechaHora = new HBox(20);
@@ -641,10 +664,11 @@ public class VistaPrincipalEstudiante {
             String materiaSeleccionada = comboMaterias.getValue();
             Tutor tutorSeleccionado = tablaTutores.getSelectionModel().getSelectedItem();
             LocalDate fechaSeleccionada = datePicker.getValue();
-            String horaTexto = txtHora.getText().trim();
+            Integer hora = spinnerHora.getValue();
+            Integer minuto = spinnerMinuto.getValue();
 
             // Validaciones
-            if (materiaSeleccionada == null || materiaSeleccionada.isEmpty() || tutorSeleccionado == null || fechaSeleccionada == null || horaTexto.isEmpty()) {
+            if (materiaSeleccionada == null || materiaSeleccionada.isEmpty() || tutorSeleccionado == null || fechaSeleccionada == null ) {
                 mostrarError("Error", "Debe de llenar todos los espacios");
                 return;
             }
@@ -652,7 +676,8 @@ public class VistaPrincipalEstudiante {
             // Construir fecha y hora en el formato que espera el sistema
             DateTimeFormatter formatterFecha = DateTimeFormatter.ofPattern("dd/MM/yy");
             String fechaFormateada = fechaSeleccionada.format(formatterFecha);
-            String fechaHoraCompleta = horaTexto + " " + fechaFormateada;
+            String horaFormateada = String.format("%02d:%02d", hora, minuto);
+            String fechaHoraCompleta = horaFormateada + " " + fechaFormateada;
 
             Sesion s = controlador.manejarAgendamientoSesion( estudianteActual.getIdUsuario(), tutorSeleccionado.getIdUsuario(), materiaSeleccionada, fechaHoraCompleta );
             
@@ -662,7 +687,7 @@ public class VistaPrincipalEstudiante {
                     "Materia: " + materiaSeleccionada + "\n" + 
                     "Tutor: " + tutorSeleccionado.getNombre() + "\n" + 
                     "Fecha: " + fechaFormateada + "\n" +
-                    "Hora: " + horaTexto);
+                    "Hora: " + horaFormateada);
                 layoutPrincipal.setCenter(crearPanelHistorial());
             }
         });
