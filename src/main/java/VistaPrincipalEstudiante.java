@@ -262,9 +262,11 @@ public class VistaPrincipalEstudiante {
             int limite = Math.min(5, historial.size());
             for (int i = historial.size() - 1; i >= historial.size() - limite; i--) {
                 Sesion s = historial.get(i);
-                String texto = String.format("%s - %s (%s)", 
+                // CAMBIO: Se usa getFecha() y getHora()
+                String texto = String.format("%s - %s %s (%s)", 
                     s.getMateria(), 
-                    s.getFechaHora(), 
+                    s.getFecha(), // Nuevo
+                    s.getHora(),   // Nuevo
                     s.getEstado());
                 listaSesiones.getItems().add(texto);
             }
@@ -687,8 +689,23 @@ public class VistaPrincipalEstudiante {
                     "Materia: " + materiaSeleccionada + "\n" + 
                     "Tutor: " + tutorSeleccionado.getNombre() + "\n" + 
                     "Fecha: " + fechaFormateada + "\n" +
-                    "Hora: " + horaFormateada);
-                layoutPrincipal.setCenter(crearPanelHistorial());
+                    "Hora: " + horaFormateada + "\n\n" +
+                    "El tutor debe aprobar tu solicitud.");                                
+                // Limpiar campos después de agendar
+                comboMaterias.setValue(null);
+                seccionTutor.setVisible(false);
+                seccionTutor.setManaged(false);
+                seccionFecha.setVisible(false);
+                seccionFecha.setManaged(false);
+                btnAgendar.setDisable(true);
+                
+            } else {
+                mostrarError("Error al Agendar", 
+                    "No se pudo agendar la sesión.\n\n" +
+                    "Posibles causas:\n" +
+                    "- El tutor ya está ocupado en ese horario.\n" +
+                    "- Ya tienes otra sesión a esa hora.\n" +
+                    "- La fecha seleccionada está en el pasado.");
             }
         });
         cont.getChildren().addAll( titulo, separador, seccionMateria, seccionTutor, seccionFecha, contenedorBoton );
@@ -716,8 +733,12 @@ public class VistaPrincipalEstudiante {
         colMateria.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getMateria()));
         colMateria.setPrefWidth(150);
 
+        // CAMBIO: Se usa un CellValueFactory para combinar fecha y hora
         TableColumn<Sesion, String> colFecha = new TableColumn<>("Fecha y Hora");
-        colFecha.setCellValueFactory(data -> new javafx.beans.property.SimpleStringProperty(data.getValue().getFechaHora()));
+        colFecha.setCellValueFactory(data -> {
+            String fechaHoraStr = data.getValue().getFecha() + " " + data.getValue().getHora();
+            return new javafx.beans.property.SimpleStringProperty(fechaHoraStr);
+        });
         colFecha.setPrefWidth(150);
 
         TableColumn<Sesion, String> colEstado = new TableColumn<>("Estado");

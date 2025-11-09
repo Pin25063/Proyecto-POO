@@ -1,12 +1,11 @@
 import java.io.IOException;
-import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.stage.Stage;
-import javafx.scene.Scene;
 
 public class ControladorPrincipal {
     
@@ -170,26 +169,32 @@ public class ControladorPrincipal {
         }
         if (dt.isBefore(LocalDateTime.now())) {
             System.out.println("Agendar ERROR: se intentó agendar en el pasado (" + fh + ").");
-            if (loginVista != null) loginVista.mostrarError("Agendamiento", "No puedes agendar una sesión en el pasado.");
+            if (loginVista != null);
             return null;
         }
 
         // Colisión simple: mismo tutor y misma fecha/hora
         if (tutorOcupadoEnFecha(tutorId, fh)) {
             System.out.println("Agendar ERROR: tutor ocupado en " + fh);
-            if (loginVista != null) loginVista.mostrarError("Agendamiento", "El tutor ya tiene una sesión en ese horario.");
+            if (loginVista != null);
             return null;
         }
 
         // Evitar doble reserva del estudiante en el mismo horario
         if (estudianteOcupadoEnFecha(estudianteId, fh)) {
             System.out.println("Agendar ERROR: estudiante ya tiene una sesión en " + fh);
-            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Ya tienes una sesión en ese horario.");
+            if (loginVista != null);
             return null;
         }
 
         String nuevoId = generarIdSesion();
-        Sesion nueva = new Sesion(nuevoId, estudianteId, tutorId, mat, fh, EstadoSesion.PROGRAMADA);
+        // Dividir el string fh en fecha y hora
+        String[] partes = fh.split(" ");
+        String hora = partes[0];  // "HH:mm"
+        String fecha = partes[1]; // "dd/MM/yy"
+
+        // Llamar al nuevo constructor con 7 argumentos
+        Sesion nueva = new Sesion(nuevoId, estudianteId, tutorId, mat, fecha, hora, EstadoSesion.PENDIENTE);
         listaDeSesiones.add(nueva);
         System.out.println("Agendada en memoria: " + nueva);
 
@@ -202,7 +207,6 @@ public class ControladorPrincipal {
         }
 
         if (loginVista != null) {
-            loginVista.mostrarInfo("Agendamiento", "Sesión programada: " + mat + " – " + fh);
         }
         return nueva;
     }
@@ -215,9 +219,14 @@ public class ControladorPrincipal {
 
     // Verifica si el tutor ya tiene una sesión en ese horario exacto
     private boolean tutorOcupadoEnFecha(int tutorId, String fechaHora) {
-        String fh = norm(fechaHora);
+        String[] partes = norm(fechaHora).split(" ");
+        String horaInput = partes[0];
+        String fechaInput = partes[1];
+
         for (Sesion s : listaDeSesiones) {
-            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) {
+            if (s.getTutorId() == tutorId && 
+                fechaInput.equalsIgnoreCase(s.getFecha()) && 
+                horaInput.equalsIgnoreCase(s.getHora())) {
                 return true;
             }
         }
@@ -225,9 +234,14 @@ public class ControladorPrincipal {
     }
 
     private boolean estudianteOcupadoEnFecha(int estudianteId, String fechaHora) {
-        String fh = norm(fechaHora);
+        String[] partes = norm(fechaHora).split(" ");
+        String horaInput = partes[0];
+        String fechaInput = partes[1];
+        
         for (Sesion s : listaDeSesiones) {
-            if (s.getEstudianteId() == estudianteId && fh.equalsIgnoreCase(s.getFechaHora())) {
+            if (s.getEstudianteId() == estudianteId && 
+                fechaInput.equalsIgnoreCase(s.getFecha()) && 
+                horaInput.equalsIgnoreCase(s.getHora())) {
                 return true;
             }
         }

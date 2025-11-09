@@ -37,7 +37,7 @@ public class ControladorAdministradores {
 
         // La fecha se deja "Por definir" para que el estudiante y tutor la coordinen
         String nuevoId = controladorPrincipal.generarIdSesion();
-        Sesion nuevaSesion = new Sesion(nuevoId, estudianteId, tutorId, nombreCurso, "Por definir", EstadoSesion.PENDIENTE);
+        Sesion nuevaSesion = new Sesion(nuevoId, estudianteId, tutorId, nombreCurso, "Por definir", "Por definir", EstadoSesion.PENDIENTE);
         
         // Actualización de datos en memoria
         controladorPrincipal.getListaDeSesiones().add(nuevaSesion);
