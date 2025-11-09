@@ -290,4 +290,91 @@ public class ControladorPrincipal {
         return max + 1; //Devuelve el nuevo ID
     }
 
+    // Actualiza el estado de una sesion especifica y lo guarda en el csv
+    public boolean actualizarEstadoSesion(Sesion sesion) {
+    
+        try {
+            // Variable para saber si encontramos la sesión
+            boolean encontradaEnMemoria = false;
+            
+            // Recorrer todas las sesiones en la lista
+            for (int i = 0; i < listaDeSesiones.size(); i++) {
+                
+                // Obtener la sesión en la posición i
+                Sesion sesionActual = listaDeSesiones.get(i);
+                
+                // Comparar el ID de esta sesión con el ID que queremos actualizar
+                if (sesionActual.getIdSesion().equals(sesion.getIdSesion())) {
+                    
+                    // Reemplazar la sesión vieja con la actualizada
+                    listaDeSesiones.set(i, sesion);
+                    
+                    // Marcar que la encontramos
+                    encontradaEnMemoria = true;
+                    
+                    // Salir del bucle
+                    break;
+                }
+            }
+            
+            // Verificar si encontramos la sesión
+            if (!encontradaEnMemoria) {
+                System.out.println("ERROR: Sesión no encontrada en la lista en memoria");
+                return false;
+            }
+            
+            // Llamar al método del GestorDeDatos que actualiza solo esta sesión en el CSV
+            gestorDeDatos.actualizarSesionEnCSV(sesion);
+            
+            // Indica que todo funciono correctamente
+            return true;
+            
+        } catch (IOException e) {
+        
+            System.out.println("❌ Error al actualizar el archivo CSV:");
+            System.out.println("   " + e.getMessage());
+            e.printStackTrace();
+            return false;
+            
+        } catch (Exception e) {
+            System.out.println("❌ Error inesperado al actualizar sesión:");
+            System.out.println("   " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public List<Sesion> obtenerSesionesPendientesPorTutor(int tutorId) {
+        List<Sesion> pendientes = new ArrayList<>();
+        
+        // Recorrer todas las sesiones
+        for (Sesion sesion : listaDeSesiones) {
+            // Filtrar por: (1) mismo tutor y (2) estado PENDIENTE
+            if (sesion.getTutorId() == tutorId && 
+                sesion.getEstado() == EstadoSesion.PENDIENTE) {
+                pendientes.add(sesion);
+            }
+        }
+        
+        System.out.println("→ Sesiones pendientes para tutor " + tutorId + ": " + pendientes.size());
+        return pendientes;
+    }
+
+    public List<Sesion> obtenerSesionesAceptadasPorTutor(int tutorId) {
+        List<Sesion> aceptadas = new ArrayList<>();
+        
+        // Recorrer todas las sesiones
+        for (Sesion sesion : listaDeSesiones) {
+            // Filtrar por: (1) mismo tutor y (2) estado AGENDADA o PROGRAMADA
+            if (sesion.getTutorId() == tutorId && 
+                (sesion.getEstado() == EstadoSesion.AGENDADA || 
+                sesion.getEstado() == EstadoSesion.PROGRAMADA)) {
+                aceptadas.add(sesion);
+            }
+        }
+        
+        System.out.println("→ Sesiones aceptadas para tutor " + tutorId + ": " + aceptadas.size());
+        return aceptadas;
+    }
+
 }

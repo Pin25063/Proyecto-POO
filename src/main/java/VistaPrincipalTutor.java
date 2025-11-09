@@ -19,6 +19,7 @@ public class VistaPrincipalTutor {
     private final String COLOR_PRIMARIO = "#2c3e50"; // Azul marino
     private final String COLOR_SECUNDARIO = "#27ae60"; // Verde
     private final String COLOR_FONDO = "#ecf0f1"; // Gris claro
+    private final String COLOR_RECHAZO = "#e74c3c"; // Rojo
 
     public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor, Stage stage, Main mainApp) {
         this.controlador = controlador;
@@ -26,6 +27,7 @@ public class VistaPrincipalTutor {
         this.stage = stage;
         this.mainApp = mainApp;
     }
+    
     public void mostrar() {
         layoutPrincipal = new BorderPane();
         layoutPrincipal.setStyle("-fx-background-color: " + COLOR_FONDO + ";");
@@ -128,6 +130,32 @@ public class VistaPrincipalTutor {
         return panel;
     }
 
+    private void cargarSesionesAceptadas(ListView<String> lista) {
+        // Obtener sesiones aceptadas desde el controlador
+        List<Sesion> sesionesAceptadas = controlador.obtenerSesionesAceptadasPorTutor(
+            tutorActual.getIdUsuario()
+        );
+        
+        if (sesionesAceptadas.isEmpty()) {
+            return;
+        }
+        
+        for (Sesion sesion : sesionesAceptadas) {
+            Usuario estudiante = controlador.buscarUsuarioPorId(sesion.getEstudianteId());
+            String nombreEstudiante = (estudiante != null) ? estudiante.getNombre() : "Desconocido";
+            
+            String item = String.format("%s - %s %s | Estudiante: %s | %s",
+                sesion.getMateria(),
+                sesion.getFecha(),
+                sesion.getHora(),
+                nombreEstudiante,
+                sesion.getEstado()
+            );
+            
+            lista.getItems().add(item);
+        }
+    }
+
     private VBox crearPanelPerfil() {
         VBox panel = new VBox(15);
         panel.setPadding(new Insets(40));
@@ -181,6 +209,7 @@ public class VistaPrincipalTutor {
         lista.setPlaceholder(new Label("No hay sesiones programadas"));
         lista.setPrefHeight(300);
 
+        cargarSesionesAceptadas(lista);
         contenido.getChildren().addAll(lblProximas, lista);
         panel.getChildren().addAll(titulo, contenido);
         return panel;
@@ -209,6 +238,161 @@ public class VistaPrincipalTutor {
         return panel;
     }
 
+    private void cargarSolicitudesPendientes(VBox container) {
+        container.getChildren().clear();
+        
+        // Obtener solicitudes pendientes desde el controlador
+        List<Sesion> solicitudesPendientes = controlador.obtenerSesionesPendientesPorTutor(
+            tutorActual.getIdUsuario()
+        );
+        
+        if (solicitudesPendientes.isEmpty()) {
+            Label lblVacio = new Label("No hay solicitudes pendientes");
+            lblVacio.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
+            container.getChildren().add(lblVacio);
+            return;
+        }
+        
+        for (Sesion solicitud : solicitudesPendientes) {
+            VBox tarjeta = crearTarjetaSolicitud(solicitud);
+            container.getChildren().add(tarjeta);
+        }
+    }
+
+    private VBox crearTarjetaSolicitud(Sesion solicitud) {
+        VBox tarjeta = new VBox(10);
+        tarjeta.setPadding(new Insets(15));
+        tarjeta.setStyle("-fx-background-color: #ffffff; " +
+                        "-fx-border-color: #bdc3c7; " +
+                        "-fx-border-width: 1; " +
+                        "-fx-border-radius: 5; " +
+                        "-fx-background-radius: 5;");
+        
+        // Obtener información del estudiante
+        Usuario estudiante = controlador.buscarUsuarioPorId(solicitud.getEstudianteId());
+        String nombreEstudiante = (estudiante != null) ? estudiante.getNombre() : "Estudiante desconocido";
+        
+        // Información de la solicitud
+        Label lblEstudiante = new Label("Estudiante: " + nombreEstudiante);
+        lblEstudiante.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
+        Label lblMateria = new Label("Materia: " + solicitud.getMateria());
+        lblMateria.setStyle("-fx-font-size: 13px;");
+        
+        Label lblFecha = new Label("Fecha: " + solicitud.getFecha());
+        lblFecha.setStyle("-fx-font-size: 13px;");
+        
+        Label lblHora = new Label("Hora: " + solicitud.getHora());
+        lblHora.setStyle("-fx-font-size: 13px;");
+        
+        Label lblEstado = new Label("Estado: " + solicitud.getEstado());
+        lblEstado.setStyle("-fx-font-size: 13px; -fx-text-fill: #f39c12; -fx-font-weight: bold;");
+        
+        // Botones de acción
+        HBox botonesAccion = new HBox(10);
+        botonesAccion.setAlignment(Pos.CENTER_RIGHT);
+        
+        Button btnAceptar = new Button("✓ Aceptar");
+        btnAceptar.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-cursor: hand;");
+        btnAceptar.setOnAction(e -> manejarAceptarSolicitud(solicitud));
+        
+        Button btnRechazar = new Button("✗ Rechazar");
+        btnRechazar.setStyle("-fx-background-color: " + COLOR_RECHAZO + "; " +
+                            "-fx-text-fill: white; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-cursor: hand;");
+        btnRechazar.setOnAction(e -> manejarRechazarSolicitud(solicitud));
+        
+        botonesAccion.getChildren().addAll(btnAceptar, btnRechazar);
+        
+        // Agregar separador visual
+        Separator separador = new Separator();
+        
+        tarjeta.getChildren().addAll(
+            lblEstudiante, 
+            lblMateria, 
+            lblFecha, 
+            lblHora, 
+            lblEstado,
+            separador,
+            botonesAccion
+        );
+        
+        return tarjeta;
+    }
+
+    private void manejarAceptarSolicitud(Sesion solicitud) {
+        // Confirmar con el tutor
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Aceptación");
+        confirmacion.setHeaderText("¿Desea aceptar esta solicitud de tutoría?");
+        confirmacion.setContentText(
+            "Materia: " + solicitud.getMateria() + "\n" +
+            "Fecha: " + solicitud.getFecha() + "\n" +
+            "Hora: " + solicitud.getHora()
+        );
+        
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Guardar estado anterior por si falla
+                EstadoSesion estadoAnterior = solicitud.getEstado();
+                
+                // Cambiar el estado a AGENDADA
+                solicitud.setEstado(EstadoSesion.AGENDADA);
+                
+                // Actualizar usando el controlador
+                boolean exito = controlador.actualizarEstadoSesion(solicitud);
+                
+                if (exito) {
+                    mostrarInfo("Éxito", "La solicitud ha sido aceptada correctamente.");
+                    layoutPrincipal.setCenter(crearPanelSolicitudes());
+                } else {
+                    // Revertir el cambio si falló
+                    solicitud.setEstado(estadoAnterior);
+                    mostrarError("Error", "No se pudo actualizar la sesión. Intente nuevamente.");
+                }
+            }
+        });
+    }
+
+    private void manejarRechazarSolicitud(Sesion solicitud) {
+        // Confirmar con el tutor
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Rechazo");
+        confirmacion.setHeaderText("¿Desea rechazar esta solicitud de tutoría?");
+        confirmacion.setContentText(
+            "Materia: " + solicitud.getMateria() + "\n" +
+            "Fecha: " + solicitud.getFecha() + "\n" +
+            "Hora: " + solicitud.getHora() + "\n\n" +
+            "Esta acción no se puede deshacer."
+        );
+        
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Guardar estado anterior por si falla
+                EstadoSesion estadoAnterior = solicitud.getEstado();
+                
+                // Cambiar el estado a CANCELADA
+                solicitud.setEstado(EstadoSesion.CANCELADA);
+                
+                // Actualizar usando el controlador
+                boolean exito = controlador.actualizarEstadoSesion(solicitud);
+                
+                if (exito) {
+                    mostrarInfo("Solicitud Rechazada", "La solicitud ha sido rechazada.");
+                    layoutPrincipal.setCenter(crearPanelSolicitudes());
+                } else {
+                    // Revertir el cambio si falló
+                    solicitud.setEstado(estadoAnterior);
+                    mostrarError("Error", "No se pudo actualizar la sesión. Intente nuevamente.");
+                }
+            }
+        });
+    }
+
     private VBox crearPanelSolicitudes() {
         VBox panel = new VBox(15);
         panel.setPadding(new Insets(40));
@@ -223,11 +407,21 @@ public class VistaPrincipalTutor {
         Label lblPend = new Label("Solicitudes Pendientes");
         lblPend.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        ListView<String> lista = new ListView<>();
-        lista.setPlaceholder(new Label("No hay solicitudes pendientes"));
-        lista.setPrefHeight(300);
+        // ScrollPane para contener las tarjetas de solicitudes
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(400);
+        scrollPane.setStyle("-fx-background-color: transparent;");
 
-        contenido.getChildren().addAll(lblPend, lista);
+        VBox listaSolicitudes = new VBox(15);
+        listaSolicitudes.setPadding(new Insets(10));
+        
+        // Cargar solicitudes pendientes
+        cargarSolicitudesPendientes(listaSolicitudes);
+        
+        scrollPane.setContent(listaSolicitudes);
+
+        contenido.getChildren().addAll(lblPend, scrollPane);
         panel.getChildren().addAll(titulo, contenido);
         return panel;
     }

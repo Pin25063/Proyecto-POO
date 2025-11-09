@@ -122,6 +122,78 @@ public class GestorDeDatos {
             bw.write(NL);
         }
     }
+    // Se utilizara para actualizar las sesiones que se necesita que sean aceptadas y rechazadas por un tutor
+    public void actualizarSesionEnCSV(Sesion sesionActualizada) throws IOException {
+        // Se leen todas las sesiones del csv
+        // Esta lista guardará TODAS las líneas del CSV (incluido el encabezado)
+        List<String> todasLasLineas = new ArrayList<>();
+
+        // Abrir el archivo para lectura
+        try (BufferedReader br =  Files.newBufferedReader(SESIONES, StandardCharsets.UTF_8)) {
+            String linea;
+
+            // Leer linea  por linea hasta la ultima sesion
+            while ((linea = br.readLine()) != null) {
+                todasLasLineas.add(linea); 
+                
+            }
+        }
+        
+        boolean sesionEncontrada = false;
+
+        // Se recorren todas las lineas menos el encabezado
+        for (int i = 1; i < todasLasLineas.size(); i++) {
+
+            // Obtener la linea actual
+            String lineaActual = todasLasLineas.get(i);
+
+            // Dividir la línea por el separador ";" para obtener cada campo
+            String[] campos = SEP_PATTERN.split(lineaActual, -1);
+
+            // El ID de la sesión está en la posición 0
+            String idEnLinea = campos[0].trim();
+
+            // Comparar el ID de esta línea con el ID de la sesión que queremos actualizar
+            if (idEnLinea.equals(sesionActualizada.getIdSesion())) {
+
+                // Construir la nueva linea con datos actualizados
+                String lineaNueva = sesionActualizada.getIdSesion() + SEP
+                                  + sesionActualizada.getEstudianteId() + SEP
+                                  + sesionActualizada.getTutorId() + SEP
+                                  + sesionActualizada.getMateria() + SEP
+                                  + sesionActualizada.getFecha() + SEP
+                                  + sesionActualizada.getHora() + SEP
+                                  + sesionActualizada.getEstado();
+                
+                // Reemplazar la línea vieja con la nueva en la lista
+                todasLasLineas.set(i, lineaNueva);
+
+                // Marcar que encontramos la sesión
+                sesionEncontrada = true;
+            
+                // Salir del bucle porque ya encontramos lo que buscábamos
+                break;
+
+            }
+        }
+
+        if (!sesionEncontrada) {
+            throw new IOException("No se encontró la sesión con ID: " + sesionActualizada.getIdSesion());
+        }
+
+        // Abrir el arcivo para escritura
+        try (BufferedWriter bw = Files.newBufferedWriter(
+            SESIONES,
+            StandardCharsets.UTF_8,
+            StandardOpenOption.CREATE,
+            StandardOpenOption.TRUNCATE_EXISTING)) {
+                // Escribir cada línea (incluida la modificada) de vuelta al archivo
+            for (String linea : todasLasLineas) {
+                bw.write(linea);      // Escribir la línea
+                bw.write(NL);         // Escribir salto de línea
+                }
+            }
+    }
 
     public void appendUsuario(Usuario u) throws IOException { 
         try (BufferedWriter bw = Files.newBufferedWriter( // abre un BufferedWriter
