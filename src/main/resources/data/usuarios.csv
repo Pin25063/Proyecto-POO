@@ -1,5 +1,18 @@
 idUsuario;nombre;correo;contrasena;rol;materias;tarifa
 1;Juan Perez;perez@uvg.edu.gt;juan123;ESTUDIANTE
-2;Ana Gomez;gomez@uvg.edu.gt;ana123;TUTOR;Calculo,Estadistica,Quimica;150.0
-3;Carlos Ruiz;ruiz@uvg.edu.gt;carlos123;CATEDRATICO;Programacion,Fisica
-4;Laura Martinez;mar@uvg.edu.gt;laura123;ESTUDIANTE
+2;Ana Gomez;gomez@uvg.edu.gt;ana123;TUTOR;Estadistica,Matematica,Quimica;150.0
+3;Carlos Ruiz;ruiz@uvg.edu.gt;carlos123;CATEDRATICO;Fisica,Programacion;
+4;Laura Martinez;mar@uvg.edu.gt;laura123;TUTOR;Programacion,Quimica;150.0
+5;Mauricio Corado;cor@uvg.edu.gt;mau123;TUTOR;Programacion;175.0
+6;David Martinez;dmartinez@uvg.edu.gt;david56;ESTUDIANTE;Quimica;
+7;Maria Duarte;mduarte@uvg.edu.gt;maria11;TUTOR;Quimica;100.0
+8;Sofia Rodriguez;srodriguez@uvg.edu.gt;sofia12;TUTOR;Fisica,Matematica,Programacion;125.0
+9;Maria Lopez;mlopez@uvg.edu.gt;maria95;ESTUDIANTE;Quimica;
+10;Andres Hernandez;ahernandez@uvg.edu.gt;andres86;ESTUDIANTE;Quimica;
+11;Luisa Martinez;lmartinez@uvg.edu.gt;luisa64;TUTOR;Programacion;125.0
+12;Luisa Hernandez;lhernandez@uvg.edu.gt;luisa45;TUTOR;Programacion;200.0
+13;Sofia Lopez;slopez@uvg.edu.gt;sofia79;ESTUDIANTE;Fisica,Programacion;
+14;Andres Rodriguez;arodriguez@uvg.edu.gt;arodriguez@uvg.edu.gt;ESTUDIANTE;;
+15;Maria Martinez;mmartinez@uvg.edu.gt;maria72;TUTOR;Estadistica,Fisica;150.0
+16;Jose Perez;jperez@uvg.edu.gt;jose88;TUTOR;Fisica,Matematica,Quimica;175.0
+17;Ana Soto;asoto@uvg.edu.gt;ana44;TUTOR;Fisica;125.0

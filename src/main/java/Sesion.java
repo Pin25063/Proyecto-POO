@@ -8,18 +8,17 @@ public class Sesion {
     private final int estudianteId;
     private final int tutorId;
     private String materia;
-    private String fechaHora;
+    // CAMBIO: Se reemplaza fechaHora por dos campos separados
+    private String fecha;
+    private String hora;
     private EstadoSesion estado;
 
-    // Formato esperado para fechas: "yyyy-MM-dd HH:mm"
-    private static final DateTimeFormatter FORMATO_FECHA = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    // Formato esperado para fechas: "HH:mm dd/MM/yy"
+    private static final DateTimeFormatter FORMATO_FECHA_HORA = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
 
-    /**
-    Constructor con programacion defensiva.
-     * @throws IllegalArgumentException 
-     * si algún parámetro es inválido
-     */
-    public Sesion(String idSesion, int estudianteId, int tutorId, String materia, String fechaHora, EstadoSesion estado) {
+    
+    // CAMBIO: Constructor actualizado para aceptar fecha y hora
+    public Sesion(String idSesion, int estudianteId, int tutorId, String materia, String fecha, String hora, EstadoSesion estado) {
         //  verificar nulls 
         if (idSesion == null || idSesion.trim().isEmpty()) {
             throw new IllegalArgumentException("El ID de sesión no puede ser nulo o vacío");
@@ -27,8 +26,11 @@ public class Sesion {
         if (materia == null || materia.trim().isEmpty()) {
             throw new IllegalArgumentException("La materia no puede ser nula o vacía");
         }
-        if (fechaHora == null || fechaHora.trim().isEmpty()) {
-            throw new IllegalArgumentException("La fecha y hora no pueden ser nulas o vacías");
+        if (fecha == null || fecha.trim().isEmpty()) {
+            throw new IllegalArgumentException("La fecha no puede ser nula o vacía");
+        }
+        if (hora == null || hora.trim().isEmpty()) {
+            throw new IllegalArgumentException("La hora no puede ser nula o vacía");
         }
         if (estado == null) {
             throw new IllegalArgumentException("El estado no puede ser nulo");
@@ -41,44 +43,41 @@ public class Sesion {
         if (tutorId <= 0) {
             throw new IllegalArgumentException("El ID del tutor debe ser positivo");
         }
-        
-        // validar que estudiante y tutor no son  la misma persona
-        if (estudianteId == tutorId) {
-            throw new IllegalArgumentException("El estudiante y el tutor no pueden ser la misma persona");
-        }
-        
-        // validar formato de fecha
-        validarFormatoFecha(fechaHora);
-        
-        // la sesión no puede ser en el pasado (solo para nuevas sesiones)
-        if (estado == EstadoSesion.PROGRAMADA || estado == EstadoSesion.AGENDADA) {
-            validarFechaFutura(fechaHora);
-        }
+
         this.idSesion = idSesion.trim();
         this.estudianteId = estudianteId;
         this.tutorId = tutorId;
         this.materia = materia.trim();
-        this.fechaHora = fechaHora.trim();
+        this.fecha = fecha.trim();
+        this.hora = hora.trim();
         this.estado = estado;
+        
+        if (this.estado != EstadoSesion.PENDIENTE) {
+            // validar formato de fecha
+            validarFormatoFecha(getFechaHoraCombinada());
+
+            // la sesión no puede ser en el pasado (solo para nuevas sesiones)
+            if (this.estado == EstadoSesion.PROGRAMADA || this.estado == EstadoSesion.AGENDADA) {
+                validarFechaFutura(getFechaHoraCombinada());
+            }
+        }
     }
 
-    //Valida que el formato de fecha sea correcto (yyyy-MM-dd HH:mm).
-    
-    private void validarFormatoFecha(String fecha) {
+    //Valida que el formato de fecha sea correcto (HH:mm dd/MM/yy).
+    private void validarFormatoFecha(String fechaHora) {
         try {
-            LocalDateTime.parse(fecha, FORMATO_FECHA);
+            LocalDateTime.parse(fechaHora, FORMATO_FECHA_HORA);
         } catch (DateTimeParseException e) {
             throw new IllegalArgumentException(
-                "Formato de fecha inválido. Use: yyyy-MM-dd HH:mm (ejemplo: 2025-10-23 14:30)"
+                "Formato de fecha inválido. Use: HH:mm dd/MM/yy (ejemplo: 14:30 23/10/25)"
             );
         }
     }
     
     
     //Valida que la fecha sea en el futuro.
-
-    private void validarFechaFutura(String fecha) {
-        LocalDateTime fechaSesion = LocalDateTime.parse(fecha, FORMATO_FECHA);
+    private void validarFechaFutura(String fechaHora) {
+        LocalDateTime fechaSesion = LocalDateTime.parse(fechaHora, FORMATO_FECHA_HORA);
         LocalDateTime ahora = LocalDateTime.now();
         
         if (fechaSesion.isBefore(ahora)) {
@@ -98,10 +97,19 @@ public class Sesion {
     }
     public String getMateria() { 
         return materia; 
+    }  
+    public String getFecha() { 
+        return fecha; 
     }
-    public String getFechaHora() { 
-        return fechaHora; 
+    public String getHora() { 
+        return hora; 
     }
+    
+    //Devuelve la fecha y hora en el formato estándar de la aplicación
+    public String getFechaHoraCombinada() {
+        return this.hora + " " + this.fecha;
+    }
+    
     public EstadoSesion getEstado() { 
         return estado; 
     }
@@ -127,10 +135,10 @@ public class Sesion {
 
         if (!compartenTutor && !compartenEstudiante){
             return false; // no hay conflicto si no comparten tutor ni estudiante
-        }
-        // si comparten tutor o estudiante, verificar si los horarios se traslapan
-        return this.fechaHora.equals(otra.fechaHora);
-        }
+        }       
+        // CAMBIO: Compara fecha y hora por separado
+        return this.fecha.equals(otra.getFecha()) && this.hora.equals(otra.getHora());
+    }
 
         /*
          * Logica de agendamiento:
@@ -146,13 +154,14 @@ public class Sesion {
         }
         
         try {
-            LocalDateTime fechaSesion = LocalDateTime.parse(this.fechaHora, FORMATO_FECHA);
+            LocalDateTime fechaSesion = LocalDateTime.parse(getFechaHoraCombinada(), FORMATO_FECHA_HORA);
             LocalDateTime ahora = LocalDateTime.now();
             return fechaSesion.isAfter(ahora);
         } catch (DateTimeParseException e) {
             return false; // Si la fecha es inválida, no está disponible
         }
     }
+    
     /*
      * Logica de Agendamiento:
      * Calcula las horas que faltan para la sesion
@@ -161,7 +170,7 @@ public class Sesion {
 
     public long horasHastaSesion() {
         try {
-            LocalDateTime fechaSesion = LocalDateTime.parse(this.fechaHora, FORMATO_FECHA);
+            LocalDateTime fechaSesion = LocalDateTime.parse(getFechaHoraCombinada(), FORMATO_FECHA_HORA);
             LocalDateTime ahora = LocalDateTime.now();
             
             if (fechaSesion.isBefore(ahora)) {
@@ -183,19 +192,22 @@ public class Sesion {
      */
 
     public boolean puedeSerCancelada() {
-    if (this.estado == EstadoSesion.COMPLETADA || this.estado == EstadoSesion.CANCELADA) {
-        return false;
+        if (this.estado == EstadoSesion.COMPLETADA || this.estado == EstadoSesion.CANCELADA) {
+            return false;
+        }
+        
+        long horasRestantes = horasHastaSesion();
+        return horasRestantes >= 2; // Mínimo 2 horas de anticipación
     }
     
-    long horasRestantes = horasHastaSesion();
-    return horasRestantes >= 2; // Mínimo 2 horas de anticipación
-    }
     @Override
     public String toString() {
         return "Sesion{" +
             "id=" + idSesion +
             ", materia='" + materia + '\'' +
-            ", fecha=" + fechaHora +
+            // CAMBIO: Se usa fecha y hora
+            ", fecha=" + fecha +
+            ", hora=" + hora +
             ", estado=" + estado +
             ", estudiante=" + estudianteId +
             ", tutor=" + tutorId +

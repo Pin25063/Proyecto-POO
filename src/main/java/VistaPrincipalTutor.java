@@ -4,363 +4,483 @@ import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import java.util.List;
 
-import javax.swing.text.View;
-
-public class VistaPrincipalTutor extends VBox{
+public class VistaPrincipalTutor {
     private Tutor tutorActual;
     private ControladorPrincipal controlador;
+    private Stage stage;
+    private Main mainApp;
+    private BorderPane layoutPrincipal;
+    
+    // Colores de la aplicación
+    private final String COLOR_PRIMARIO = "#2c3e50"; // Azul marino
+    private final String COLOR_SECUNDARIO = "#27ae60"; // Verde
+    private final String COLOR_FONDO = "#ecf0f1"; // Gris claro
+    private final String COLOR_RECHAZO = "#e74c3c"; // Rojo
 
-    //Labels que muestran informacion
-    private Label lblNombre, lblCorreo, lblTarifa, lblMaterias;
-
-    //Lista que muestra las materias del tutor
-    private ListView<String> listaMaterias;
-
-    //Botones para distintas acciones
-    private Button btnEditarPerfil, btnVerSesiones, btnVerResenas, btnGestionarSolicitudes;
-
-    //Constructor
-    public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor){
+    public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor, Stage stage, Main mainApp) {
         this.controlador = controlador;
         this.tutorActual = tutor;
+        this.stage = stage;
+        this.mainApp = mainApp;
+    }
+    
+    public void mostrar() {
+        layoutPrincipal = new BorderPane();
+        layoutPrincipal.setStyle("-fx-background-color: " + COLOR_FONDO + ";");
 
-        configurarVista();
+        HBox barraSuperior = crearBarraSuperior();
+        VBox menuLateral = crearMenuLateral(layoutPrincipal);
+        VBox contenidoInicial = crearPanelInicio();
+
+        layoutPrincipal.setTop(barraSuperior);
+        layoutPrincipal.setLeft(menuLateral);
+        layoutPrincipal.setCenter(contenidoInicial);
+
+        Scene escena = new Scene(layoutPrincipal, 1100, 700);
+        stage.setScene(escena);
+        stage.setTitle("Panel del Tutor - Gestor de Tutorías UVG");
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+        // Iniciar maximizado para simular pantalla completa pero permitiendo redimensionar
+        stage.setMaximized(true);
+        stage.setResizable(true);
+        // asegurar que la ventana quede en primer plano
+        stage.toFront();
+        stage.requestFocus();
+        stage.show();
     }
 
-    private void configurarVista() {
-        setPadding(new Insets(24));
-        setSpacing(16);
-        setAlignment(Pos.TOP_CENTER);
-        setFillWidth(true);
+    private HBox crearBarraSuperior() {
+        HBox barra = new HBox(20);
+        barra.setPadding(new Insets(15));
+        barra.setStyle("-fx-background-color: " + COLOR_PRIMARIO + ";");
+        barra.setAlignment(Pos.CENTER_LEFT);
 
-        Label titulo = new Label("Bienvenido, " +tutorActual.getNombre());
-        titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");
+        Label lblTitulo = new Label("Gestor de Tutorías UVG");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        lblTitulo.setStyle("-fx-text-fill: white;");
 
-        //Secciones que existiten para tutor
-        VBox seccionPerfil = crearSeccionPerfil();
-        VBox seccionEstadisticas = crearSeccionEstadisticas();
-        HBox seccionBotones = crearSeccionBotones();
-        VBox seccionSolicitudes = crearSeccionSolicitudes();
+        Region espaciador = new Region();
+        HBox.setHgrow(espaciador, Priority.ALWAYS);
 
-        getChildren().addAll(titulo, seccionPerfil, seccionSolicitudes, seccionEstadisticas, seccionBotones);
+        Label lblUsuario = new Label("Tutor: " + tutorActual.getNombre());
+        lblUsuario.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        lblUsuario.setStyle("-fx-text-fill: white;");
+
+        Button btnCerrarSesion = new Button("Cerrar Sesión");
+        btnCerrarSesion.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());
+
+        barra.getChildren().addAll(lblTitulo, espaciador, lblUsuario, btnCerrarSesion);
+        return barra;
     }
 
-    private VBox crearSeccionPerfil() {
-        //Contenedor de la seccion perfil
-        VBox seccion = new VBox(10);
-        seccion.setPadding(new Insets(15));
-        seccion.setStyle("-fx-background-color: #f0f0f0; -fx-background-radius: 5;");
-        seccion.setMaxWidth(600);
+    private VBox crearMenuLateral(BorderPane layout) {
+        VBox menu = new VBox(10);
+        menu.setPadding(new Insets(20));
+        menu.setPrefWidth(220);
+        menu.setStyle("-fx-background-color: " + COLOR_PRIMARIO + ";");
 
-        Label tituloPerfil = new Label("Información del Perfil");
-        tituloPerfil.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+        Label lblMenu = new Label("MENÚ");
+        lblMenu.setFont(Font.font("Arial", FontWeight.BOLD, 16));
+        lblMenu.setStyle("-fx-text-fill: white;");
 
-        //Labels con la info del tutor
-        lblNombre = new Label("Nombre: " + tutorActual.getNombre());
-        lblCorreo = new Label("Correo: " + tutorActual.getCorreo());
-        lblTarifa = new Label("Tarifa: Q" + tutorActual.getTarifa() + " por hora");
+        Button btnInicio = crearBotonMenu("Inicio", () -> layout.setCenter(crearPanelInicio()));
+        Button btnPerfil = crearBotonMenu("Mi Perfil", () -> layout.setCenter(crearPanelPerfil()));
+        Button btnSesiones = crearBotonMenu("Sesiones", () -> layout.setCenter(crearPanelSesiones()));
+        Button btnResenas = crearBotonMenu("Reseñas", () -> layout.setCenter(crearPanelResenas()));
+        Button btnSolicitudes = crearBotonMenu("Solicitudes", () -> layout.setCenter(crearPanelSolicitudes()));
+
+        menu.getChildren().addAll(lblMenu, new Separator(), btnInicio, btnPerfil, btnSesiones, btnResenas, btnSolicitudes);
+        return menu;
+    }
+
+    private Button crearBotonMenu(String texto, Runnable accion) {
+        Button btn = new Button(texto);
+        btn.setPrefWidth(200);
+        btn.setAlignment(Pos.CENTER_LEFT);
+        btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;");
+        btn.setOnMouseEntered(e -> btn.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"));
+        btn.setOnMouseExited(e -> btn.setStyle("-fx-background-color: transparent; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold;"));
+        btn.setOnAction(e -> accion.run());
+        return btn;
+    }
+
+    private VBox crearPanelInicio() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+        panel.setAlignment(Pos.TOP_CENTER);
+
+        Label lblBienvenida = new Label("Bienvenido, " + tutorActual.getNombre());
+        lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 28));
+
+        Label lblInfo = new Label("Use el menú de la izquierda para navegar por las diferentes secciones.\nPuede gestionar sus sesiones, ver reseñas y actualizar su perfil.");
+        lblInfo.setFont(Font.font("Arial", 16));
+        lblInfo.setWrapText(true);
+
+        VBox caja = new VBox(20);
+        caja.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
+        caja.getChildren().addAll(lblInfo);
+
+        panel.getChildren().addAll(lblBienvenida, caja);
+        return panel;
+    }
+
+    private void cargarSesionesAceptadas(ListView<String> lista) {
+        // Obtener sesiones aceptadas desde el controlador
+        List<Sesion> sesionesAceptadas = controlador.obtenerSesionesAceptadasPorTutor(
+            tutorActual.getIdUsuario()
+        );
+        
+        if (sesionesAceptadas.isEmpty()) {
+            return;
+        }
+        
+        for (Sesion sesion : sesionesAceptadas) {
+            Usuario estudiante = controlador.buscarUsuarioPorId(sesion.getEstudianteId());
+            String nombreEstudiante = (estudiante != null) ? estudiante.getNombre() : "Desconocido";
+            
+            String item = String.format("%s - %s %s | Estudiante: %s | %s",
+                sesion.getMateria(),
+                sesion.getFecha(),
+                sesion.getHora(),
+                nombreEstudiante,
+                sesion.getEstado()
+            );
+            
+            lista.getItems().add(item);
+        }
+    }
+
+    private VBox crearPanelPerfil() {
+        VBox panel = new VBox(15);
+        panel.setPadding(new Insets(40));
+        panel.setAlignment(Pos.TOP_CENTER);
+
+        Label titulo = new Label("Mi Perfil");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        VBox info = new VBox(10);
+        info.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
+
+        Label lblNombre = new Label("Nombre: " + tutorActual.getNombre());
+        Label lblCorreo = new Label("Correo: " + tutorActual.getCorreo());
+        Label lblTarifa = new Label("Tarifa: Q" + tutorActual.getTarifa() + " por hora");
 
         lblNombre.setStyle("-fx-font-size: 14px;");
         lblCorreo.setStyle("-fx-font-size: 14px;");
         lblTarifa.setStyle("-fx-font-size: 14px;");
 
-        //label para las materias
         Label lblMaterias = new Label("Materias que imparte:");
-        lblMaterias.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+        lblMaterias.setStyle("-fx-font-weight: bold;");
 
-        //ListView para poder mostrar las lista de las materias
-        listaMaterias = new ListView<>();
+        ListView<String> listaMaterias = new ListView<>();
         listaMaterias.getItems().addAll(tutorActual.getMaterias());
-        listaMaterias.setPrefHeight(100);
+        listaMaterias.setPrefHeight(150);
 
-        //Se utiliza para agregar todos los elementos a la seccion
-        seccion.getChildren().addAll(tituloPerfil, lblNombre, lblCorreo, lblTarifa, lblMaterias, listaMaterias);
+        Button btnEditar = new Button("Editar Información");
+        btnEditar.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnEditar.setOnAction(e -> mostrarEdicionPerfil());
 
-        return seccion;
+        info.getChildren().addAll(lblNombre, lblCorreo, lblTarifa, lblMaterias, listaMaterias, btnEditar);
+        panel.getChildren().addAll(titulo, info);
+        return panel;
     }
 
-    private VBox crearSeccionEstadisticas(){
-        //Se crea contenedor para las estadisticas
-        VBox seccion = new VBox(10);
-        seccion.setPadding(new Insets(15));
-        seccion.setStyle("-fx-background-color: #f9f9f9; -fx-background-radius: 5;");
-        seccion.setMaxWidth(600);
-        
-        Label tituloEstadisticas = new Label("Estadisticas");
-        tituloEstadisticas.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+    private VBox crearPanelSesiones() {
+        VBox panel = new VBox(15);
+        panel.setPadding(new Insets(40));
+        panel.setAlignment(Pos.TOP_CENTER);
 
-        //Obtener datos estadisticos del tutor
-        /*double calificacion = tutorActual.calcularPromedioCalificacion();
-        int totalResenas = tutorActual.getTotalResenas();
-        List<Sesion> pendientes = controlador.obtenerSesionesPendientes(tutorActual);
-        int solicitudesPendientes = pendientes.size();
+        Label titulo = new Label("Mis Sesiones");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
 
-        //Se crean labels con las estadisticas
-        Label lblCalificacion = new Label(String.format("Calificación Promedio: %.1f/5.0", calificacion));
-        Label lblResenas = new Label("Total de Reseñas: " + totalResenas);
-        Label lblSolicitudes = new Label("Solicitudes Pendientes: " + solicitudesPendientes);
+        VBox contenido = new VBox(10);
+        contenido.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
 
-        lblCalificacion.setStyle("-fx-font-size: 14px;");
-        lblResenas.setStyle("-fx-font-size: 14px;");
-        lblSolicitudes.setStyle("-fx-font-size: 14px;");
+        Label lblProximas = new Label("Próximas Sesiones");
+        lblProximas.setFont(Font.font("Arial", FontWeight.BOLD, 18));
 
-        //Se agregan todos los elementos a la seccion
-        seccion.getChildren().addAll(tituloEstadisticas, lblCalificacion, lblResenas, lblSolicitudes);*/
+        ListView<String> lista = new ListView<>();
+        lista.setPlaceholder(new Label("No hay sesiones programadas"));
+        lista.setPrefHeight(300);
 
-        return seccion;
+        cargarSesionesAceptadas(lista);
+        contenido.getChildren().addAll(lblProximas, lista);
+        panel.getChildren().addAll(titulo, contenido);
+        return panel;
     }
-    
-    //Se crea la seccion que muestra un resumen de las solicitudes recientes
-    private VBox crearSeccionSolicitudes() {
-        //Contenedor para las solicitudes
-        VBox seccion = new VBox(10);
-        seccion.setPadding(new Insets(10));
-        seccion.setStyle("-fx-background-color: #fff3cd; -fx-background-radius: 5;");
-        seccion.setMaxWidth(600);
 
-        // Título de la sección
-        Label tituloInfo = new Label("📋 Información del Sistema");
-        tituloInfo.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
+    private VBox crearPanelResenas() {
+        VBox panel = new VBox(15);
+        panel.setPadding(new Insets(40));
+        panel.setAlignment(Pos.TOP_CENTER);
+
+        Label titulo = new Label("Mis Reseñas");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        VBox contenido = new VBox(10);
+        contenido.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
+
+        Label lblProm = new Label("Calificación Promedio: -");
+        Label lblTotal = new Label("Total de Reseñas: 0");
+
+        ListView<String> lista = new ListView<>();
+        lista.setPlaceholder(new Label("No hay reseñas disponibles"));
+        lista.setPrefHeight(300);
+
+        contenido.getChildren().addAll(lblProm, lblTotal, lista);
+        panel.getChildren().addAll(titulo, contenido);
+        return panel;
+    }
+
+    private void cargarSolicitudesPendientes(VBox container) {
+        container.getChildren().clear();
         
-        // Mensaje informativo
-        Label lblMensaje = new Label(
-            "Usa los botones de arriba para gestionar tus sesiones,\n" +
-            "ver tus reseñas y actualizar tu perfil.\n\n" +
-            "Las solicitudes de tutoría aparecerán automáticamente\n" +
-            "cuando los estudiantes las generen."
+        // Obtener solicitudes pendientes desde el controlador
+        List<Sesion> solicitudesPendientes = controlador.obtenerSesionesPendientesPorTutor(
+            tutorActual.getIdUsuario()
         );
-        lblMensaje.setStyle("-fx-font-size: 13px;");
-        lblMensaje.setWrapText(true);
         
-        seccion.getChildren().addAll(tituloInfo, lblMensaje);
+        if (solicitudesPendientes.isEmpty()) {
+            Label lblVacio = new Label("No hay solicitudes pendientes");
+            lblVacio.setStyle("-fx-font-size: 14px; -fx-text-fill: #7f8c8d;");
+            container.getChildren().add(lblVacio);
+            return;
+        }
         
-        return seccion;
+        for (Sesion solicitud : solicitudesPendientes) {
+            VBox tarjeta = crearTarjetaSolicitud(solicitud);
+            container.getChildren().add(tarjeta);
+        }
     }
 
-    //Se crea la barra de botones de accion
-    private HBox crearSeccionBotones() {
-        //Contenedor vertical para los botones 
-        HBox contenedor = new HBox(12);
-        contenedor.setAlignment(Pos.CENTER);
-        contenedor.setPadding(new Insets(10, 0, 10,0));
-
-        //Se crean los botones dedicados a las acciones
-        btnEditarPerfil = new Button("Editar Perfil");
-        btnVerSesiones = new Button("Ver Sesiones");
-        btnVerResenas = new Button("Ver Reseñas");
-        btnGestionarSolicitudes = new Button("Gestionar Solicitudes");
-
-        //Estilos para los botones
-        String estiloBoton = "-fx-font-size: 13px; -fx-padding: 8 15 8 15;";
-        btnEditarPerfil.setStyle(estiloBoton);
-        btnVerSesiones.setStyle(estiloBoton);
-        btnVerResenas.setStyle(estiloBoton);
-        btnGestionarSolicitudes.setStyle(estiloBoton);
-
-        //Se conectan los eventos de los botones con sus metodos correspondientes
-        btnEditarPerfil.setOnAction(e -> abrirEdicionPerfil());
-        btnVerSesiones.setOnAction(e -> mostrarSesiones());
-        btnVerResenas.setOnAction(e -> mostrarResenas());
-        btnGestionarSolicitudes.setOnAction(e -> abrirGestionSolicitudes());
-
-        //Se agregan los botones al contenedor
-        contenedor.getChildren().addAll(btnEditarPerfil, btnVerSesiones, btnVerResenas, btnGestionarSolicitudes);
-
-        return contenedor;
+    private VBox crearTarjetaSolicitud(Sesion solicitud) {
+        VBox tarjeta = new VBox(10);
+        tarjeta.setPadding(new Insets(15));
+        tarjeta.setStyle("-fx-background-color: #ffffff; " +
+                        "-fx-border-color: #bdc3c7; " +
+                        "-fx-border-width: 1; " +
+                        "-fx-border-radius: 5; " +
+                        "-fx-background-radius: 5;");
+        
+        // Obtener información del estudiante
+        Usuario estudiante = controlador.buscarUsuarioPorId(solicitud.getEstudianteId());
+        String nombreEstudiante = (estudiante != null) ? estudiante.getNombre() : "Estudiante desconocido";
+        
+        // Información de la solicitud
+        Label lblEstudiante = new Label("Estudiante: " + nombreEstudiante);
+        lblEstudiante.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        
+        Label lblMateria = new Label("Materia: " + solicitud.getMateria());
+        lblMateria.setStyle("-fx-font-size: 13px;");
+        
+        Label lblFecha = new Label("Fecha: " + solicitud.getFecha());
+        lblFecha.setStyle("-fx-font-size: 13px;");
+        
+        Label lblHora = new Label("Hora: " + solicitud.getHora());
+        lblHora.setStyle("-fx-font-size: 13px;");
+        
+        Label lblEstado = new Label("Estado: " + solicitud.getEstado());
+        lblEstado.setStyle("-fx-font-size: 13px; -fx-text-fill: #f39c12; -fx-font-weight: bold;");
+        
+        // Botones de acción
+        HBox botonesAccion = new HBox(10);
+        botonesAccion.setAlignment(Pos.CENTER_RIGHT);
+        
+        Button btnAceptar = new Button("✓ Aceptar");
+        btnAceptar.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; " +
+                        "-fx-text-fill: white; " +
+                        "-fx-font-weight: bold; " +
+                        "-fx-cursor: hand;");
+        btnAceptar.setOnAction(e -> manejarAceptarSolicitud(solicitud));
+        
+        Button btnRechazar = new Button("✗ Rechazar");
+        btnRechazar.setStyle("-fx-background-color: " + COLOR_RECHAZO + "; " +
+                            "-fx-text-fill: white; " +
+                            "-fx-font-weight: bold; " +
+                            "-fx-cursor: hand;");
+        btnRechazar.setOnAction(e -> manejarRechazarSolicitud(solicitud));
+        
+        botonesAccion.getChildren().addAll(btnAceptar, btnRechazar);
+        
+        // Agregar separador visual
+        Separator separador = new Separator();
+        
+        tarjeta.getChildren().addAll(
+            lblEstudiante, 
+            lblMateria, 
+            lblFecha, 
+            lblHora, 
+            lblEstado,
+            separador,
+            botonesAccion
+        );
+        
+        return tarjeta;
     }
 
-    //Se crea la seccion para que el tutor pueda cambiar su informacion de perfil
-    private void abrirEdicionPerfil() {
-        //Se crea una ventana Stage
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle("Editar Perfil");
+    private void manejarAceptarSolicitud(Sesion solicitud) {
+        // Confirmar con el tutor
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Aceptación");
+        confirmacion.setHeaderText("¿Desea aceptar esta solicitud de tutoría?");
+        confirmacion.setContentText(
+            "Materia: " + solicitud.getMateria() + "\n" +
+            "Fecha: " + solicitud.getFecha() + "\n" +
+            "Hora: " + solicitud.getHora()
+        );
+        
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Guardar estado anterior por si falla
+                EstadoSesion estadoAnterior = solicitud.getEstado();
+                
+                // Cambiar el estado a AGENDADA
+                solicitud.setEstado(EstadoSesion.AGENDADA);
+                
+                // Actualizar usando el controlador
+                boolean exito = controlador.actualizarEstadoSesion(solicitud);
+                
+                if (exito) {
+                    mostrarInfo("Éxito", "La solicitud ha sido aceptada correctamente.");
+                    layoutPrincipal.setCenter(crearPanelSolicitudes());
+                } else {
+                    // Revertir el cambio si falló
+                    solicitud.setEstado(estadoAnterior);
+                    mostrarError("Error", "No se pudo actualizar la sesión. Intente nuevamente.");
+                }
+            }
+        });
+    }
 
-        //Contenedor principal
-        VBox contenido = new VBox(15);
-        contenido.setPadding(new Insets(20));
-        contenido.setAlignment(Pos.CENTER);
+    private void manejarRechazarSolicitud(Sesion solicitud) {
+        // Confirmar con el tutor
+        Alert confirmacion = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmacion.setTitle("Confirmar Rechazo");
+        confirmacion.setHeaderText("¿Desea rechazar esta solicitud de tutoría?");
+        confirmacion.setContentText(
+            "Materia: " + solicitud.getMateria() + "\n" +
+            "Fecha: " + solicitud.getFecha() + "\n" +
+            "Hora: " + solicitud.getHora() + "\n\n" +
+            "Esta acción no se puede deshacer."
+        );
+        
+        confirmacion.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                // Guardar estado anterior por si falla
+                EstadoSesion estadoAnterior = solicitud.getEstado();
+                
+                // Cambiar el estado a CANCELADA
+                solicitud.setEstado(EstadoSesion.CANCELADA);
+                
+                // Actualizar usando el controlador
+                boolean exito = controlador.actualizarEstadoSesion(solicitud);
+                
+                if (exito) {
+                    mostrarInfo("Solicitud Rechazada", "La solicitud ha sido rechazada.");
+                    layoutPrincipal.setCenter(crearPanelSolicitudes());
+                } else {
+                    // Revertir el cambio si falló
+                    solicitud.setEstado(estadoAnterior);
+                    mostrarError("Error", "No se pudo actualizar la sesión. Intente nuevamente.");
+                }
+            }
+        });
+    }
 
-        Label titulo = new Label("Editar Información del Tutor");
-        titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+    private VBox crearPanelSolicitudes() {
+        VBox panel = new VBox(15);
+        panel.setPadding(new Insets(40));
+        panel.setAlignment(Pos.TOP_CENTER);
 
-        //Editar la tarifa
-        Label lblNuevaTarifa = new Label("Tarifa por Hora (Q): ");
+        Label titulo = new Label("Solicitudes de Tutoría");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        VBox contenido = new VBox(10);
+        contenido.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
+
+        Label lblPend = new Label("Solicitudes Pendientes");
+        lblPend.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+
+        // ScrollPane para contener las tarjetas de solicitudes
+        ScrollPane scrollPane = new ScrollPane();
+        scrollPane.setFitToWidth(true);
+        scrollPane.setPrefHeight(400);
+        scrollPane.setStyle("-fx-background-color: transparent;");
+
+        VBox listaSolicitudes = new VBox(15);
+        listaSolicitudes.setPadding(new Insets(10));
+        
+        // Cargar solicitudes pendientes
+        cargarSolicitudesPendientes(listaSolicitudes);
+        
+        scrollPane.setContent(listaSolicitudes);
+
+        contenido.getChildren().addAll(lblPend, scrollPane);
+        panel.getChildren().addAll(titulo, contenido);
+        return panel;
+    }
+
+    private void mostrarEdicionPerfil() {
+        VBox contenidoEdicion = new VBox(15);
+        contenidoEdicion.setPadding(new Insets(40));
+        contenidoEdicion.setAlignment(Pos.TOP_CENTER);
+
+        Label titulo = new Label("Editar Información");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+
+        VBox formulario = new VBox(10);
+        formulario.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
+
+        Label lblTarifa = new Label("Tarifa por Hora (Q):");
         TextField txtTarifa = new TextField(String.valueOf(tutorActual.getTarifa()));
-        txtTarifa.setPrefWidth(300);
 
-        //Nueva contraseña (opcional)
-        Label lblNuevaPass = new Label("Nueva Contraseña (Opcional): ");
+        Label lblPass = new Label("Nueva Contraseña (Opcional):");
         PasswordField txtPass = new PasswordField();
-        txtPass.setPrefWidth(300);
-        txtPass.setPromptText("Dejar vacio para mantener la contraseña actual");
 
-        //Contenedor para los botones
         HBox botones = new HBox(10);
         botones.setAlignment(Pos.CENTER);
 
-        //Boton para guardar cambios
         Button btnGuardar = new Button("Guardar Cambios");
-        Button btnCancelar = new Button("Cancelar");
-
-        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
-        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
-
-        //Evento boton Guardar
+        btnGuardar.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; -fx-text-fill: white; -fx-font-weight: bold;");
         btnGuardar.setOnAction(e -> {
-            //Se obtienen los valores de los campos a cambiar
-            String nuevaTarifaStr = txtTarifa.getText().trim();
-            String nuevaPass = txtPass.getText().trim();
-
             try {
-                //Se convierte la tarifa a numero
-                double nuevaTarifa = Double.parseDouble(nuevaTarifaStr);
-
-                //Comprobar que la tarifa sea valida
-                if (nuevaTarifa < 0) {
-                    mostrarError("Error", "La tarifa no puede ser negativa");
-                    return;
+                double nuevaTarifa = Double.parseDouble(txtTarifa.getText());
+                tutorActual.setTarifa(nuevaTarifa);
+                if (!txtPass.getText().isEmpty()) {
+                    tutorActual.setContrasena(txtPass.getText());
                 }
-                
-                //Se actualiza el lbl de la tarifa
-                if (nuevaTarifa != tutorActual.getTarifa()) {
-                    lblTarifa.setText("Tarifa: Q" + nuevaTarifa + " por hora");
-                }
-
-                if (!nuevaPass.isEmpty()) {
-                    mostrarInfo("Edicion", "Contraseña actualizada correctamente");
-                }
-
-                //Mostrar mensaje
-                mostrarInfo("Exito", "Perfil actualizado correctamente");
-                dialogStage.close();
-
+                mostrarInfo("Éxito", "Perfil actualizado correctamente");
+                layoutPrincipal.setCenter(crearPanelPerfil());
             } catch (NumberFormatException ex) {
-                //Error si la tarifa no es un numero valido
-                mostrarError("Error","La tarifa debe ser un numero valido");
+                mostrarError("Error", "La tarifa debe ser un número válido");
             }
         });
 
-        //Evento del boton Cancelar
-        btnCancelar.setOnAction(e -> dialogStage.close());
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setOnAction(e -> layoutPrincipal.setCenter(crearPanelPerfil()));
 
-        //Agregar botones al contenedor
         botones.getChildren().addAll(btnGuardar, btnCancelar);
 
-        //Agregar todos los elementos al contenido del dialogo
-        contenido.getChildren().addAll(
-            titulo,
-            new Separator(), //Linea que separa
-            lblNuevaTarifa, txtTarifa,
-            lblNuevaPass, txtPass,
-            new Separator(),
-            botones
-        );
+        formulario.getChildren().addAll(lblTarifa, txtTarifa, lblPass, txtPass, botones);
+        contenidoEdicion.getChildren().addAll(titulo, formulario);
 
-        Scene scene = new Scene(contenido, 400, 450);
-        dialogStage.setScene(scene);
-        dialogStage.show();
+        layoutPrincipal.setCenter(contenidoEdicion);
     }
 
-    //Muestra dialogo de alerta con informacion sobre sesiones
-    private void mostrarSesiones() {
-        //Se crea alerta de informacion
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle("Ver Sesiones");
-        alerta.setHeaderText("Mis Sesiones");
-
-        // Mensaje informativo temporal
-        alerta.setContentText(
-            "Funcionalidad de sesiones en desarrollo.\n\n" +
-            "Aquí podrás ver:\n" +
-            "• Sesiones programadas\n" +
-            "• Sesiones completadas\n" +
-            "• Historial de tutorías\n" +
-            "• Detalles de cada sesión"
-        );
-
-        //Mostrar el dialogo y esperar a que el usuario lo cierre
-        alerta.showAndWait();
-    }
-
-    private void mostrarResenas() {
-        //Crear alerta de info
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Ver Reseñas");
-        alert.setHeaderText("Mis Reseñas");
-
-        //Obtener lista de reseñas del tutor
-        /*List<Resena> resenas = tutorActual.getResenas();
-
-        //Verificar si hay reseñas
-        if (resenas.isEmpty()) {
-            alert.setContentText("Aún no tienes reseñas de estudiantes.");
-        } else {
-            // Construir el mensaje con resumen de reseñas
-            StringBuilder contenido = new StringBuilder();
-            contenido.append(String.format(
-                "Calificación Promedio: %.1f/5.0\n"
-                //tutorActual.calcularPromedioCalificacion()
-            ));
-            contenido.append(String.format("Total de Reseñas: %d\n\n", resenas.size()));
-            
-            // Mostrar las primeras 5 reseñas
-            int count = 0;
-            for (Resena resena : resenas) {
-                if (count++ < 5) { // Limitar a 5 reseñas
-                    contenido.append(resena.toString()).append("\n\n");
-                }
-            }
-            
-            // Si hay más de 5 reseñas, indicar cuántas más hay
-            if (resenas.size() > 5) {
-                contenido.append("... y ").append(resenas.size() - 5).append(" más");
-            }
-            
-            alert.setContentText(contenido.toString());
-        }
-        */
-        
-        // Mostrar el diálogo
-        alert.showAndWait();
-    }
-
-    //Abre un dialogo para gestionar las solicitudes de tutoria
-    private void abrirGestionSolicitudes() {
-        // Crear alerta informativa
-        Alert alerta = new Alert(Alert.AlertType.INFORMATION);
-        alerta.setTitle("Gestionar Solicitudes");
-        alerta.setHeaderText("📨 Solicitudes de Tutoría");
-        
-        // Mensaje informativo temporal
-        alerta.setContentText(
-            "Funcionalidad de gestión de solicitudes en desarrollo.\n\n" +
-            "Próximamente podrás:\n" +
-            "• Ver solicitudes pendientes de estudiantes\n" +
-            "• Aceptar solicitudes de tutoría\n" +
-            "• Rechazar solicitudes con justificación\n" +
-            "• Programar horarios de sesiones\n\n" +
-            "Las solicitudes aparecerán automáticamente cuando\n" +
-            "los estudiantes las generen en el sistema."
-        );
-        
-        alerta.showAndWait();
-    }
-
-
-    //Metodos Auxiliares
-
-    //Muestra un cuadro de dialogo de error al usuario
     private void mostrarError(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titulo);
-        alert.setHeaderText(null);  // Sin encabezado adicional
+        alert.setHeaderText(null);
         alert.setContentText(mensaje);
         alert.showAndWait();
     }
 
-    //Muestra cuadro de dialogo informativo al usuario
     private void mostrarInfo(String titulo, String mensaje) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(titulo);

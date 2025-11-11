@@ -1,12 +1,11 @@
 import java.io.IOException;
-import javafx.stage.Stage;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javafx.stage.Stage;
-import javafx.scene.Scene;
 
 public class ControladorPrincipal {
     
@@ -70,22 +69,23 @@ public class ControladorPrincipal {
             // Si la validacion es correcta
             this.usuarioActual = usuarioEncontrado;
             System.out.println("Login EXITOSO. BIENVENIDO " + usuarioActual.getNombre());
-            loginVista.mostrarInfo("Inicio de sesión EXITOSO", "Bienvenido, " + usuarioActual.getNombre());
 
             Stage stage = (Stage) loginVista.getScene().getWindow();
 
             switch (usuarioActual.getRol()) {
                 case ESTUDIANTE:
-                    loginVista.mostrarInfo("Login Correcto", "Bienvenido, Estudiante " + usuarioActual.getNombre());
-                    irAPerfilEstudiante();
+                    Estudiante estudiante = (Estudiante) usuarioActual;
+                    VistaPrincipalEstudiante vistaEst = new VistaPrincipalEstudiante(estudiante, this, stage, mainApp);
+                    vistaEst.mostrar();
                     break;
                 case TUTOR:
                     Tutor tutor = (Tutor) usuarioActual;
-                    VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(this, tutor);
-                    stage.setScene(new javafx.scene.Scene(vistaTut, 800, 600));
+                    VistaPrincipalTutor vistaTut = new VistaPrincipalTutor(this, tutor, stage, mainApp);
+                    vistaTut.mostrar();
                     break;
                 case CATEDRATICO:
                     Catedratico catedratico = (Catedratico) usuarioActual;
+                    // se actualiza para que catedrático reciba sus materias directamente desde la carga de datos
                     VistaPrincipalCatedratico vistaCat = new VistaPrincipalCatedratico(this, catedratico, stage, mainApp);
                     vistaCat.mostrar();
                     break;
@@ -169,26 +169,32 @@ public class ControladorPrincipal {
         }
         if (dt.isBefore(LocalDateTime.now())) {
             System.out.println("Agendar ERROR: se intentó agendar en el pasado (" + fh + ").");
-            if (loginVista != null) loginVista.mostrarError("Agendamiento", "No puedes agendar una sesión en el pasado.");
+            if (loginVista != null);
             return null;
         }
 
         // Colisión simple: mismo tutor y misma fecha/hora
         if (tutorOcupadoEnFecha(tutorId, fh)) {
             System.out.println("Agendar ERROR: tutor ocupado en " + fh);
-            if (loginVista != null) loginVista.mostrarError("Agendamiento", "El tutor ya tiene una sesión en ese horario.");
+            if (loginVista != null);
             return null;
         }
 
         // Evitar doble reserva del estudiante en el mismo horario
         if (estudianteOcupadoEnFecha(estudianteId, fh)) {
             System.out.println("Agendar ERROR: estudiante ya tiene una sesión en " + fh);
-            if (loginVista != null) loginVista.mostrarError("Agendamiento", "Ya tienes una sesión en ese horario.");
+            if (loginVista != null);
             return null;
         }
 
         String nuevoId = generarIdSesion();
-        Sesion nueva = new Sesion(nuevoId, estudianteId, tutorId, mat, fh, EstadoSesion.PROGRAMADA);
+        // Dividir el string fh en fecha y hora
+        String[] partes = fh.split(" ");
+        String hora = partes[0];  // "HH:mm"
+        String fecha = partes[1]; // "dd/MM/yy"
+
+        // Llamar al nuevo constructor con 7 argumentos
+        Sesion nueva = new Sesion(nuevoId, estudianteId, tutorId, mat, fecha, hora, EstadoSesion.PENDIENTE);
         listaDeSesiones.add(nueva);
         System.out.println("Agendada en memoria: " + nueva);
 
@@ -201,7 +207,6 @@ public class ControladorPrincipal {
         }
 
         if (loginVista != null) {
-            loginVista.mostrarInfo("Agendamiento", "Sesión programada: " + mat + " – " + fh);
         }
         return nueva;
     }
@@ -214,9 +219,14 @@ public class ControladorPrincipal {
 
     // Verifica si el tutor ya tiene una sesión en ese horario exacto
     private boolean tutorOcupadoEnFecha(int tutorId, String fechaHora) {
-        String fh = norm(fechaHora);
+        String[] partes = norm(fechaHora).split(" ");
+        String horaInput = partes[0];
+        String fechaInput = partes[1];
+
         for (Sesion s : listaDeSesiones) {
-            if (s.getTutorId() == tutorId && fh.equalsIgnoreCase(s.getFechaHora())) {
+            if (s.getTutorId() == tutorId && 
+                fechaInput.equalsIgnoreCase(s.getFecha()) && 
+                horaInput.equalsIgnoreCase(s.getHora())) {
                 return true;
             }
         }
@@ -224,9 +234,14 @@ public class ControladorPrincipal {
     }
 
     private boolean estudianteOcupadoEnFecha(int estudianteId, String fechaHora) {
-        String fh = norm(fechaHora);
+        String[] partes = norm(fechaHora).split(" ");
+        String horaInput = partes[0];
+        String fechaInput = partes[1];
+        
         for (Sesion s : listaDeSesiones) {
-            if (s.getEstudianteId() == estudianteId && fh.equalsIgnoreCase(s.getFechaHora())) {
+            if (s.getEstudianteId() == estudianteId && 
+                fechaInput.equalsIgnoreCase(s.getFecha()) && 
+                horaInput.equalsIgnoreCase(s.getHora())) {
                 return true;
             }
         }
@@ -275,16 +290,91 @@ public class ControladorPrincipal {
         return max + 1; //Devuelve el nuevo ID
     }
 
-    public void irAPerfilEstudiante() {
-    if (usuarioActual != null && usuarioActual.getRol() == Rol.ESTUDIANTE) {
-        Estudiante estudiante = (Estudiante) usuarioActual;
-        VistaPrincipalEstudiante vistaEstudiante = new VistaPrincipalEstudiante(estudiante, this);
+    // Actualiza el estado de una sesion especifica y lo guarda en el csv
+    public boolean actualizarEstadoSesion(Sesion sesion) {
+    
+        try {
+            // Variable para saber si encontramos la sesión
+            boolean encontradaEnMemoria = false;
+            
+            // Recorrer todas las sesiones en la lista
+            for (int i = 0; i < listaDeSesiones.size(); i++) {
+                
+                // Obtener la sesión en la posición i
+                Sesion sesionActual = listaDeSesiones.get(i);
+                
+                // Comparar el ID de esta sesión con el ID que queremos actualizar
+                if (sesionActual.getIdSesion().equals(sesion.getIdSesion())) {
+                    
+                    // Reemplazar la sesión vieja con la actualizada
+                    listaDeSesiones.set(i, sesion);
+                    
+                    // Marcar que la encontramos
+                    encontradaEnMemoria = true;
+                    
+                    // Salir del bucle
+                    break;
+                }
+            }
+            
+            // Verificar si encontramos la sesión
+            if (!encontradaEnMemoria) {
+                System.out.println("ERROR: Sesión no encontrada en la lista en memoria");
+                return false;
+            }
+            
+            // Llamar al método del GestorDeDatos que actualiza solo esta sesión en el CSV
+            gestorDeDatos.actualizarSesionEnCSV(sesion);
+            
+            // Indica que todo funciono correctamente
+            return true;
+            
+        } catch (IOException e) {
         
-        // Cambiar la escena actual
-        Stage stage = (Stage) loginVista.getScene().getWindow();
-        Scene nuevaEscena = new Scene(vistaEstudiante, 800, 600);
-        stage.setScene(nuevaEscena);
-        stage.setTitle("Portal del Estudiante - " + estudiante.getNombre());
+            System.out.println("❌ Error al actualizar el archivo CSV:");
+            System.out.println("   " + e.getMessage());
+            e.printStackTrace();
+            return false;
+            
+        } catch (Exception e) {
+            System.out.println("❌ Error inesperado al actualizar sesión:");
+            System.out.println("   " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
     }
-}
+
+    public List<Sesion> obtenerSesionesPendientesPorTutor(int tutorId) {
+        List<Sesion> pendientes = new ArrayList<>();
+        
+        // Recorrer todas las sesiones
+        for (Sesion sesion : listaDeSesiones) {
+            // Filtrar por: (1) mismo tutor y (2) estado PENDIENTE
+            if (sesion.getTutorId() == tutorId && 
+                sesion.getEstado() == EstadoSesion.PENDIENTE) {
+                pendientes.add(sesion);
+            }
+        }
+        
+        System.out.println("→ Sesiones pendientes para tutor " + tutorId + ": " + pendientes.size());
+        return pendientes;
+    }
+
+    public List<Sesion> obtenerSesionesAceptadasPorTutor(int tutorId) {
+        List<Sesion> aceptadas = new ArrayList<>();
+        
+        // Recorrer todas las sesiones
+        for (Sesion sesion : listaDeSesiones) {
+            // Filtrar por: (1) mismo tutor y (2) estado AGENDADA o PROGRAMADA
+            if (sesion.getTutorId() == tutorId && 
+                (sesion.getEstado() == EstadoSesion.AGENDADA || 
+                sesion.getEstado() == EstadoSesion.PROGRAMADA)) {
+                aceptadas.add(sesion);
+            }
+        }
+        
+        System.out.println("→ Sesiones aceptadas para tutor " + tutorId + ": " + aceptadas.size());
+        return aceptadas;
+    }
+
 }

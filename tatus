@@ -1,0 +1,141 @@
+[1mdiff --git a/src/main/java/VistaPrincipalTutor.java b/src/main/java/VistaPrincipalTutor.java[m
+[1mindex 3001a7f..8d983f2 100644[m
+[1m--- a/src/main/java/VistaPrincipalTutor.java[m
+[1m+++ b/src/main/java/VistaPrincipalTutor.java[m
+[36m@@ -1,16 +1,18 @@[m
+ import javafx.geometry.Insets;[m
+ import javafx.geometry.Pos;[m
+[32m+[m[32mimport javafx.scene.Scene;[m
+ import javafx.scene.control.*;[m
+ import javafx.scene.layout.*;[m
+[31m-import javafx.scene.Scene;[m
+[32m+[m[32mimport javafx.scene.text.Font;[m
+[32m+[m[32mimport javafx.scene.text.FontWeight;[m
+ import javafx.stage.Stage;[m
+[31m-import java.util.List;[m
+ [m
+[31m-import javax.swing.text.View;[m
+[31m-[m
+[31m-public class VistaPrincipalTutor extends VBox{[m
+[32m+[m[32mpublic class VistaPrincipalTutor {[m
+[32m+[m[41m    [m
+     private Tutor tutorActual;[m
+     private ControladorPrincipal controlador;[m
+[32m+[m[32m    private Stage stage;[m
+[32m+[m[32m    private Main mainApp;[m
+ [m
+     //Labels que muestran informacion[m
+     private Label lblNombre, lblCorreo, lblTarifa, lblMaterias;[m
+[36m@@ -22,29 +24,148 @@[m [mpublic class VistaPrincipalTutor extends VBox{[m
+     private Button btnEditarPerfil, btnVerSesiones, btnVerResenas, btnGestionarSolicitudes;[m
+ [m
+     //Constructor[m
+[31m-    public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor){[m
+[32m+[m[32m    public VistaPrincipalTutor(ControladorPrincipal controlador, Tutor tutor, Stage stage, Main mainApp) {[m
+         this.controlador = controlador;[m
+         this.tutorActual = tutor;[m
+[32m+[m[32m        this.stage = stage;[m
+[32m+[m[32m        this.mainApp = mainApp;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    // Construye y muestra la interfaz del tutor[m
+[32m+[m[32m    public void mostrar() {[m
+[32m+[m[32m        // BorderPane es un layout que divide la pantalla en 5 zonas: Top, Left, Center, Right, Bottom[m
+[32m+[m[32m        BorderPane layoutPrincipal = new BorderPane();[m
+[32m+[m
+[32m+[m[32m        // color de fondo base a toda la ventana[m
+[32m+[m[32m        layoutPrincipal.setStyle("-fx-background-color: #ecf0f1;");[m
+ [m
+[31m-        configurarVista();[m
+[32m+[m[32m        // Componentes Principales de la UI[m
+[32m+[m[32m        HBox barraSuperior = crearBarraSuperior(); // título, nombre de usuario, botón de cerrar sesión[m
+[32m+[m[32m        VBox menuLateral = crearMenuLateral(layoutPrincipal); // botones para cambiar de panel[m
+[32m+[m[32m        VBox contenidoInicial = crearPanelInicio(); // Bienvenida[m
+[32m+[m[41m        [m
+[32m+[m[32m        // Ensamblaje del Layout principal[m
+[32m+[m[32m        // Colocar cada componente en su zona correspondiente del BorderPane[m
+[32m+[m[32m        layoutPrincipal.setTop(barraSuperior); // barra superior arriba[m
+[32m+[m[32m        layoutPrincipal.setLeft(menuLateral); // menú a la izquierda[m
+[32m+[m[32m        layoutPrincipal.setCenter(contenidoInicial); // Panel de contenido en el centro[m
+[32m+[m
+[32m+[m[32m        // Crear escena con el layout principal y definimos su tamaño inicial[m
+[32m+[m[32m        Scene escena = new Scene(layoutPrincipal, 1100, 700);[m
+[32m+[m[32m        stage.setScene(escena);  // establecer la escena en la ventana principal[m
+[32m+[m[32m        stage.setTitle("Panel del Tutor - Gestor de Tutorías UVG"); // Título de ventana[m
+[32m+[m[32m        // establecer tamaño mínimo para evitar deformaciones[m
+[32m+[m[32m        stage.setMinWidth(900);[m
+[32m+[m[32m        stage.setMinHeight(600);[m
+[32m+[m[32m        stage.show(); // mostrar ventana al cliente[m
+     }[m
+ [m
+[31m-    private void configurarVista() {[m
+[31m-        setPadding(new Insets(24));[m
+[31m-        setSpacing(16);[m
+[31m-        setAlignment(Pos.TOP_CENTER);[m
+[31m-        setFillWidth(true);[m
+[32m+[m[32m    // Métodos privados para construir las partes de la UI[m
+[32m+[m[32m    private HBox crearBarraSuperior() {[m
+[32m+[m[32m        HBox barra = new HBox(20);[m
+[32m+[m[32m        barra.setPadding(new Insets(15));[m
+[32m+[m[32m        barra.setStyle("-fx-background-color: #1e3a5f;"); // Color azul para tutor[m
+[32m+[m[32m        barra.setAlignment(Pos.CENTER_LEFT);[m
+[32m+[m
+[32m+[m[32m        // Crear el Label para el título de la aplicación[m
+[32m+[m[32m        Label lblTitulo = new Label("Gestor de Tutorías UVG");[m
+[32m+[m[32m        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));[m
+[32m+[m[32m        lblTitulo.setStyle("-fx-text-fill: white;");[m
+[32m+[m[41m        [m
+[32m+[m[32m        Region espaciador = new Region();[m
+[32m+[m[32m        HBox.setHgrow(espaciador, Priority.ALWAYS);[m
+ [m
+[31m-        Label titulo = new Label("Bienvenido, " +tutorActual.getNombre());[m
+[31m-        titulo.setStyle("-fx-font-size: 24px; -fx-font-weight: bold;");[m
+[32m+[m[32m        // Crear label de bienvenida con el nombre del tutor actual[m
+[32m+[m[32m        Label lblBienvenida = new Label("Tutor: " + tutorActual.getNombre());[m
+[32m+[m[32m        lblBienvenida.setFont(Font.font("Arial", FontWeight.BOLD, 14));[m
+[32m+[m[32m        lblBienvenida.setStyle("-fx-text-fill: white;");[m
+[32m+[m[41m        [m
+[32m+[m[32m        // Crear botón para cerrar sesión[m
+[32m+[m[32m        Button btnCerrarSesion = new Button("Cerrar Sesión");[m
+[32m+[m[32m        btnCerrarSesion.setStyle("-fx-background-color: #d12a17ff; -fx-text-fill: white; -fx-font-weight: bold;");[m
+[32m+[m[32m        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());[m
+[32m+[m
+[32m+[m[32m        // Añadir los componentes al HBox[m
+[32m+[m[32m        barra.getChildren().addAll(lblTitulo, espaciador, lblBienvenida, btnCerrarSesion);[m
+[32m+[m[32m        return barra;[m
+[32m+[m[32m    }[m
+ [m
+[31m-        //Secciones que existiten para tutor[m
+[31m-        VBox seccionPerfil = crearSeccionPerfil();[m
+[31m-        VBox seccionEstadisticas = crearSeccionEstadisticas();[m
+[31m-        HBox seccionBotones = crearSeccionBotones();[m
+[31m-        VBox seccionSolicitudes = crearSeccionSolicitudes();[m
+[32m+[m[32m    // MENU DE NAVEGACION LATERAL[m
+[32m+[m[32m    private VBox crearMenuLateral(BorderPane layoutPrincipal) {[m
+[32m+[m[32m        VBox menu = new VBox(10);[m
+[32m+[m[32m        menu.setPadding(new Insets(20));[m
+[32m+[m[32m        menu.setPrefWidth(220);[m
+[32m+[m[32m        menu.setStyle("-fx-background-color: #2d7a4f;"); // Color verde para menú lateral[m
+[32m+[m[41m    [m
+[32m+[m[32m        Label lblMenu = new Label("MENÚ");[m
+[32m+[m[32m        lblMenu.setFont(Font.font("Arial", FontWeight.BOLD, 16));[m
+[32m+[m[32m        lblMenu.setStyle("-fx-text-fill: white;");[m
+[32m+[m[32m        lblMenu.setAlignment(Pos.CENTER);[m
+[32m+[m
+[32m+[m[32m        // Crear los botones de navegación[m
+[32m+[m[32m        Button btnInicio = crearBotonMenu("INICIO");[m
+[32m+[m[32m        Button btnPerfil = crearBotonMenu("Mi Perfil");[m
+[32m+[m[32m        Button btnSesiones = crearBotonMenu("Ver Sesiones");[m
+[32m+[m[32m        Button btnResenas = crearBotonMenu("Ver Reseñas");[m
+[32m+[m[32m        Button btnSolicitudes = crearBotonMenu("Gestionar Solicitudes");[m
+[32m+[m
+[32m+[m[32m        // Cada botón cambia el panel central del BorderPane[m
+[32m+[m[32m        btnInicio.setOnAction(e -> layoutPrincipal.setCenter(crearPanelInicio()));[m
+[32m+[m[32m        btnPerfil.setOnAction(e -> layoutPrincipal.setCenter(crearPanelPerfil()));[m
+[32m+[m[32m        btnSesiones.setOnAction(e -> mostrarSesiones());[m
+[32m+[m[32m        btnResenas.setOnAction(e -> mostrarResenas());[m
+[32m+[m[32m        btnSolicitudes.setOnAction(e -> abrirGestionSolicitudes());[m
+[32m+[m[41m        [m
+[32m+[m[32m        // Añadir los componentes al VBox[m
+[32m+[m[32m        menu.getChildren().addAll(lblMenu, new Separator(), btnInicio, btnPerfil, btnSesiones, btnResenas, btnSolicitudes);[m
+

@@ -1,13 +1,6 @@
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import javafx.geometry.Insets;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.TextArea;
-import javafx.scene.layout.VBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 
 // Controlador especializado para las funciones administrativas del Catedrático.
 
@@ -23,9 +16,9 @@ public class ControladorAdministradores {
     }
 
     // METODO: asignar una nueva tutoría a un estudiante con un tutor para un curso específico
-    public Sesion asignarTutoria(int estudianteId, int tutorId, Curso curso) {
+    public Sesion asignarTutoria(int estudianteId, int tutorId, String nombreCurso) {
         // Validaciones
-        if (curso == null) {
+        if (nombreCurso == null) {
             System.err.println("Error de asignación: El curso no puede ser nulo.");
             return null;
         }
@@ -44,7 +37,7 @@ public class ControladorAdministradores {
 
         // La fecha se deja "Por definir" para que el estudiante y tutor la coordinen
         String nuevoId = controladorPrincipal.generarIdSesion();
-        Sesion nuevaSesion = new Sesion(nuevoId, estudianteId, tutorId, curso.getNombreCurso(), "Por definir", EstadoSesion.PENDIENTE);
+        Sesion nuevaSesion = new Sesion(nuevoId, estudianteId, tutorId, nombreCurso, "Por definir", "Por definir", EstadoSesion.PENDIENTE);
         
         // Actualización de datos en memoria
         controladorPrincipal.getListaDeSesiones().add(nuevaSesion);
@@ -63,7 +56,7 @@ public class ControladorAdministradores {
 
     // METODO: Generar reporte detallado del desempeño de todos los tutores del sistema (IMPLEMENTADO MÁS ADELANTE)
     public String generarReporteDesempenoTutores() {
-         // StringBuilder es un "Constructor de Textos" usado para crear Strings de manera más eficiente
+        // StringBuilder es un "Constructor de Textos" usado para crear Strings de manera más eficiente
         // ya que es mutable y sirve mucho al querer construir un String, pieza por pieza y se usa más cuando hay bucles de por medio
         StringBuilder reporte = new StringBuilder("=== REPORTE DE DESEMPEÑO DE TUTORES ===\n\n");
         
@@ -91,14 +84,14 @@ public class ControladorAdministradores {
     }
 
     // METODO: para generar un reporte del estado de las tutorías de un curso específico (IMPLEMENTADO MÁS ADELANTE)
-    public String generarReporteConsolidadoCurso(Curso curso) {
-        if (curso == null) return "Por favor, selecciona un curso para generar el reporte.";
+    public String generarReporteConsolidadoCurso(String nombreCurso) {
+        if (nombreCurso == null) return "Por favor, selecciona un curso para generar el reporte.";
         
         StringBuilder reporte = new StringBuilder();
-        reporte.append("=== REPORTE DEL CURSO: ").append(curso.toString()).append(" ===\n\n");
+        reporte.append("=== REPORTE DEL CURSO: ").append(nombreCurso).append(" ===\n\n");
 
         // Filtar las sesiones que pertenecen a este curso.
-        List<Sesion> sesionesDelCurso = controladorPrincipal.getListaDeSesiones().stream().filter(s -> s.getMateria().equalsIgnoreCase(curso.getNombreCurso())).collect(Collectors.toList());
+        List<Sesion> sesionesDelCurso = controladorPrincipal.getListaDeSesiones().stream().filter(s -> s.getMateria().equalsIgnoreCase(nombreCurso)).collect(Collectors.toList());
 
         if (sesionesDelCurso.isEmpty()) {
             return reporte.append("No hay sesiones registradas para este curso.").toString();
