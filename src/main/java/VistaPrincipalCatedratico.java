@@ -329,6 +329,8 @@ public class VistaPrincipalCatedratico {
         root.getChildren().addAll(lblTitulo, grid, botones);
         Scene scene = new Scene(root, 500, 400);
         dialogStage.setScene(scene);
+
+        dialogStage.setResizable(false);
         dialogStage.showAndWait(); // showAndWait bloquea la ventana principal hasta que se cierre esta
     }
 

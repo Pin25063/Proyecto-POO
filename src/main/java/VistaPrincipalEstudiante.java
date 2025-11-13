@@ -32,6 +32,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class VistaPrincipalEstudiante {
     
@@ -333,7 +334,6 @@ public class VistaPrincipalEstudiante {
         TextField txtCorreo = new TextField(estudianteActual.getCorreo());
         txtCorreo.setPrefWidth(300);
         txtCorreo.setDisable(true);
-        txtCorreo.setTooltip(new Tooltip("El correo no puede modificarse"));
 
         // Contraseña actual (por seguridad)
         Label lblPassActual = new Label("Contraseña Actual:");
@@ -351,11 +351,12 @@ public class VistaPrincipalEstudiante {
         txtConfirmPass.setPromptText("Repita la nueva contraseña");
 
         // Añadir componentes al GRID
-        grid.addRow(0, lblNombre, txtNombre);
-        grid.addRow(1, new Separator(), new Separator()); // Separador visual
-        grid.addRow(2, lblPassActual, txtPassActual);
-        grid.addRow(3, lblNuevaPass, txtNuevaPass);
-        grid.addRow(4, lblConfirmPass, txtConfirmPass);
+        grid.addRow(0, lblNuevoNombre, txtNombre);
+        grid.addRow(1, lblNuevoCorreo, txtCorreo);
+        grid.addRow(2, new Separator(), new Separator()); // Separador visual
+        grid.addRow(3, lblPassActual, txtPassActual);
+        grid.addRow(4, lblNuevaPass, txtNuevaPass);
+        grid.addRow(5, lblConfirmPass, txtConfirmPass);
 
         
         // Botones
@@ -368,6 +369,8 @@ public class VistaPrincipalEstudiante {
         Button btnCancelar = new Button("Cancelar");
         btnCancelar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
         
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+
         btnGuardar.setOnAction(e -> {
             String nuevoNombre = txtNombre.getText().trim();
             String passActual = txtPassActual.getText();
@@ -426,6 +429,8 @@ public class VistaPrincipalEstudiante {
         contenido.getChildren().addAll(titulo, grid, botones);
         Scene scene = new Scene(contenido, 500, 400);
         dialogStage.setScene(scene);
+
+        dialogStage.setResizable(false);
         dialogStage.showAndWait();
     }
 
