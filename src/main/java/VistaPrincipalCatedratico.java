@@ -202,11 +202,13 @@ public class VistaPrincipalCatedratico {
         return panel;
     }
 
-    // SUBPANEL DE CATEDRÁTICO ---> EDICION PERFIL
+    // SUBPANEL DE CREAR PERFIL ---> EDICION PERFIL
     private void abrirEdicionPerfil() {
+        // Se crea un nuevo Stage independiente
         Stage dialogStage = new Stage();
         dialogStage.setTitle("Editar Perfil - Catedrático");
         
+        // Contenedor principal de la ventana
         VBox root = new VBox(20);
         root.setPadding(new Insets(25));
         root.setAlignment(Pos.CENTER);
@@ -216,11 +218,13 @@ public class VistaPrincipalCatedratico {
         lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
 
-        // Formulario
+        // Se utiliza GridPane para alinear etiquetas y campos en columnas ordenadas
         GridPane grid = new GridPane();
         grid.setHgap(15);
         grid.setVgap(15);
         grid.setAlignment(Pos.CENTER);
+
+        // CAMPOS DE EDICIÓN
 
         // Nombre
         Label lblNombre = new Label("Nombre Completo:");
@@ -242,13 +246,14 @@ public class VistaPrincipalCatedratico {
         PasswordField txtPassConfirm = new PasswordField();
         txtPassConfirm.setPromptText("Repita la nueva contraseña");
 
+        // Se añade todo al GRID
         grid.addRow(0, lblNombre, txtNombre);
         grid.addRow(1, new Separator(), new Separator()); // Separador visual
         grid.addRow(2, lblPassActual, txtPassActual);
         grid.addRow(3, lblPassNueva, txtPassNueva);
         grid.addRow(4, lblPassConfirm, txtPassConfirm);
 
-        // Botones
+        // Botones de acción
         HBox botones = new HBox(15);
         botones.setAlignment(Pos.CENTER);
         
@@ -260,7 +265,7 @@ public class VistaPrincipalCatedratico {
 
         botones.getChildren().addAll(btnGuardar, btnCancelar);
 
-        // Lógica de Guardado
+        // Lógica del botón de Guardado
         btnGuardar.setOnAction(e -> {
             String nuevoNombre = txtNombre.getText().trim();
             String passActual = txtPassActual.getText();
@@ -291,7 +296,8 @@ public class VistaPrincipalCatedratico {
                     mostrarAlerta("Error", "Las nuevas contraseñas no coinciden.", Alert.AlertType.ERROR);
                     return;
                 }
-                if (passNueva.length() < 6) { // Ejemplo de regla de negocio
+                // verificar la longitud mínima
+                if (passNueva.length() < 6) {
                     mostrarAlerta("Seguridad", "La nueva contraseña debe tener al menos 6 caracteres.", Alert.AlertType.WARNING);
                     return;
                 }
@@ -299,6 +305,7 @@ public class VistaPrincipalCatedratico {
             }
 
             // Aplicar Cambios
+            // se actualiza el objeto en memoria
             catedratico.setNombre(nuevoNombre);
             if (cambioPass) {
                 catedratico.setContrasena(passNueva);
@@ -309,20 +316,20 @@ public class VistaPrincipalCatedratico {
 
             if (exito) {
                 mostrarAlerta("Éxito", "Perfil actualizado correctamente.", Alert.AlertType.INFORMATION);
-                dialogStage.close();
-                // Refrescar vista principal si es necesario (ej: el nombre en la barra superior)
-                mostrar(); 
+                dialogStage.close(); // se cierra la ventana
+                mostrar(); // Refrescar la vista principal para ver el nuevo nombre en la barra superior
             } else {
                 mostrarAlerta("Error Crítico", "No se pudo guardar en el archivo.", Alert.AlertType.ERROR);
             }
         });
 
+        // Acción cancelar, se cierra la ventana
         btnCancelar.setOnAction(e -> dialogStage.close());
 
         root.getChildren().addAll(lblTitulo, grid, botones);
         Scene scene = new Scene(root, 500, 400);
         dialogStage.setScene(scene);
-        dialogStage.showAndWait();
+        dialogStage.showAndWait(); // showAndWait bloquea la ventana principal hasta que se cierre esta
     }
 
     

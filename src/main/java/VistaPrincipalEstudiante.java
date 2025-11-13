@@ -24,6 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -306,79 +307,126 @@ public class VistaPrincipalEstudiante {
     // Abrir diálogo de edición
     private void abrirEdicionPerfil() {
         Stage dialogStage = new Stage();
-        dialogStage.setTitle("Editar Perfil");
+        dialogStage.setTitle("Editar Perfil - Estudiante");
         
         VBox contenido = new VBox(15);
         contenido.setPadding(new Insets(20));
         contenido.setAlignment(Pos.CENTER);
+        contenido.setStyle("-fx-background-color: #f4f4f4;");
         
         Label titulo = new Label("Editar Información Personal");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        // Gridpane para ordenar los campos
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
         
         // Campos editables
-        Label lblNuevoNombre = new Label("Nombre:");
+        Label lblNuevoNombre = new Label("Nombre Completo:");
         TextField txtNombre = new TextField(estudianteActual.getNombre());
-        txtNombre.setPrefWidth(300);
+        txtNombre.setPrefWidth(250);
         
         Label lblNuevoCorreo = new Label("Correo:");
         TextField txtCorreo = new TextField(estudianteActual.getCorreo());
         txtCorreo.setPrefWidth(300);
         txtCorreo.setDisable(true);
         txtCorreo.setTooltip(new Tooltip("El correo no puede modificarse"));
+
+        // Contraseña actual (por seguridad)
+        Label lblPassActual = new Label("Contraseña Actual:");
+        PasswordField txtPassActual = new PasswordField();
+        txtPassActual.setPromptText("Requerido para guardar cambios");
         
-        Label lblNuevaPass = new Label("Nueva Contraseña (opcional):");
-        PasswordField txtPass = new PasswordField();
-        txtPass.setPrefWidth(300);
-        txtPass.setPromptText("Dejar vacío para mantener la actual");
+        // Nueva Contraseña
+        Label lblNuevaPass = new Label("Nueva Contraseña:");
+        PasswordField txtNuevaPass = new PasswordField();
+        txtNuevaPass.setPromptText("Repita la nueva contraseña");
+
+        // Confirmar Nueva Contraseña
+        Label lblConfirmPass = new Label("Confirmar Nueva:");
+        PasswordField txtConfirmPass = new PasswordField();
+        txtConfirmPass.setPromptText("Repita la nueva contraseña");
+
+        // Añadir componentes al GRID
+        grid.addRow(0, lblNombre, txtNombre);
+        grid.addRow(1, new Separator(), new Separator()); // Separador visual
+        grid.addRow(2, lblPassActual, txtPassActual);
+        grid.addRow(3, lblNuevaPass, txtNuevaPass);
+        grid.addRow(4, lblConfirmPass, txtConfirmPass);
+
         
         // Botones
-        HBox botones = new HBox(10);
+        HBox botones = new HBox(15);
         botones.setAlignment(Pos.CENTER);
         
         Button btnGuardar = new Button("Guardar Cambios");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+
         Button btnCancelar = new Button("Cancelar");
-        
-        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
-        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
+        btnCancelar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
         
         btnGuardar.setOnAction(e -> {
             String nuevoNombre = txtNombre.getText().trim();
-            String nuevaPass = txtPass.getText().trim();
+            String passActual = txtPassActual.getText();
+            String passNueva = txtNuevaPass.getText();
+            String passConfirm = txtConfirmPass.getText();
             
             if (nuevoNombre.isEmpty()) {
                 mostrarError("Error", "El nombre no puede estar vacío");
                 return;
             }
-            
-            if (!nuevoNombre.equals(estudianteActual.getNombre())) {
-                mostrarInfo("Edición", "Nombre actualizado correctamente");
-                lblNombre.setText("Nombre: " + nuevoNombre);
+
+            if (passActual.isEmpty()) {
+                mostrarError("Seguridad", "Debe ingresar su contraseña actual para confirmar los cambios.");
+                return;
+            }
+
+            if (!estudianteActual.verificarContrasena(passActual)) {
+                mostrarError("Error", "La contraseña actual es incorrecta.");
+                return;
             }
             
-            if (!nuevaPass.isEmpty()) {
-                mostrarInfo("Edición", "Contraseña actualizada correctamente");
+            boolean cambioPass = false;
+            if (!passNueva.isEmpty()) {
+                if (!passNueva.equals(passConfirm)) {
+                    mostrarError("Error", "Las nuevas contraseñas no coinciden.");
+                    return;
+                }
+                if (passNueva.length() < 6) { // Ejemplo de regla de negocio
+                    mostrarError("Seguridad", "La nueva contraseña debe tener al menos 6 caracteres.");
+                    return;
+                }
+                cambioPass = true;
             }
-            
-            dialogStage.close();
+
+            // Aplicar cambios
+            estudianteActual.setNombre(nuevoNombre);
+            if (cambioPass) {
+                estudianteActual.setContrasena(passNueva);
+            }
+
+            // Persistencia
+            boolean exito = controlador.actualizarUsuario(estudianteActual);
+
+            if (exito) {
+                mostrarError("Éxito", "Perfil actualizado correctamente.");
+                dialogStage.close();
+                // Refrescar vista principal si es necesario (ej: el nombre en la barra superior)
+                mostrar(); 
+            } else {
+                mostrarError("Error Crítico", "No se pudo guardar en el archivo.");
+            }
         });
         
         btnCancelar.setOnAction(e -> dialogStage.close());
         
-        botones.getChildren().addAll(btnGuardar, btnCancelar);
-        
-        contenido.getChildren().addAll(
-            titulo,
-            new Separator(),
-            lblNuevoNombre, txtNombre,
-            lblNuevoCorreo, txtCorreo,
-            lblNuevaPass, txtPass,
-            new Separator(),
-            botones
-        );
-        
-        Scene scene = new Scene(contenido, 400, 400);
+        contenido.getChildren().addAll(titulo, grid, botones);
+        Scene scene = new Scene(contenido, 500, 400);
         dialogStage.setScene(scene);
-        dialogStage.show();
+        dialogStage.showAndWait();
     }
 
     // MÉTODOS AUXILIARES para alertas
