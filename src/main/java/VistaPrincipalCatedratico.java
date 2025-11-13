@@ -50,16 +50,27 @@ public class VistaPrincipalCatedratico {
         layoutPrincipal.setLeft(menuLateral); // menú a la izquierda
         layoutPrincipal.setCenter(contenidoInicial); // Panel de contenido en el centro
 
-        // Crear escena con el layout principal y definimos su tamaño inicial
+        // 1. Preparamos la VENTANA para que PUEDA maximizarse
+        // Eliminar restricciones de tamaño previas (del login/registro)
+        stage.setMinWidth(Double.MIN_VALUE);
+        stage.setMaxWidth(Double.MAX_VALUE);
+        stage.setMinHeight(Double.MIN_VALUE);
+        stage.setMaxHeight(Double.MAX_VALUE);
+        
+        stage.setResizable(true);
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+
+        // 2. Creamos y ponemos la ESCENA 
         Scene escena = new Scene(layoutPrincipal, 1100, 700);
         stage.setScene(escena);  // establecer la escena en la ventana principal
         stage.setTitle("Panel del Catedrático - Gestor de Tutorías UVG"); // Título de ventana
-        // establecer tamaño mínimo para evitar deformaciones
-        stage.setMinWidth(900);
-        stage.setMinHeight(600);
-        // iniciar maximizado pero permitir al usuario cambiar el tamaño después
+
+        // 3. Maximizamos la VENTANA DESPUÉS de poner la escena
         stage.setMaximized(true);
-        stage.setResizable(true);
+        stage.toFront();
+        stage.requestFocus();
+
         // asegurar que la ventana quede en primer plano
         stage.toFront();
         stage.requestFocus();

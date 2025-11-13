@@ -40,14 +40,25 @@ public class VistaPrincipalTutor {
         layoutPrincipal.setLeft(menuLateral);
         layoutPrincipal.setCenter(contenidoInicial);
 
+        // 1. Preparamos la VENTANA para que PUEDA maximizarse
+        // Eliminar restricciones de tamaño previas (del login/registro)
+        stage.setMinWidth(Double.MIN_VALUE);
+        stage.setMaxWidth(Double.MAX_VALUE);
+        stage.setMinHeight(Double.MIN_VALUE);
+        stage.setMaxHeight(Double.MAX_VALUE);
+        
+        stage.setResizable(true);
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+
+        // 2. Creamos y ponemos la ESCENA 
         Scene escena = new Scene(layoutPrincipal, 1100, 700);
         stage.setScene(escena);
         stage.setTitle("Panel del Tutor - Gestor de Tutorías UVG");
-        stage.setMinWidth(900);
-        stage.setMinHeight(600);
-        // Iniciar maximizado para simular pantalla completa pero permitiendo redimensionar
+
+        // 3. Maximizamos la VENTANA  DESPUÉS de poner la escena
         stage.setMaximized(true);
-        stage.setResizable(true);
+
         // asegurar que la ventana quede en primer plano
         stage.toFront();
         stage.requestFocus();

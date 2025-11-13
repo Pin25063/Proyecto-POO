@@ -74,16 +74,27 @@ public class VistaPrincipalEstudiante {
         layoutPrincipal.setCenter(contenidoInicial); // Panel de contenido en el centro
 
         // Crear escena con el layout principal y definimos su tamaño inicial
-        Scene escena = new Scene(layoutPrincipal, 1100, 700);
-        stage.setScene(escena);  // establecer la escena en la ventana principal
-        stage.setTitle("Panel del Estudiante - Gestor de Tutorías UVG"); // Título de ventana
-        // establecer tamaño mínimo para evitar deformaciones
+        // Eliminar restricciones de tamaño previas (del login/registro)
+        stage.setMinWidth(Double.MIN_VALUE);
+        stage.setMaxWidth(Double.MAX_VALUE);
+        stage.setMinHeight(Double.MIN_VALUE);
+        stage.setMaxHeight(Double.MAX_VALUE);
+        
+        stage.setResizable(true);
         stage.setMinWidth(900);
         stage.setMinHeight(600);
-        // iniciar maximizado pero permitir al usuario cambiar el tamaño después
+
+        // 2. Creamos y ponemos la ESCENA 
+        Scene escena = new Scene(layoutPrincipal, 1100, 700);
+        stage.setScene(escena);
+        stage.setTitle("Panel del Estudiante - Gestor de Tutorías UVG");
+
+        // 3. Maximizamos la VENTANA DESPUÉS de poner la escena
         stage.setMaximized(true);
-        stage.setResizable(true);
-        stage.show(); // mostrar ventana al cliente
+        stage.toFront();
+        stage.requestFocus();
+        
+        stage.show(); // mostrar ventana al cliente 
     }
 
     // Métodos privados para construir las partes de la UI
