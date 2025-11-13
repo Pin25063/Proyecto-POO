@@ -377,4 +377,17 @@ public class ControladorPrincipal {
         return aceptadas;
     }
 
+    // Método puente que solicita al GestorDeDatos actualizar la información de un usuario
+    // Las vistas llaman a este método cuando el usuario guarda cambios en su perfil
+    public boolean actualizarUsuario(Usuario usuario){
+        try {
+            gestorDeDatos.actualizarUsuarioEnCSV(usuario);
+            System.out.println("Usuario actualizado correctamente en el CSV");
+            return true;
+        } catch (Exception e) {
+            // se captura cualquier error de archivo y lo reportamos a la consola
+            System.out.println("ERROR al actualizar usuario: " + e.getMessage());
+            return false;
+        }
+    }
 }

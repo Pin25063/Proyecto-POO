@@ -124,18 +124,20 @@ public class VistaPrincipalCatedratico {
 
         // Crear los botones de navegación usando un método auxiliar para no repetir código
         Button btnInicio = crearBotonMenu("INICIO");
+        Button btnPerfil = crearBotonMenu("Mi Perfil");
         Button btnAsignarTutorias = crearBotonMenu("Asignar Tutorías");
         Button btnReporteEstudiantes = crearBotonMenu("Reportes de Cursos");
         Button btnReporteTutores = crearBotonMenu("Reportes de Tutores");
 
         // Cada botón cambia el panel central del BorderPane
         btnInicio.setOnAction(e -> layoutPrincipal.setCenter(crearPanelInicio()));
+        btnPerfil.setOnAction(e -> layoutPrincipal.setCenter(crearPanelPerfil()));
         btnAsignarTutorias.setOnAction(e -> layoutPrincipal.setCenter(crearPanelAsignarTutorias()));
         btnReporteEstudiantes.setOnAction(e -> layoutPrincipal.setCenter(crearPanelReporteCursos()));
         btnReporteTutores.setOnAction(e -> layoutPrincipal.setCenter(crearPanelReporteTutores()));
         
         // Añadir los componentes al VBox, con un separador visual
-        menu.getChildren().addAll(lblMenu, new Separator(), btnInicio, btnAsignarTutorias, btnReporteEstudiantes, btnReporteTutores);
+        menu.getChildren().addAll(lblMenu, new Separator(), btnInicio, btnPerfil, btnAsignarTutorias, btnReporteEstudiantes, btnReporteTutores);
         return menu;
     }
     
@@ -162,6 +164,167 @@ public class VistaPrincipalCatedratico {
         panel.getChildren().addAll(lblTitulo, new Separator(), lblInfoTexto);
         return panel;
     }
+
+    // PANEL PERFIL
+    private VBox crearPanelPerfil() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+        
+        Label lblTitulo = new Label("Mi Perfil");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        
+        // Tarjeta visual para agrupar la información
+        VBox tarjetaInfo = new VBox(15);
+        tarjetaInfo.setStyle("-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+        tarjetaInfo.setMaxWidth(600);
+
+        // se muestran los datos actuales del objeto
+        Label lblNombre = new Label("Nombre: " + catedratico.getNombre());
+        lblNombre.setFont(Font.font("Arial", 16));
+        
+        Label lblCorreo = new Label("Correo: " + catedratico.getCorreo());
+        lblCorreo.setFont(Font.font("Arial", 16));
+        
+        Label lblRol = new Label("Rol: CATEDRÁTICO");
+        lblRol.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        lblRol.setStyle("-fx-text-fill: #7f8c8d;");
+
+        // Botón que abre la ventana de edición
+        Button btnEditar = new Button("Editar Datos y Contraseña");
+        btnEditar.setStyle("-fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
+        btnEditar.setOnAction(e -> abrirEdicionPerfil()); // Llamada al método de edición de perfil
+
+        tarjetaInfo.getChildren().addAll(lblNombre, lblCorreo, new Separator(), lblRol, btnEditar);
+        
+        // Añadir los componentes principales al panel
+        panel.getChildren().addAll(lblTitulo, tarjetaInfo);
+
+        return panel;
+    }
+
+    // SUBPANEL DE CATEDRÁTICO ---> EDICION PERFIL
+    private void abrirEdicionPerfil() {
+        Stage dialogStage = new Stage();
+        dialogStage.setTitle("Editar Perfil - Catedrático");
+        
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(25));
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: #f4f4f4;");
+
+        Label lblTitulo = new Label("Actualizar Información");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
+
+        // Formulario
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
+
+        // Nombre
+        Label lblNombre = new Label("Nombre Completo:");
+        TextField txtNombre = new TextField(catedratico.getNombre());
+        txtNombre.setPrefWidth(250);
+
+        // Contraseña Actual (Por Seguridad)
+        Label lblPassActual = new Label("Contraseña Actual:");
+        PasswordField txtPassActual = new PasswordField();
+        txtPassActual.setPromptText("Requerido para guardar cambios");
+
+        // Nueva Contraseña
+        Label lblPassNueva = new Label("Nueva Contraseña:");
+        PasswordField txtPassNueva = new PasswordField();
+        txtPassNueva.setPromptText("Dejar vacío si no desea cambiarla");
+
+        // Confirmar Nueva Contraseña
+        Label lblPassConfirm = new Label("Confirmar Nueva:");
+        PasswordField txtPassConfirm = new PasswordField();
+        txtPassConfirm.setPromptText("Repita la nueva contraseña");
+
+        grid.addRow(0, lblNombre, txtNombre);
+        grid.addRow(1, new Separator(), new Separator()); // Separador visual
+        grid.addRow(2, lblPassActual, txtPassActual);
+        grid.addRow(3, lblPassNueva, txtPassNueva);
+        grid.addRow(4, lblPassConfirm, txtPassConfirm);
+
+        // Botones
+        HBox botones = new HBox(15);
+        botones.setAlignment(Pos.CENTER);
+        
+        Button btnGuardar = new Button("Guardar Cambios");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+        
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+
+        // Lógica de Guardado
+        btnGuardar.setOnAction(e -> {
+            String nuevoNombre = txtNombre.getText().trim();
+            String passActual = txtPassActual.getText();
+            String passNueva = txtPassNueva.getText();
+            String passConfirm = txtPassConfirm.getText();
+
+            // Validaciones Básicas
+            if (nuevoNombre.isEmpty()) {
+                mostrarAlerta("Error", "El nombre no puede estar vacío.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            if (passActual.isEmpty()) {
+                mostrarAlerta("Seguridad", "Debes ingresar tu contraseña actual para confirmar los cambios.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Verificar contraseña actual
+            if (!catedratico.verificarContrasena(passActual)) {
+                mostrarAlerta("Error", "La contraseña actual es incorrecta.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Lógica de cambio de contraseña (si aplica)
+            boolean cambioPass = false;
+            if (!passNueva.isEmpty()) {
+                if (!passNueva.equals(passConfirm)) {
+                    mostrarAlerta("Error", "Las nuevas contraseñas no coinciden.", Alert.AlertType.ERROR);
+                    return;
+                }
+                if (passNueva.length() < 6) { // Ejemplo de regla de negocio
+                    mostrarAlerta("Seguridad", "La nueva contraseña debe tener al menos 6 caracteres.", Alert.AlertType.WARNING);
+                    return;
+                }
+                cambioPass = true;
+            }
+
+            // Aplicar Cambios
+            catedratico.setNombre(nuevoNombre);
+            if (cambioPass) {
+                catedratico.setContrasena(passNueva);
+            }
+
+            // Persistencia (Guardar en el CSV)
+            boolean exito = controlador.actualizarUsuario(catedratico);
+
+            if (exito) {
+                mostrarAlerta("Éxito", "Perfil actualizado correctamente.", Alert.AlertType.INFORMATION);
+                dialogStage.close();
+                // Refrescar vista principal si es necesario (ej: el nombre en la barra superior)
+                mostrar(); 
+            } else {
+                mostrarAlerta("Error Crítico", "No se pudo guardar en el archivo.", Alert.AlertType.ERROR);
+            }
+        });
+
+        btnCancelar.setOnAction(e -> dialogStage.close());
+
+        root.getChildren().addAll(lblTitulo, grid, botones);
+        Scene scene = new Scene(root, 500, 400);
+        dialogStage.setScene(scene);
+        dialogStage.showAndWait();
+    }
+
     
     // PANEL ASIGNAR TUTORIAS
     private VBox crearPanelAsignarTutorias() {
