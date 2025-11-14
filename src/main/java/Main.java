@@ -1,6 +1,7 @@
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 public class Main extends Application {
     
@@ -21,33 +22,62 @@ public class Main extends Application {
         controlador = new ControladorPrincipal(loginVista, this);
         loginVista.setControlador(controlador);
         loginVista.setOnCrearCuenta(() -> mostrarRegistro());
+
+        stage.setMaximized(false); // Quitar maximizado
+        stage.setResizable(false); // Quitar redimensionable
+        stage.setMinWidth(480);
+        stage.setMaxWidth(480);
+        stage.setMinHeight(620);
+        stage.setMaxHeight(620);
         
-        Scene scene = new Scene(loginVista, 480, 620);  // Tamaño ajustado
+        Scene scene = new Scene(loginVista, 480, 620);
         stage.setScene(scene);
         stage.setTitle("Gestor de Tutorías UVG - Iniciar Sesión");
 
-        // Forzamos a que la ventana NO esté maximizada
-        stage.setMaximized(false);
-        
-        stage.setResizable(false);  // NO REDIMENSIONABLE
-        stage.centerOnScreen();     // CENTRAR EN PANTALLA
+        // Usar Thread.sleep en un hilo separado para evitar bloquear la UI
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            Platform.runLater(() -> {
+                stage.setWidth(480);
+                stage.setHeight(620);
+                stage.centerOnScreen();
+            });
+        }).start();
     }
     
     private void mostrarRegistro() {
-        // Asumiendo que tienes una clase VistaRegistro
-        // (El archivo VistaRegistro.java que subiste)
         VistaRegistro registroVista = new VistaRegistro(); 
         registroVista.setControlador(controlador);
         registroVista.setOnCancel(() -> mostrarLogin());
         
-        Scene scene = new Scene(registroVista, 550, 680);  // Tamaño ajustado para registro
+        stage.setMaximized(false); // Quitar maximizado
+        stage.setResizable(false); // Quitar redimensionable
+        stage.setMinWidth(550);
+        stage.setMaxWidth(550);
+        stage.setMinHeight(680);
+        stage.setMaxHeight(680);
+
+        Scene scene = new Scene(registroVista, 550, 680);
         stage.setScene(scene);
         stage.setTitle("Gestor de Tutorías UVG - Registro de Usuario");
 
-        stage.setMaximized(false);
-        
-        stage.setResizable(false);  // NO REDIMENSIONABLE
-        stage.centerOnScreen();
+        // Usar Thread.sleep en un hilo separado para evitar bloquear la UI
+        new Thread(() -> {
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            Platform.runLater(() -> {
+                stage.setWidth(550);
+                stage.setHeight(680);
+                stage.centerOnScreen();
+            });
+        }).start();
     }
 
     public static void main(String[] args) {

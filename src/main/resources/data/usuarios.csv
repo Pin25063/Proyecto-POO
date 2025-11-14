@@ -1,5 +1,5 @@
 idUsuario;nombre;correo;contrasena;rol;materias;tarifa
-1;Juan Perez;perez@uvg.edu.gt;juan123;ESTUDIANTE
+1;Juan Perez;perez@uvg.edu.gt;juan123;ESTUDIANTE;;
 2;Ana Gomez;gomez@uvg.edu.gt;ana123;TUTOR;Estadistica,Matematica,Quimica;150.0
 3;Carlos Ruiz;ruiz@uvg.edu.gt;carlos123;CATEDRATICO;Fisica,Programacion;
 4;Laura Martinez;mar@uvg.edu.gt;laura123;TUTOR;Programacion,Quimica;150.0
@@ -16,3 +16,4 @@ idUsuario;nombre;correo;contrasena;rol;materias;tarifa
 15;Maria Martinez;mmartinez@uvg.edu.gt;maria72;TUTOR;Estadistica,Fisica;150.0
 16;Jose Perez;jperez@uvg.edu.gt;jose88;TUTOR;Fisica,Matematica,Quimica;175.0
 17;Ana Soto;asoto@uvg.edu.gt;ana44;TUTOR;Fisica;125.0
+18;Sebastian Garcia;gar@uvg.edu.gt;sebas123;CATEDRATICO;Estadistica,Matematica,Quimica,Programacion,Fisica;

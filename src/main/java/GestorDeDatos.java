@@ -158,12 +158,12 @@ public class GestorDeDatos {
 
                 // Construir la nueva linea con datos actualizados
                 String lineaNueva = sesionActualizada.getIdSesion() + SEP
-                                  + sesionActualizada.getEstudianteId() + SEP
-                                  + sesionActualizada.getTutorId() + SEP
-                                  + sesionActualizada.getMateria() + SEP
-                                  + sesionActualizada.getFecha() + SEP
-                                  + sesionActualizada.getHora() + SEP
-                                  + sesionActualizada.getEstado();
+                                + sesionActualizada.getEstudianteId() + SEP
+                                + sesionActualizada.getTutorId() + SEP
+                                + sesionActualizada.getMateria() + SEP
+                                + sesionActualizada.getFecha() + SEP
+                                + sesionActualizada.getHora() + SEP
+                                + sesionActualizada.getEstado();
                 
                 // Reemplazar la línea vieja con la nueva en la lista
                 todasLasLineas.set(i, lineaNueva);
@@ -225,5 +225,88 @@ public class GestorDeDatos {
             bw.write(linea.toString()); // escribe la línea construida en el archivo
             bw.write(NL); // escribe nueva línea
         } 
-    } 
+    }
+
+    // Actualiza la información de un usuario específico dentro del archivo CSV
+    // lee todo el archivo, modifica la línea del usuario y reescribe el archivo completo.
+    public void actualizarUsuarioEnCSV(Usuario usuarioActualizado) throws IOException {
+
+        // Lista temporal para guardar todas las líneas del archivo original
+        List<String> todasLasLineas = new ArrayList<>();
+        boolean usuarioEncontrado = false;
+
+        // lee el archivo completo en memoria
+        // se usa try-with-resources para asegurar que el lector se cierre automáticamente
+        // un try-with-resources declara recursos que se cierran automáticamente al salir del bloque
+        // BufferedReader br declara un lector con buffering que facilita leer el archivo línea por línea
+        try (BufferedReader br = Files.newBufferedReader(USUARIOS, StandardCharsets.UTF_8)) {
+            String linea;
+            while ((linea = br.readLine()) != null) { // br.readLine lee la siguiente línea del archivo y la devuelve como String
+                todasLasLineas.add(linea);
+            }
+        }
+
+        // Buscar y reemplazar la línea del usuario
+        for (int i = 0; i < todasLasLineas.size(); i++) {
+            String linea = todasLasLineas.get(i);
+            // se divide la línea por punto y coma para analizar sus campos
+            String[] campos = SEP_PATTERN.split(linea, -1);
+            
+            // El ID está en la posición 0 se valida que no sea una línea vacía.
+            if (campos.length > 0 && !campos[0].isBlank()) {
+                try {
+                    // El ID del usuario siempre está en la primera posición
+                    int idEnLinea = Integer.parseInt(campos[0].trim());
+                    
+                    // se compara si el ID de la línea coincide con el del usuario que queremos editar.
+                    if (idEnLinea == usuarioActualizado.getIdUsuario()) {
+                        // Reconstruir la línea con los datos nuevos
+                        StringBuilder nuevaLinea = new StringBuilder();
+                        nuevaLinea.append(usuarioActualizado.getIdUsuario()).append(SEP)
+                                .append(usuarioActualizado.getNombre()).append(SEP) // Nuevo nombre
+                                .append(usuarioActualizado.getCorreo()).append(SEP)
+                                .append(usuarioActualizado.getContrasena()).append(SEP) // nueva contraseña
+                                .append(usuarioActualizado.getRol());
+
+                        // Manejo específico para recuperar datos extra que no se editan aquí
+                        // pero deben mantenerse en el CSV
+                        if (usuarioActualizado instanceof Tutor) {
+                            Tutor t = (Tutor) usuarioActualizado;
+                            // se vuelve a unir las materias y se añade la tarifa
+                            nuevaLinea.append(SEP).append(String.join(",", t.getMaterias())).append(SEP).append(t.getTarifa());
+
+                        } else if (usuarioActualizado instanceof Catedratico) {
+                            Catedratico c = (Catedratico) usuarioActualizado;
+                            // se vuelven a unir los cursos a cargo
+                            nuevaLinea.append(SEP).append(String.join(",", c.getCursosACargo())).append(SEP); // la tarifa se queda vacía
+
+                        } else {
+                            // Estudiante
+                            nuevaLinea.append(SEP).append(SEP);
+                        }
+
+                        // se reemplaza la línea antigua por la nueva en nuestra lista en memoria
+                        todasLasLineas.set(i, nuevaLinea.toString());
+                        usuarioEncontrado = true;
+                        break;
+                    }
+                } catch (NumberFormatException e) {
+                    continue; // Si el ID no es un número se salta la línea
+                }
+            }
+        }
+
+        if (!usuarioEncontrado) {
+            throw new IOException("Usuario no encontrado para actualizar");
+        }
+
+        // Reescribir el archivo
+        // TRUNCATE_EXISTING borra el contenido anterior para escribir el nuevo
+        try (BufferedWriter bw = Files.newBufferedWriter(USUARIOS, StandardCharsets.UTF_8, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING)) {
+            for (String linea : todasLasLineas) {
+                bw.write(linea);
+                bw.write(NL); // se añade el salto de línea al final
+            }
+        }
+    }
 }

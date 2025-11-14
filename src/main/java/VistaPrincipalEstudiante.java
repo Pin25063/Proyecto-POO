@@ -24,6 +24,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.Tooltip;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
@@ -31,6 +32,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontWeight;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 
 public class VistaPrincipalEstudiante {
     
@@ -39,6 +41,7 @@ public class VistaPrincipalEstudiante {
     private Stage stage;
     private Main mainApp;
     private BorderPane layoutPrincipal;
+    private Stage dialogStage;
     
     // Labels para mostrar información
     private Label lblNombre, lblCorreo, lblId;
@@ -74,16 +77,27 @@ public class VistaPrincipalEstudiante {
         layoutPrincipal.setCenter(contenidoInicial); // Panel de contenido en el centro
 
         // Crear escena con el layout principal y definimos su tamaño inicial
-        Scene escena = new Scene(layoutPrincipal, 1100, 700);
-        stage.setScene(escena);  // establecer la escena en la ventana principal
-        stage.setTitle("Panel del Estudiante - Gestor de Tutorías UVG"); // Título de ventana
-        // establecer tamaño mínimo para evitar deformaciones
+        // Eliminar restricciones de tamaño previas (del login/registro)
+        stage.setMinWidth(Double.MIN_VALUE);
+        stage.setMaxWidth(Double.MAX_VALUE);
+        stage.setMinHeight(Double.MIN_VALUE);
+        stage.setMaxHeight(Double.MAX_VALUE);
+        
+        stage.setResizable(true);
         stage.setMinWidth(900);
         stage.setMinHeight(600);
-        // iniciar maximizado pero permitir al usuario cambiar el tamaño después
+
+        // 2. Creamos y ponemos la ESCENA 
+        Scene escena = new Scene(layoutPrincipal, 1100, 700);
+        stage.setScene(escena);
+        stage.setTitle("Panel del Estudiante - Gestor de Tutorías UVG");
+
+        // 3. Maximizamos la VENTANA DESPUÉS de poner la escena
         stage.setMaximized(true);
-        stage.setResizable(true);
-        stage.show(); // mostrar ventana al cliente
+        stage.toFront();
+        stage.requestFocus();
+        
+        stage.show(); // mostrar ventana al cliente 
     }
 
     // Métodos privados para construir las partes de la UI
@@ -109,7 +123,16 @@ public class VistaPrincipalEstudiante {
         // Crear botón para cerrar sesión
         Button btnCerrarSesion = new Button("Cerrar Sesión");
         btnCerrarSesion.setStyle("-fx-background-color: #d12a17ff; -fx-text-fill: white; -fx-font-weight: bold;");
-        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());
+
+        btnCerrarSesion.setOnAction(e -> {
+            // Verificar si la ventana de edición existe y está abierta
+            if (dialogStage != null && dialogStage.isShowing()) {
+                dialogStage.close(); // La cerramos a la fuerza
+            }
+            
+            // Volver al login
+            mainApp.mostrarLogin();
+        });
 
         // Añadir los componentes al HBox
         barra.getChildren().addAll(lblTitulo, espaciador, lblBienvenida, btnCerrarSesion);
@@ -293,81 +316,134 @@ public class VistaPrincipalEstudiante {
     }
 
     // Abrir diálogo de edición
-    private void abrirEdicionPerfil() {
-        Stage dialogStage = new Stage();
-        dialogStage.setTitle("Editar Perfil");
+    private void abrirEdicionPerfil() { 
+
+        // se utiliza el atributo de la clase en lugar de variable local
+        if (this.dialogStage == null) {
+            this.dialogStage = new Stage();
+        }
+        dialogStage.setTitle("Editar Perfil - Estudiante");
+
+        // se hace que la ventana dialogStage pertenezca a la ventana principal
+        dialogStage.initOwner(this.stage);
         
         VBox contenido = new VBox(15);
         contenido.setPadding(new Insets(20));
         contenido.setAlignment(Pos.CENTER);
+        contenido.setStyle("-fx-background-color: #f4f4f4;");
         
         Label titulo = new Label("Editar Información Personal");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
         titulo.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+
+        // Gridpane para ordenar los campos
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
         
         // Campos editables
-        Label lblNuevoNombre = new Label("Nombre:");
+        Label lblNombre = new Label("Nombre Completo:");
         TextField txtNombre = new TextField(estudianteActual.getNombre());
-        txtNombre.setPrefWidth(300);
+        txtNombre.setPrefWidth(250);
+        // No se puede editar el nombre por seguridad
+        txtNombre.setDisable(true);
         
-        Label lblNuevoCorreo = new Label("Correo:");
+        Label lblCorreo = new Label("Correo:");
         TextField txtCorreo = new TextField(estudianteActual.getCorreo());
         txtCorreo.setPrefWidth(300);
         txtCorreo.setDisable(true);
-        txtCorreo.setTooltip(new Tooltip("El correo no puede modificarse"));
+
+        // Contraseña actual (por seguridad)
+        Label lblPassActual = new Label("Contraseña Actual:");
+        PasswordField txtPassActual = new PasswordField();
+        txtPassActual.setPromptText("Requerido para guardar cambios");
         
-        Label lblNuevaPass = new Label("Nueva Contraseña (opcional):");
-        PasswordField txtPass = new PasswordField();
-        txtPass.setPrefWidth(300);
-        txtPass.setPromptText("Dejar vacío para mantener la actual");
+        // Nueva Contraseña
+        Label lblNuevaPass = new Label("Nueva Contraseña:");
+        PasswordField txtNuevaPass = new PasswordField();
+        txtNuevaPass.setPromptText("Repita la nueva contraseña");
+
+        // Confirmar Nueva Contraseña
+        Label lblConfirmPass = new Label("Confirmar Nueva:");
+        PasswordField txtConfirmPass = new PasswordField();
+        txtConfirmPass.setPromptText("Repita la nueva contraseña");
+
+        // Añadir componentes al GRID
+        grid.addRow(0, lblNombre, txtNombre);
+        grid.addRow(1, lblCorreo, txtCorreo);
+        grid.addRow(2, new Separator(), new Separator()); // Separador visual
+        grid.addRow(3, lblPassActual, txtPassActual);
+        grid.addRow(4, lblNuevaPass, txtNuevaPass);
+        grid.addRow(5, lblConfirmPass, txtConfirmPass);
+
         
         // Botones
-        HBox botones = new HBox(10);
+        HBox botones = new HBox(15);
         botones.setAlignment(Pos.CENTER);
         
         Button btnGuardar = new Button("Guardar Cambios");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+
         Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
         
-        btnGuardar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15; -fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold;");
-        btnCancelar.setStyle("-fx-font-size: 13px; -fx-padding: 8 15 8 15;");
-        
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+
         btnGuardar.setOnAction(e -> {
-            String nuevoNombre = txtNombre.getText().trim();
-            String nuevaPass = txtPass.getText().trim();
-            
-            if (nuevoNombre.isEmpty()) {
-                mostrarError("Error", "El nombre no puede estar vacío");
+            String passActual = txtPassActual.getText();
+            String passNueva = txtNuevaPass.getText();
+            String passConfirm = txtConfirmPass.getText();
+
+            if (passActual.isEmpty()) {
+                mostrarError("Seguridad", "Debe ingresar su contraseña actual para confirmar los cambios.");
+                return;
+            }
+
+            if (!estudianteActual.verificarContrasena(passActual)) {
+                mostrarError("Error", "La contraseña actual es incorrecta.");
                 return;
             }
             
-            if (!nuevoNombre.equals(estudianteActual.getNombre())) {
-                mostrarInfo("Edición", "Nombre actualizado correctamente");
-                lblNombre.setText("Nombre: " + nuevoNombre);
+            boolean cambioPass = false;
+            if (!passNueva.isEmpty()) {
+                if (!passNueva.equals(passConfirm)) {
+                    mostrarError("Error", "Las nuevas contraseñas no coinciden.");
+                    return;
+                }
+                if (passNueva.length() < 6) { // Ejemplo de regla de negocio
+                    mostrarError("Seguridad", "La nueva contraseña debe tener al menos 6 caracteres.");
+                    return;
+                }
+                cambioPass = true;
             }
-            
-            if (!nuevaPass.isEmpty()) {
-                mostrarInfo("Edición", "Contraseña actualizada correctamente");
+
+            // Aplicar cambios
+            if (cambioPass) {
+                estudianteActual.setContrasena(passNueva);
             }
-            
-            dialogStage.close();
+
+            // Persistencia
+            boolean exito = controlador.actualizarUsuario(estudianteActual);
+
+            if (exito) {
+                mostrarError("Éxito", "Perfil actualizado correctamente.");
+                dialogStage.close();
+                // Refrescar vista principal si es necesario (ej: el nombre en la barra superior)
+                mostrar(); 
+            } else {
+                mostrarError("Error Crítico", "No se pudo guardar en el archivo.");
+            }
         });
         
         btnCancelar.setOnAction(e -> dialogStage.close());
         
-        botones.getChildren().addAll(btnGuardar, btnCancelar);
-        
-        contenido.getChildren().addAll(
-            titulo,
-            new Separator(),
-            lblNuevoNombre, txtNombre,
-            lblNuevoCorreo, txtCorreo,
-            lblNuevaPass, txtPass,
-            new Separator(),
-            botones
-        );
-        
-        Scene scene = new Scene(contenido, 400, 400);
+        contenido.getChildren().addAll(titulo, grid, botones);
+        Scene scene = new Scene(contenido, 500, 400);
         dialogStage.setScene(scene);
-        dialogStage.show();
+
+        dialogStage.setResizable(false);
+        dialogStage.showAndWait();
     }
 
     // MÉTODOS AUXILIARES para alertas

@@ -19,6 +19,7 @@ public class VistaPrincipalCatedratico {
     private Stage stage;
     private Main mainApp; // Referencia a la aplicación principal para poder cerrar sesión.
     private BorderPane layoutPrincipal;
+    private Stage dialogStage;
 
     public VistaPrincipalCatedratico(ControladorPrincipal controlador, Catedratico catedratico, Stage stage, Main mainApp) {
         this.controlador = controlador;
@@ -50,16 +51,27 @@ public class VistaPrincipalCatedratico {
         layoutPrincipal.setLeft(menuLateral); // menú a la izquierda
         layoutPrincipal.setCenter(contenidoInicial); // Panel de contenido en el centro
 
-        // Crear escena con el layout principal y definimos su tamaño inicial
+        // 1. Preparamos la VENTANA para que PUEDA maximizarse
+        // Eliminar restricciones de tamaño previas (del login/registro)
+        stage.setMinWidth(Double.MIN_VALUE);
+        stage.setMaxWidth(Double.MAX_VALUE);
+        stage.setMinHeight(Double.MIN_VALUE);
+        stage.setMaxHeight(Double.MAX_VALUE);
+        
+        stage.setResizable(true);
+        stage.setMinWidth(900);
+        stage.setMinHeight(600);
+
+        // 2. Creamos y ponemos la ESCENA 
         Scene escena = new Scene(layoutPrincipal, 1100, 700);
         stage.setScene(escena);  // establecer la escena en la ventana principal
         stage.setTitle("Panel del Catedrático - Gestor de Tutorías UVG"); // Título de ventana
-        // establecer tamaño mínimo para evitar deformaciones
-        stage.setMinWidth(900);
-        stage.setMinHeight(600);
-        // iniciar maximizado pero permitir al usuario cambiar el tamaño después
+
+        // 3. Maximizamos la VENTANA DESPUÉS de poner la escena
         stage.setMaximized(true);
-        stage.setResizable(true);
+        stage.toFront();
+        stage.requestFocus();
+
         // asegurar que la ventana quede en primer plano
         stage.toFront();
         stage.requestFocus();
@@ -89,10 +101,20 @@ public class VistaPrincipalCatedratico {
         
         // Crear botón para cerrar sesión
         Button btnCerrarSesion = new Button("Cerrar Sesión");
+
         // Estilo para hacerlo rojo y de texto blanco
         btnCerrarSesion.setStyle("-fx-background-color: #d12a17ff; -fx-text-fill: white; -fx-font-weight: bold;");
+
         // Se define la acción que se ejecuta al hacer clic llamando al método mostrarLogin() de la clase Main
-        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());
+        btnCerrarSesion.setOnAction(e -> {
+            // Verificar si la ventana de edición existe y está abierta
+            if (dialogStage != null && dialogStage.isShowing()) {
+                dialogStage.close(); // La cerramos a la fuerza
+            }
+            
+            // Volver al login
+            mainApp.mostrarLogin();
+        });
 
         // Añadir los los componentes al HBox en el orden en que deben aparecer
         barra.getChildren().addAll(lblTitulo, espaciador, lblBienvenida, btnCerrarSesion);
@@ -113,18 +135,20 @@ public class VistaPrincipalCatedratico {
 
         // Crear los botones de navegación usando un método auxiliar para no repetir código
         Button btnInicio = crearBotonMenu("INICIO");
+        Button btnPerfil = crearBotonMenu("Mi Perfil");
         Button btnAsignarTutorias = crearBotonMenu("Asignar Tutorías");
         Button btnReporteEstudiantes = crearBotonMenu("Reportes de Cursos");
         Button btnReporteTutores = crearBotonMenu("Reportes de Tutores");
 
         // Cada botón cambia el panel central del BorderPane
         btnInicio.setOnAction(e -> layoutPrincipal.setCenter(crearPanelInicio()));
+        btnPerfil.setOnAction(e -> layoutPrincipal.setCenter(crearPanelPerfil()));
         btnAsignarTutorias.setOnAction(e -> layoutPrincipal.setCenter(crearPanelAsignarTutorias()));
         btnReporteEstudiantes.setOnAction(e -> layoutPrincipal.setCenter(crearPanelReporteCursos()));
         btnReporteTutores.setOnAction(e -> layoutPrincipal.setCenter(crearPanelReporteTutores()));
         
         // Añadir los componentes al VBox, con un separador visual
-        menu.getChildren().addAll(lblMenu, new Separator(), btnInicio, btnAsignarTutorias, btnReporteEstudiantes, btnReporteTutores);
+        menu.getChildren().addAll(lblMenu, new Separator(), btnInicio, btnPerfil, btnAsignarTutorias, btnReporteEstudiantes, btnReporteTutores);
         return menu;
     }
     
@@ -151,6 +175,178 @@ public class VistaPrincipalCatedratico {
         panel.getChildren().addAll(lblTitulo, new Separator(), lblInfoTexto);
         return panel;
     }
+
+    // PANEL PERFIL
+    private VBox crearPanelPerfil() {
+        VBox panel = new VBox(20);
+        panel.setPadding(new Insets(40));
+        
+        Label lblTitulo = new Label("Mi Perfil");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        
+        // Tarjeta visual para agrupar la información
+        VBox tarjetaInfo = new VBox(15);
+        tarjetaInfo.setStyle("-fx-background-color: white; -fx-padding: 30; -fx-background-radius: 10; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 0);");
+        tarjetaInfo.setMaxWidth(600);
+
+        // se muestran los datos actuales del objeto
+        Label lblNombre = new Label("Nombre: " + catedratico.getNombre());
+        lblNombre.setFont(Font.font("Arial", 16));
+        
+        Label lblCorreo = new Label("Correo: " + catedratico.getCorreo());
+        lblCorreo.setFont(Font.font("Arial", 16));
+        
+        Label lblRol = new Label("Rol: CATEDRÁTICO");
+        lblRol.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        lblRol.setStyle("-fx-text-fill: #7f8c8d;");
+
+        // Botón que abre la ventana de edición
+        Button btnEditar = new Button("Editar Datos y Contraseña");
+        btnEditar.setStyle("-fx-background-color: #0a2e5a; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20;");
+        btnEditar.setOnAction(e -> abrirEdicionPerfil()); // Llamada al método de edición de perfil
+
+        tarjetaInfo.getChildren().addAll(lblNombre, lblCorreo, new Separator(), lblRol, btnEditar);
+        
+        // Añadir los componentes principales al panel
+        panel.getChildren().addAll(lblTitulo, tarjetaInfo);
+
+        return panel;
+    }
+
+    // SUBPANEL DE CREAR PERFIL ---> EDICION PERFIL
+    private void abrirEdicionPerfil() {
+
+        // se utiliza el atributo de la clase en lugar de variable local
+        if (this.dialogStage == null) {
+            this.dialogStage = new Stage();
+        }
+
+        dialogStage.setTitle("Editar Perfil - Catedrático");
+
+        // se hace que la ventana dialogStage pertenezca a la ventana principal
+        dialogStage.initOwner(this.stage);
+        
+        // Contenedor principal de la ventana
+        VBox root = new VBox(20);
+        root.setPadding(new Insets(25));
+        root.setAlignment(Pos.CENTER);
+        root.setStyle("-fx-background-color: #f4f4f4;");
+
+        Label lblTitulo = new Label("Actualizar Información");
+        lblTitulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        lblTitulo.setStyle("-fx-text-fill: #2c3e50;");
+
+        // Se utiliza GridPane para alinear etiquetas y campos en columnas ordenadas
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
+
+        // CAMPOS DE EDICIÓN
+
+        // Nombre
+        Label lblNombre = new Label("Nombre Completo:");
+        TextField txtNombre = new TextField(catedratico.getNombre());
+        txtNombre.setPrefWidth(250);
+        // No se puede editar el nombre por seguridad
+        txtNombre.setDisable(true);
+
+        // Contraseña Actual (Por Seguridad)
+        Label lblPassActual = new Label("Contraseña Actual:");
+        PasswordField txtPassActual = new PasswordField();
+        txtPassActual.setPromptText("Requerido para guardar cambios");
+
+        // Nueva Contraseña
+        Label lblPassNueva = new Label("Nueva Contraseña:");
+        PasswordField txtPassNueva = new PasswordField();
+        txtPassNueva.setPromptText("Dejar vacío si no desea cambiarla");
+
+        // Confirmar Nueva Contraseña
+        Label lblPassConfirm = new Label("Confirmar Nueva:");
+        PasswordField txtPassConfirm = new PasswordField();
+        txtPassConfirm.setPromptText("Repita la nueva contraseña");
+
+        // Se añade todo al GRID
+        grid.addRow(0, lblNombre, txtNombre);
+        grid.addRow(1, new Separator(), new Separator()); // Separador visual
+        grid.addRow(2, lblPassActual, txtPassActual);
+        grid.addRow(3, lblPassNueva, txtPassNueva);
+        grid.addRow(4, lblPassConfirm, txtPassConfirm);
+
+        // Botones de acción
+        HBox botones = new HBox(15);
+        botones.setAlignment(Pos.CENTER);
+        
+        Button btnGuardar = new Button("Guardar Cambios");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+        
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white;");
+
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+
+        // Lógica del botón de Guardado
+        btnGuardar.setOnAction(e -> {
+            String passActual = txtPassActual.getText();
+            String passNueva = txtPassNueva.getText();
+            String passConfirm = txtPassConfirm.getText();
+
+            // Validaciones Básicas
+            if (passActual.isEmpty()) {
+                mostrarAlerta("Seguridad", "Debes ingresar tu contraseña actual para confirmar los cambios.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Verificar contraseña actual
+            if (!catedratico.verificarContrasena(passActual)) {
+                mostrarAlerta("Error", "La contraseña actual es incorrecta.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // Lógica de cambio de contraseña (si aplica)
+            boolean cambioPass = false;
+            if (!passNueva.isEmpty()) {
+                if (!passNueva.equals(passConfirm)) {
+                    mostrarAlerta("Error", "Las nuevas contraseñas no coinciden.", Alert.AlertType.ERROR);
+                    return;
+                }
+                // verificar la longitud mínima
+                if (passNueva.length() < 6) {
+                    mostrarAlerta("Seguridad", "La nueva contraseña debe tener al menos 6 caracteres.", Alert.AlertType.WARNING);
+                    return;
+                }
+                cambioPass = true;
+            }
+
+            // Aplicar Cambios
+            // se actualiza el objeto en memoria
+            if (cambioPass) {
+                catedratico.setContrasena(passNueva);
+            }
+
+            // Persistencia (Guardar en el CSV)
+            boolean exito = controlador.actualizarUsuario(catedratico);
+
+            if (exito) {
+                mostrarAlerta("Éxito", "Perfil actualizado correctamente.", Alert.AlertType.INFORMATION);
+                dialogStage.close(); // se cierra la ventana
+                mostrar(); // Refrescar la vista principal para ver el nuevo nombre en la barra superior
+            } else {
+                mostrarAlerta("Error Crítico", "No se pudo guardar en el archivo.", Alert.AlertType.ERROR);
+            }
+        });
+
+        // Acción cancelar, se cierra la ventana
+        btnCancelar.setOnAction(e -> dialogStage.close());
+
+        root.getChildren().addAll(lblTitulo, grid, botones);
+        Scene scene = new Scene(root, 500, 400);
+        dialogStage.setScene(scene);
+
+        dialogStage.setResizable(false);
+        dialogStage.showAndWait(); // showAndWait bloquea la ventana principal hasta que se cierre esta
+    }
+
     
     // PANEL ASIGNAR TUTORIAS
     private VBox crearPanelAsignarTutorias() {
@@ -169,87 +365,122 @@ public class VistaPrincipalCatedratico {
         // ComboBox: Menu desplegable para seleccionar Estudiantes
         ComboBox<Usuario> cmbEstudiante = new ComboBox<>();
         cmbEstudiante.setPromptText("Seleccionar ESTUDIANTE"); // texto mostrado por defecto en el ComboBox
+        cmbEstudiante.setPrefWidth(250);
 
         // Se filtra la lista de todos los usuarios para obtener solo a los estudiantes.
-        List<Usuario> estudiantes = new ArrayList<>();
+        // List<Usuario> estudiantes = new ArrayList<>();
         List<Usuario> todosLosUsuarios = controlador.getListaDeUsuarios();
 
         // Recorrer la lista completa
         for (Usuario usuario : todosLosUsuarios) {
             if (usuario.getRol() == Rol.ESTUDIANTE) {
-                estudiantes.add(usuario);
+                cmbEstudiante.getItems().add(usuario);
             }
         }
-        cmbEstudiante.getItems().addAll(estudiantes); // Se añaden los estudiantes al menú
+
+        // ComboBox CURSO (Cursos del Catedrático)
+        ComboBox<String> cmbCurso = new ComboBox<>();
+        cmbCurso.setPromptText("Seleccionar Curso");
+        cmbCurso.setPrefWidth(250);
+        cmbCurso.getItems().addAll(catedratico.getCursosACargo());
         
         // ComboBox para Tutores
         ComboBox<Usuario> cmbTutor = new ComboBox<>();
-        cmbTutor.setPromptText("Seleccionar TUTOR");
+        cmbTutor.setPromptText("Primero seleccione un curso");
+        cmbTutor.setPrefWidth(250);
+        cmbTutor.setDisable(true); // Deshabilitado hasta que elijan materia
         
-        // Se filtra la lista de todos los usuarios para obtener solo a los tutores.
-        List<Usuario> tutores = new ArrayList<>();
-
-        for (Usuario usuario : todosLosUsuarios) {
-            if (usuario.getRol() == Rol.TUTOR) {
-                tutores.add(usuario);
-            }
-        }
-        cmbTutor.getItems().addAll(tutores);
         
-        // ComboBox para Cursos del Catedrático
-        ComboBox<String> cmbCurso = new ComboBox<>();
-        cmbCurso.setPromptText("Seleccionar Curso");
-
-        cmbCurso.getItems().addAll(catedratico.getCursosACargo()); // se obtiene solo los cursos de este catedrático.
-
-        // Boton para confirmar la asignacion
-        Button btnAsignar = new Button("Confirmar Asignación");
-        btnAsignar.setStyle("-fx-background-color: #0e853fff; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
-
-        // Logica del boton ASIGNAR
-        btnAsignar.setOnAction(e -> {
-            // obtener los valores seleccionados en el ComboBox
-            Usuario est = cmbEstudiante.getValue();
-            Usuario tut = cmbTutor.getValue();
-
-            String nombreCurso = cmbCurso.getValue();
+        // ---> LÓGICA DE FILTRADO: Cuando se selecciona un CURSO
+        cmbCurso.setOnAction(e -> {
+            String cursoSeleccionado = cmbCurso.getValue();
             
-            // Validar que se haya seleccionado una opcione en cada menú
-            if (est == null || tut == null || nombreCurso == null || nombreCurso.isEmpty()) {
-                mostrarAlerta("CAMPOS INCOMPLETOS", "Por favor, selecciona un estudiante, un tutor y un curso", Alert.AlertType.WARNING);
-                return; // se detiene si algo falla
-            }
-
-            // Llamar al método del controlador de administradores para que haga la lógica
-            Sesion sesionAsignada = controladorAdmin.asignarTutoria(est.getIdUsuario(), tut.getIdUsuario(), nombreCurso);
+            // Limpiar selección anterior de tutor
+            cmbTutor.getItems().clear();
+            cmbTutor.setValue(null);
             
-            // Verificar si la asignacion fue exitosa
-            if (sesionAsignada != null) {
-                mostrarAlerta("EXITO", "Tutoría para '" + nombreCurso + "' asignada a " + est.getNombre() + " con el tutor " + tut.getNombre() + ".", Alert.AlertType.INFORMATION);
-                // Se limpian los ComboBox para una nueva asignación
-                cmbEstudiante.setValue(null);
-                cmbTutor.setValue(null);
-                cmbCurso.setValue(null);
-            } else {
-                // Mensaje de error si algo falla
-                mostrarAlerta("Error", "No se pudo asignar la tutoría. Verifica la consola para más detalles.", Alert.AlertType.ERROR);
+            if (cursoSeleccionado != null) {
+                // Buscar tutores que den esa materia
+                List<Usuario> tutoresFiltrados = new ArrayList<>();
+                
+                for (Usuario usuario : todosLosUsuarios) {
+                    if (usuario.getRol() == Rol.TUTOR) {
+                        Tutor t = (Tutor) usuario;
+                        // Verificamos si el tutor tiene la materia en su lista
+                        // Usamos un bucle para comparar ignorando mayúsculas/minúsculas por seguridad
+                        for (String materiaTutor : t.getMaterias()) {
+                            if (materiaTutor.trim().equalsIgnoreCase(cursoSeleccionado.trim())) {
+                                tutoresFiltrados.add(t);
+                                break; 
+                            }
+                        }
+                    }
+                }
+
+                if (tutoresFiltrados.isEmpty()) {
+                    cmbTutor.setPromptText("No hay tutores para esta materia");
+                    cmbTutor.setDisable(true);
+                } else {
+                    cmbTutor.getItems().addAll(tutoresFiltrados);
+                    cmbTutor.setPromptText("Seleccionar TUTOR");
+                    cmbTutor.setDisable(false); // Habilitamos el combo
+                }
             }
         });
 
-        // Añadir componentes al GridPane en posiciones específicas (columna, fila)
-        formulario.add(new Label("Estudiante:"), 0, 0);
+        // Boton para confirmar
+        Button btnAsignar = new Button("Confirmar Asignación");
+        btnAsignar.setStyle("-fx-background-color: #0e853fff; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px;");
+
+        // Lógica del botón ASIGNAR
+        btnAsignar.setOnAction(e -> {
+            Usuario est = cmbEstudiante.getValue();
+            Usuario tut = cmbTutor.getValue();
+            String nombreCurso = cmbCurso.getValue();
+            
+            // Validaciones
+            if (est == null || nombreCurso == null || tut == null) {
+                mostrarAlerta("CAMPOS INCOMPLETOS", "Por favor, asegúrate de seleccionar estudiante, curso y tutor.", Alert.AlertType.WARNING);
+                return;
+            }
+
+            // Llamar al controlador
+            Sesion sesionAsignada = controladorAdmin.asignarTutoria(est.getIdUsuario(), tut.getIdUsuario(), nombreCurso);
+            
+            if (sesionAsignada != null) {
+                mostrarAlerta("EXITO", "Tutoría para '" + nombreCurso + "' asignada a " + est.getNombre() + " con el tutor " + tut.getNombre() + ".", Alert.AlertType.INFORMATION);
+                
+                // Resetear campos
+                cmbEstudiante.setValue(null);
+                cmbCurso.setValue(null);
+                cmbTutor.setValue(null);
+                cmbTutor.setDisable(true);
+                cmbTutor.setPromptText("Primero seleccione un curso");
+            } else {
+                mostrarAlerta("Error", "No se pudo asignar la tutoría. Verifica la consola.", Alert.AlertType.ERROR);
+            }
+        });
+
+        // Añadir componentes al GridPane (Reordenado para flujo lógico)
+        // Fila 0: Estudiante
+        formulario.add(new Label("1. Estudiante:"), 0, 0);
         formulario.add(cmbEstudiante, 1, 0);
-        formulario.add(new Label("Tutor:"), 0, 1);
-        formulario.add(cmbTutor, 1, 1);
-        formulario.add(new Label("Curso:"), 0, 2);
-        formulario.add(cmbCurso, 1, 2);
         
-        // Añadir los componentes principales al panel
+        // Fila 1: Curso (Ahora va segundo)
+        formulario.add(new Label("2. Curso:"), 0, 1);
+        formulario.add(cmbCurso, 1, 1);
+        
+        // Fila 2: Tutor (Ahora va tercero porque depende del curso)
+        formulario.add(new Label("3. Tutor Disponible:"), 0, 2);
+        formulario.add(cmbTutor, 1, 2);
+        
+        // Añadir al panel
         panel.getChildren().addAll(lblTitulo, formulario, btnAsignar);
         return panel;
+
     }
 
-    // PANEL REPORTECURSOS
+    // PANEL REPORTE DE CURSOS
     private VBox crearPanelReporteCursos() {
         VBox panel = new VBox(20);
         panel.setPadding(new Insets(40));
@@ -260,23 +491,26 @@ public class VistaPrincipalCatedratico {
         // ComboBox para que el catedrático elija de cuál de sus cursos quiere ver el reporte
         ComboBox<String> cmbCurso = new ComboBox<>();
         cmbCurso.setPromptText("Seleccione uno de sus cursos para ver el reporte");
-        cmbCurso.getItems().addAll(catedratico.getCursosACargo());
-        cmbCurso.setMaxWidth(Double.MAX_VALUE); // Hacer que ocupe todo el ancho disponible
+        cmbCurso.setPrefWidth(400);
+        
+        // Llenamos con los cursos del catedrático
+        if (catedratico.getCursosACargo() != null) {
+            cmbCurso.getItems().addAll(catedratico.getCursosACargo());
+        }
 
-        // TextArea es un área de texto de múltiples líneas, ideal para mostrar reportes
+        // TextArea es un área de texto de múltiples líneas para el reporte
         TextArea txtReporte = new TextArea();
         txtReporte.setEditable(false); // El usuario no puede modificar el texto
         txtReporte.setPrefHeight(400); // Altura preferida
-        txtReporte.setFont(Font.font("Monospaced", 12)); // fuente y tamaño
+        txtReporte.setFont(Font.font("Noto Sans", 18)); // Fuente tipo código para alineación
         txtReporte.setPromptText("El reporte del curso seleccionado se mostrará aquí...");
 
-        // Cuando el catedrático selecciona un curso, se genera el reporte.
+        // Acción: Cuando el catedrático selecciona un curso, se genera el reporte.
         cmbCurso.setOnAction(e -> {
             String cursoSeleccionado = cmbCurso.getValue();
             
-            // Chequear validez del curso
             if (cursoSeleccionado != null) {
-                // Se llama al controlador para generar el reporte
+                // Se llama al controlador para generar el reporte (String)
                 String reporte = controladorAdmin.generarReporteConsolidadoCurso(cursoSeleccionado);
                 // Mostrar resultado en TextArea
                 txtReporte.setText(reporte);
@@ -285,7 +519,6 @@ public class VistaPrincipalCatedratico {
 
         panel.getChildren().addAll(lblTitulo, cmbCurso, txtReporte);
         return panel;
-
     }
 
 
@@ -299,7 +532,7 @@ public class VistaPrincipalCatedratico {
         TextArea txtReporte = new TextArea();
         txtReporte.setEditable(false);
         txtReporte.setPrefHeight(500);
-        txtReporte.setFont(Font.font("Monospaced", 12));
+        txtReporte.setFont(Font.font("Noto-Sans", 18));
         
         // Generamos y mostramos el reporte inmediatamente al entrar a esta vista.
         String reporte = controladorAdmin.generarReporteDesempenoTutores();
