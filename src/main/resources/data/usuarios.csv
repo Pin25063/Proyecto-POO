@@ -16,3 +16,4 @@ idUsuario;nombre;correo;contrasena;rol;materias;tarifa
 15;Maria Martinez;mmartinez@uvg.edu.gt;maria72;TUTOR;Estadistica,Fisica;150.0
 16;Jose Perez;jperez@uvg.edu.gt;jose88;TUTOR;Fisica,Matematica,Quimica;175.0
 17;Ana Soto;asoto@uvg.edu.gt;ana44;TUTOR;Fisica;125.0
+18;Sebastian Garcia;gar@uvg.edu.gt;sebas123;CATEDRATICO;Estadistica,Matematica,Quimica,Programacion,Fisica;
