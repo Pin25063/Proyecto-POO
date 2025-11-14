@@ -41,6 +41,7 @@ public class VistaPrincipalEstudiante {
     private Stage stage;
     private Main mainApp;
     private BorderPane layoutPrincipal;
+    private Stage dialogStage;
     
     // Labels para mostrar información
     private Label lblNombre, lblCorreo, lblId;
@@ -122,7 +123,16 @@ public class VistaPrincipalEstudiante {
         // Crear botón para cerrar sesión
         Button btnCerrarSesion = new Button("Cerrar Sesión");
         btnCerrarSesion.setStyle("-fx-background-color: #d12a17ff; -fx-text-fill: white; -fx-font-weight: bold;");
-        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());
+
+        btnCerrarSesion.setOnAction(e -> {
+            // Verificar si la ventana de edición existe y está abierta
+            if (dialogStage != null && dialogStage.isShowing()) {
+                dialogStage.close(); // La cerramos a la fuerza
+            }
+            
+            // Volver al login
+            mainApp.mostrarLogin();
+        });
 
         // Añadir los componentes al HBox
         barra.getChildren().addAll(lblTitulo, espaciador, lblBienvenida, btnCerrarSesion);
@@ -306,9 +316,16 @@ public class VistaPrincipalEstudiante {
     }
 
     // Abrir diálogo de edición
-    private void abrirEdicionPerfil() {
-        Stage dialogStage = new Stage();
+    private void abrirEdicionPerfil() { 
+
+        // se utiliza el atributo de la clase en lugar de variable local
+        if (this.dialogStage == null) {
+            this.dialogStage = new Stage();
+        }
         dialogStage.setTitle("Editar Perfil - Estudiante");
+
+        // se hace que la ventana dialogStage pertenezca a la ventana principal
+        dialogStage.initOwner(this.stage);
         
         VBox contenido = new VBox(15);
         contenido.setPadding(new Insets(20));
@@ -326,11 +343,13 @@ public class VistaPrincipalEstudiante {
         grid.setAlignment(Pos.CENTER);
         
         // Campos editables
-        Label lblNuevoNombre = new Label("Nombre Completo:");
+        Label lblNombre = new Label("Nombre Completo:");
         TextField txtNombre = new TextField(estudianteActual.getNombre());
         txtNombre.setPrefWidth(250);
+        // No se puede editar el nombre por seguridad
+        txtNombre.setDisable(true);
         
-        Label lblNuevoCorreo = new Label("Correo:");
+        Label lblCorreo = new Label("Correo:");
         TextField txtCorreo = new TextField(estudianteActual.getCorreo());
         txtCorreo.setPrefWidth(300);
         txtCorreo.setDisable(true);
@@ -351,8 +370,8 @@ public class VistaPrincipalEstudiante {
         txtConfirmPass.setPromptText("Repita la nueva contraseña");
 
         // Añadir componentes al GRID
-        grid.addRow(0, lblNuevoNombre, txtNombre);
-        grid.addRow(1, lblNuevoCorreo, txtCorreo);
+        grid.addRow(0, lblNombre, txtNombre);
+        grid.addRow(1, lblCorreo, txtCorreo);
         grid.addRow(2, new Separator(), new Separator()); // Separador visual
         grid.addRow(3, lblPassActual, txtPassActual);
         grid.addRow(4, lblNuevaPass, txtNuevaPass);
@@ -372,15 +391,9 @@ public class VistaPrincipalEstudiante {
         botones.getChildren().addAll(btnGuardar, btnCancelar);
 
         btnGuardar.setOnAction(e -> {
-            String nuevoNombre = txtNombre.getText().trim();
             String passActual = txtPassActual.getText();
             String passNueva = txtNuevaPass.getText();
             String passConfirm = txtConfirmPass.getText();
-            
-            if (nuevoNombre.isEmpty()) {
-                mostrarError("Error", "El nombre no puede estar vacío");
-                return;
-            }
 
             if (passActual.isEmpty()) {
                 mostrarError("Seguridad", "Debe ingresar su contraseña actual para confirmar los cambios.");
@@ -406,7 +419,6 @@ public class VistaPrincipalEstudiante {
             }
 
             // Aplicar cambios
-            estudianteActual.setNombre(nuevoNombre);
             if (cambioPass) {
                 estudianteActual.setContrasena(passNueva);
             }

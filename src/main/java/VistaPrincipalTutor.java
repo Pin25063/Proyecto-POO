@@ -14,6 +14,7 @@ public class VistaPrincipalTutor {
     private Stage stage;
     private Main mainApp;
     private BorderPane layoutPrincipal;
+    private Stage dialogStage;
     
     // Colores de la aplicación
     private final String COLOR_PRIMARIO = "#2c3e50"; // Azul marino
@@ -84,7 +85,16 @@ public class VistaPrincipalTutor {
 
         Button btnCerrarSesion = new Button("Cerrar Sesión");
         btnCerrarSesion.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; -fx-text-fill: white; -fx-font-weight: bold;");
-        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());
+
+        btnCerrarSesion.setOnAction(e -> {
+            // Verificar si la ventana de edición existe y está abierta
+            if (dialogStage != null && dialogStage.isShowing()) {
+                dialogStage.close(); // La cerramos a la fuerza
+            }
+            
+            // Volver al login
+            mainApp.mostrarLogin();
+        });
 
         barra.getChildren().addAll(lblTitulo, espaciador, lblUsuario, btnCerrarSesion);
         return barra;
@@ -437,51 +447,169 @@ public class VistaPrincipalTutor {
         return panel;
     }
 
-    private void mostrarEdicionPerfil() {
+    private void mostrarEdicionPerfil() { 
+
+        // se utiliza el atributo de la clase en lugar de variable local
+        if (this.dialogStage == null) {
+            this.dialogStage = new Stage();
+        }
+
+        dialogStage.setTitle("Editar Perfil - Tutor");
+
+        // se hace que la ventana dialogStage pertenezca a la ventana principal
+        dialogStage.initOwner(this.stage);
+
         VBox contenidoEdicion = new VBox(15);
         contenidoEdicion.setPadding(new Insets(40));
-        contenidoEdicion.setAlignment(Pos.TOP_CENTER);
+        contenidoEdicion.setAlignment(Pos.CENTER);
+        contenidoEdicion.setStyle("-fx-background-color: #f4f4f4;");
 
-        Label titulo = new Label("Editar Información");
-        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 24));
+        Label titulo = new Label("Actualizar Información");
+        titulo.setFont(Font.font("Arial", FontWeight.BOLD, 18));
+        titulo.setStyle("-fx-text-fill: #2c3e50;");
 
-        VBox formulario = new VBox(10);
-        formulario.setStyle("-fx-background-color: white; -fx-padding: 20px; -fx-background-radius: 5px;");
+        // GridPane para el formulario
+        GridPane grid = new GridPane();
+        grid.setHgap(15);
+        grid.setVgap(15);
+        grid.setAlignment(Pos.CENTER);
 
+        // CAMPOS
+
+        // Nombre
+        Label lblNombre = new Label("Nombre Completo:");
+        TextField txtNombre = new TextField(tutorActual.getNombre());
+        txtNombre.setPrefWidth(250);
+        // No se puede editar el nombre por seguridad
+        txtNombre.setDisable(true);
+
+        // Tarifa
         Label lblTarifa = new Label("Tarifa por Hora (Q):");
         TextField txtTarifa = new TextField(String.valueOf(tutorActual.getTarifa()));
+        txtTarifa.setPromptText("Ej: 150.0");
 
-        Label lblPass = new Label("Nueva Contraseña (Opcional):");
-        PasswordField txtPass = new PasswordField();
+        // Contraseña Actual
+        Label lblPassActual = new Label("Contraseña Actual:");
+        PasswordField txtPassActual = new PasswordField();
+        txtPassActual.setPromptText("Requerido para guardar");
 
-        HBox botones = new HBox(10);
+        // Nueva Contraseña
+        Label lblPassNueva = new Label("Nueva Contraseña:");
+        PasswordField txtPassNueva = new PasswordField();
+        txtPassNueva.setPromptText("Opcional");
+
+        // Confirmar Nueva Contraseña
+        Label lblPassConfirm = new Label("Confirmar Nueva:");
+        PasswordField txtPassConfirm = new PasswordField();
+        txtPassConfirm.setPromptText("Repetir nueva contraseña");
+        
+        // Añadir al Grid
+        grid.addRow(0, lblNombre, txtNombre);
+        grid.addRow(1, lblTarifa, txtTarifa);
+        grid.addRow(2, new Separator(), new Separator());
+        grid.addRow(3, lblPassActual, txtPassActual);
+        grid.addRow(4, lblPassNueva, txtPassNueva);
+        grid.addRow(5, lblPassConfirm, txtPassConfirm);
+
+        HBox botones = new HBox(15);
         botones.setAlignment(Pos.CENTER);
 
         Button btnGuardar = new Button("Guardar Cambios");
-        btnGuardar.setStyle("-fx-background-color: " + COLOR_SECUNDARIO + "; -fx-text-fill: white; -fx-font-weight: bold;");
+        btnGuardar.setStyle("-fx-background-color: #27ae60; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        Button btnCancelar = new Button("Cancelar");
+        btnCancelar.setStyle("-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-weight: bold;");
+
+        botones.getChildren().addAll(btnGuardar, btnCancelar);
+        
+        // Lógica de guardar
         btnGuardar.setOnAction(e -> {
+            String tarifaTexto = txtTarifa.getText().trim();
+            String passActual = txtPassActual.getText();
+            String passNueva = txtPassNueva.getText();
+            String passConfirm = txtPassConfirm.getText();
+
+            // Validaciones básicas
+            if (tarifaTexto.isEmpty()) {
+                mostrarError("Error", "La tarifa es obligatoria.");
+                return;
+            }
+
+            // Validación de Tarifa (Numérica)
+            double nuevaTarifa;
             try {
-                double nuevaTarifa = Double.parseDouble(txtTarifa.getText());
-                tutorActual.setTarifa(nuevaTarifa);
-                if (!txtPass.getText().isEmpty()) {
-                    tutorActual.setContrasena(txtPass.getText());
+                nuevaTarifa = Double.parseDouble(tarifaTexto);
+                if (nuevaTarifa < 0) {
+                    mostrarError("Error", "La tarifa no puede ser negativa.");
+                    return;
                 }
-                mostrarInfo("Éxito", "Perfil actualizado correctamente");
-                layoutPrincipal.setCenter(crearPanelPerfil());
             } catch (NumberFormatException ex) {
-                mostrarError("Error", "La tarifa debe ser un número válido");
+                mostrarError("Error", "La tarifa debe ser un número válido (Ej: 150.00).");
+                return;
+            }
+
+
+            // Se detecta si el usuario quiere cambiar la contraseña
+            // Si el campo de nueva contraseña NO ESTÁ VACÍO, se asume que quiere cambiarla
+            boolean intentandoCambiarPass = !passNueva.isEmpty();
+
+            if (intentandoCambiarPass) {
+
+                // VALIDACIONES DE SEGURIDAD (Solo si cambia contraseña)
+                // Contraseña actual obligatoria
+                if (passActual.isEmpty()) {
+                    mostrarError("Seguridad", "Para cambiar tu contraseña, debes confirmar tu contraseña actual");
+                    return;
+                }
+
+                // Verificar contraseña actual
+                if (!tutorActual.verificarContrasena(passActual)) {
+                    mostrarError("Seguridad", "La contraseña actual es incorrecta");
+                    return;
+                }
+
+                // Validar coincidencia
+                if (!passNueva.equals(passConfirm)) {
+                    mostrarError("Error", "Las nuevas contraseñas no coinciden");
+                    return;
+                }
+
+                // Validar longitud
+                if (passNueva.length() < 6) {
+                    mostrarError("Seguridad", "La nueva contraseña debe tener al menos 6 caracteres");
+                    return;
+                }
+            }
+
+            // APLICAR CAMBIOS
+            tutorActual.setTarifa(nuevaTarifa); // Se guarda la tarifa
+            if (intentandoCambiarPass) {
+                tutorActual.setContrasena(passNueva);
+            }
+
+            // Persistencia (Guardar en el CSV)
+            boolean exito = controlador.actualizarUsuario(tutorActual);
+
+            if (exito) {
+                mostrarInfo("Éxito", "Perfil actualizado correctamente.");
+                dialogStage.close();
+                // Se recarga el panel central para ver los cambios reflejados (nombre/tarifa)
+                layoutPrincipal.setCenter(crearPanelPerfil());
+            } else {
+                mostrarError("Error Crítico", "No se pudo guardar en el archivo.");
             }
         });
 
-        Button btnCancelar = new Button("Cancelar");
-        btnCancelar.setOnAction(e -> layoutPrincipal.setCenter(crearPanelPerfil()));
+        btnCancelar.setOnAction(e -> dialogStage.close());
 
-        botones.getChildren().addAll(btnGuardar, btnCancelar);
+        contenidoEdicion.getChildren().addAll(titulo, grid, botones);
+        
 
-        formulario.getChildren().addAll(lblTarifa, txtTarifa, lblPass, txtPass, botones);
-        contenidoEdicion.getChildren().addAll(titulo, formulario);
+        Scene scene = new Scene(contenidoEdicion, 550, 400);
+        dialogStage.setScene(scene);
+        dialogStage.setResizable(false);
 
-        layoutPrincipal.setCenter(contenidoEdicion);
+        dialogStage.showAndWait();
     }
 
     private void mostrarError(String titulo, String mensaje) {

@@ -19,6 +19,7 @@ public class VistaPrincipalCatedratico {
     private Stage stage;
     private Main mainApp; // Referencia a la aplicación principal para poder cerrar sesión.
     private BorderPane layoutPrincipal;
+    private Stage dialogStage;
 
     public VistaPrincipalCatedratico(ControladorPrincipal controlador, Catedratico catedratico, Stage stage, Main mainApp) {
         this.controlador = controlador;
@@ -100,10 +101,20 @@ public class VistaPrincipalCatedratico {
         
         // Crear botón para cerrar sesión
         Button btnCerrarSesion = new Button("Cerrar Sesión");
+
         // Estilo para hacerlo rojo y de texto blanco
         btnCerrarSesion.setStyle("-fx-background-color: #d12a17ff; -fx-text-fill: white; -fx-font-weight: bold;");
+
         // Se define la acción que se ejecuta al hacer clic llamando al método mostrarLogin() de la clase Main
-        btnCerrarSesion.setOnAction(e -> mainApp.mostrarLogin());
+        btnCerrarSesion.setOnAction(e -> {
+            // Verificar si la ventana de edición existe y está abierta
+            if (dialogStage != null && dialogStage.isShowing()) {
+                dialogStage.close(); // La cerramos a la fuerza
+            }
+            
+            // Volver al login
+            mainApp.mostrarLogin();
+        });
 
         // Añadir los los componentes al HBox en el orden en que deben aparecer
         barra.getChildren().addAll(lblTitulo, espaciador, lblBienvenida, btnCerrarSesion);
@@ -204,9 +215,16 @@ public class VistaPrincipalCatedratico {
 
     // SUBPANEL DE CREAR PERFIL ---> EDICION PERFIL
     private void abrirEdicionPerfil() {
-        // Se crea un nuevo Stage independiente
-        Stage dialogStage = new Stage();
+
+        // se utiliza el atributo de la clase en lugar de variable local
+        if (this.dialogStage == null) {
+            this.dialogStage = new Stage();
+        }
+
         dialogStage.setTitle("Editar Perfil - Catedrático");
+
+        // se hace que la ventana dialogStage pertenezca a la ventana principal
+        dialogStage.initOwner(this.stage);
         
         // Contenedor principal de la ventana
         VBox root = new VBox(20);
@@ -230,6 +248,8 @@ public class VistaPrincipalCatedratico {
         Label lblNombre = new Label("Nombre Completo:");
         TextField txtNombre = new TextField(catedratico.getNombre());
         txtNombre.setPrefWidth(250);
+        // No se puede editar el nombre por seguridad
+        txtNombre.setDisable(true);
 
         // Contraseña Actual (Por Seguridad)
         Label lblPassActual = new Label("Contraseña Actual:");
@@ -267,17 +287,11 @@ public class VistaPrincipalCatedratico {
 
         // Lógica del botón de Guardado
         btnGuardar.setOnAction(e -> {
-            String nuevoNombre = txtNombre.getText().trim();
             String passActual = txtPassActual.getText();
             String passNueva = txtPassNueva.getText();
             String passConfirm = txtPassConfirm.getText();
 
             // Validaciones Básicas
-            if (nuevoNombre.isEmpty()) {
-                mostrarAlerta("Error", "El nombre no puede estar vacío.", Alert.AlertType.ERROR);
-                return;
-            }
-
             if (passActual.isEmpty()) {
                 mostrarAlerta("Seguridad", "Debes ingresar tu contraseña actual para confirmar los cambios.", Alert.AlertType.WARNING);
                 return;
@@ -306,7 +320,6 @@ public class VistaPrincipalCatedratico {
 
             // Aplicar Cambios
             // se actualiza el objeto en memoria
-            catedratico.setNombre(nuevoNombre);
             if (cambioPass) {
                 catedratico.setContrasena(passNueva);
             }
